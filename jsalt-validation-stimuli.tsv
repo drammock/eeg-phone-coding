@@ -4,7 +4,7 @@ hun	b	ba	baba	doll
 hun	t̪	ta	tag	limb (of the body)
 hun	d̪	da	dada	nanny	dac	defiance
 hun	k	ka	kap	receive	kacag	laugh
-hun	ɡ	ga	gaz	weed; nefarious
+hun	ɡ	ga	gaz	weed, nefarious
 hun	ts	ca	cakk	scallop
 hun	dz	dza	madzag	string	bodza	elderberry	Does not occur word-initially
 hun	t̠ʃ	csa	csak	only
@@ -27,7 +27,7 @@ hun	l̪	la	láp	bog
 swa	p	pa	paa	roof
 swa	pʰ	p'a	paka	cat	paa	gazelle
 swa	ɓ	ba	baba	father
-swa	ᵐb	mba	mbali	far			
+swa	ᵐb	mba	mbali	far
 swa	t	ta	tai	eagle, vulture
 swa	tʰ	t'a	taka	dirt, garbage / want
 swa	ɗ	da	dada	sister	damu	blood
@@ -79,43 +79,43 @@ nld	ʋ	wa	wang	cheek
 nld	j	ja	jas	coat
 nld	l	la	lat	slat
 nld	x	cha	chagrijnig	grouchy
-hin	p	पा
-hin	pʰ	फा
-hin	b	बा
-hin	bʱ	भा
-hin	t̪	ता
-hin	t̪ʰ	था
-hin	d̪	दा
-hin	d̪ʱ	धा
-hin	ʈ	टा
-hin	ʈʰ	ठा
-hin	ɖ	डा
-hin	ɖʱ	ढा
-hin	k	का
-hin	kʰ	खा
-hin	ɡ	गा
-hin	ɡʱ	घा
-hin	t̠ʃ	चा
-hin	t̠ʃʰ	छा
-hin	d̠ʒ	जा
-hin	d̠ʒʱ	झा
-hin	m	मा
-hin	n	ना
-hin	ɳ	णा					not in phoneme list from Ohala 1999
-hin	ɲ	ञा					not in phoneme list from Ohala 1999
-hin	ŋ	ङा
-hin	ɾ	रा
-hin	ɽ	डा					same as ɖ ?
-hin	ɽʱ	ढा					same as ɖʱ ?
-hin	f	फा					same as p ?
-hin	s	सा
-hin	z	जा					same as d̠ʒ ?
-hin	ʃ	शा
-hin	ʂ	षा					not in phoneme list from Ohala 1999
-hin	h	हा
-hin	ʋ	वा
-hin	l	ला
-hin	j	या
+hin	p	पा	पा	stubborn			paa
+hin	pʰ	फा	फाँद	jump			phaamda
+hin	b	बा	बाँक	vise			baamka
+hin	bʱ	भा	भा	language			bhaa
+hin	t̪	ता	ताँगा	handsome			taamgaa
+hin	t̪ʰ	था	थांग	stash, nest			thaanga
+hin	d̪	दा	दाँत	prong, tooth			daamta
+hin	d̪ʱ	धा	धागा	thread, string			dhaagaa
+hin	ʈ	टा	टाँग	leg			taamga
+hin	ʈʰ	ठा	ठांसना	ram			thaansanaa
+hin	ɖ	डा	डांगर	livestock			daangara
+hin	ɖʱ	ढा	ढांकना	cover, muffle			dhaankanaa
+hin	k	का	का	of, by			kaa
+hin	kʰ	खा	खाँसना	cough			khaamsanaa
+hin	ɡ	गा	गाँती	bib			gaamtee
+hin	ɡʱ	घा	घाटा	cost			ghaataa
+hin	t̠ʃ	चा	चा	tea			chaa
+hin	t̠ʃʰ	छा	छाँव	shade			chhaamva
+hin	d̠ʒ	जा	जा	go!			jaa
+hin	d̠ʒʱ	झा	झाँकी	glimpse, peek			jhaamkee
+hin	m	मा	माँग	claim, demand			maamga
+hin	n	ना	नाँद	crib			naamda
+hin	ɳ	णा					marginal - not in phoneme list from Ohala 1999
+hin	ɲ	ञा					marginal - not in phoneme list from Ohala 1999
+hin	ŋ	ङा					not word initial
+hin	ɾ	रा	राकेट	rocket			raaketa
+hin	ɽ	ड़ा					not word initial
+hin	ɽʱ	ढ़ा					not word initial
+hin	f	फ़ा	फ़ानूस	paper lantern			faanoosa
+hin	s	सा	साँच	truth			saamcha
+hin	z	ज़ा	ज़ात	personality, character			zaata
+hin	ʃ	शा	शांत	soft, calm			shaanta
+hin	ʂ	षा	षाण्मासिक	half-yearly, bi-annual	षांड	bull	shaanmaasik (not in phoneme list from Ohala 1999)
+hin	h	हा	हाँक	cry			haamka
+hin	ʋ	वा	वांछा	desire			vaanchhaa
+hin	l	ला	लांगूल	tail			laangoola
+hin	j	या	यांत्रिक	mechanical			yaantrika
 cmn_p	p	bā	bā	eight
 cmn_p	pʰ	pā	pāxia	fall flat on the ground
 cmn_p	t	dā	dāpeì	pair up, match
@@ -147,7 +147,7 @@ cmn_s	k	嘎	嘎嘎	sound of a goose
 cmn_s	kʰ	咖	咖啡	coffee
 cmn_s	ts	扎	包扎	wrap up, pack
 cmn_s	tsʰ	擦	擦拭	wipe clean
-cmn_s	ʈʂ	査	山査	hawthorne fruit, haws
+cmn_s	ʈʂ	楂	山楂	hawthorne fruit, haws
 cmn_s	ʈʂʰ	叉	叉子	fork
 cmn_s	f	发	发展	development, growth
 cmn_s	s	撒	撒谎	tell lies
@@ -170,7 +170,7 @@ cmn_t	k	嘎	嘎嘎	sound of a goose
 cmn_t	kʰ	咖	咖啡	coffee
 cmn_t	ts	扎	包扎	wrap up, pack
 cmn_t	tsʰ	擦	擦拭	wipe clean
-cmn_t	ʈʂ	査	山査	hawthorne fruit, haws
+cmn_t	ʈʂ	楂	山楂	hawthorne fruit, haws
 cmn_t	ʈʂʰ	叉	叉子	fork
 cmn_t	f	發	發展	development, growth
 cmn_t	s	撒	撒謊	tell lies
