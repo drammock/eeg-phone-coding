@@ -1,37 +1,37 @@
-phone,syllable,word,translation
-p,pa,paa,roof
-pʰ,pa,paka,cat
-ɓ,ba,baba,father
-ᵐb,mba,mbali,far
-t,ta,tai,"eagle, vulture"
-tʰ,ta,taka,"dirt, garbage / want"
-ɗ,da,dada,sister
-ⁿd,nda,ndara,sandal
-t̠ʃ,cha,cha,dawn
-t̠ʃʰ,ch'a,chachu,yeast
-ʄ,ja,jani,leaf
-ᶮɟ,nja,njaa,hunger
-k,ka,kata,cut
-kʰ,ka,kaa,"land crab / charcoal"
-ɠ,ga,gamba,"tree bark"
-ᵑɡ,nga,ngapi,"how many?"
-m,ma,mama,mother
-n,na,nani,who?
-ɲ,nya,nyama,"meat, flesh"
-ŋ,ng'a,ng'amba,turtle
-ᶬv,mva,mvua,rain
-ⁿz,nza,anza,begin!
-v,va,vaa,"to wear"
-f,fa,faa,"to be useful"
-ð,dha,dhambi,"sin, crime"
-θ,tha,thalathini,thirty
-z,za,kuzaba,"slap, hit"
-s,sa,sana,very
-ʃ,sha,shata,"coconut oil"
-ɣ,gha,ghali,expensive
-x,kha,khamsini,fifty
-h,ha,hapa,here
-ɾ,ra,rafiki,friend
-l,la,landa,resemble
-j,ya,yaya,nursemaid
-w,wa,wapi,where?
+phone,syllable,word,highlight,translation
+p,pa,paa,,roof
+pʰ,pa,paka,,cat
+ɓ,ba,baba,,father
+ᵐb,mba,mbali,,far
+t,ta,tai,,"eagle, vulture"
+tʰ,ta,taka,,"dirt, garbage / want"
+ɗ,da,dada,,sister
+ⁿd,nda,ndara,,sandal
+t̠ʃ,cha,cha,,dawn
+t̠ʃʰ,cha,chachu,,yeast
+ʄ,ja,jani,,leaf
+ᶮɟ,nja,njaa,,hunger
+k,ka,kata,,cut
+kʰ,ka,kaa,,"land crab / charcoal"
+ɠ,ga,gamba,,"tree bark"
+ᵑɡ,nga,ngapi,,"how many?"
+m,ma,mama,,mother
+n,na,nani,,who?
+ɲ,nya,nyama,,"meat, flesh"
+ŋ,ng'a,ng'amba,,turtle
+ᶬv,mva,mvua,mv,rain
+ⁿz,nza,anza,,begin!
+v,va,vaa,,"to wear"
+f,fa,faa,,"to be useful"
+ð,dha,dhambi,,"sin, crime"
+θ,tha,thalathini,,thirty
+z,za,kuzaba,,"slap, hit"
+s,sa,sana,,very
+ʃ,sha,shata,,"coconut oil"
+ɣ,gha,ghali,,expensive
+x,kha,khamsini,,fifty
+h,ha,hapa,,here
+ɾ,ra,rafiki,,friend
+l,la,landa,,resemble
+j,ya,yaya,,nursemaid
+w,wa,wapi,,where?
