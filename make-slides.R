@@ -47,8 +47,8 @@ for (lang in langs) {
   fname <- paste0(lang, '.csv')
   df <- read.csv(fname)
   df$highlight[is.na(df$highlight)] <- ''
-  cairo_pdf(paste0(lang, '.pdf'), onefile=TRUE, width=8, height=4.5,
-            family=fonts[flang], bg='black')
+  cairo_pdf(file.path('slide-prompts', paste0(lang, '.pdf')), width=8, height=4.5,
+            onefile=TRUE, family=fonts[flang], bg='black')
   invisible(apply(df, 1, make_slide, lang))
   dev.off()
 }
