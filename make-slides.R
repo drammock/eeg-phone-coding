@@ -44,7 +44,7 @@ make_slide <- function(i, lang) {
 
 for (lang in langs) {
   flang <- ifelse(substr(lang,1,7)=='chinese', substr(lang,9,nchar(lang)), lang)
-  fname <- paste0(lang, '.csv')
+  fname <- file.path('wordlists', paste0(lang, '.csv'))
   df <- read.csv(fname)
   df$highlight[is.na(df$highlight)] <- ''
   if(!dir.exists('slide-prompts')) dir.create('slide-prompts')
