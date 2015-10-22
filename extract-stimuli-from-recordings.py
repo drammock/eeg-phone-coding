@@ -19,13 +19,13 @@ outdir = 'stimuli'
 subdirs = os.walk(indir).next()[1]
 
 for subdir in subdirs:
-    sd = op.join(indir, subdir)
-    files = os.listdir(sd)
+    inpath = op.join(indir, subdir)
+    outpath = op.join(outdir, subdir)
+    files = os.listdir(inpath)
     textgrids = [f for f in files if f[-9:] == '.TextGrid']
     for tg in textgrids:
         wavfile = op.splitext(tg)[0] + '.wav'
-        outpath = op.join(outdir, subdir)
         if not op.exists(outpath):
             os.makedirs(outpath)
-        call(['praat', 'extract-labeled-intervals.praat', op.join(sd, wavfile),
-              op.join(sd, tg), outpath, '1'])
+        call(['praat', 'extract-labeled-intervals.praat',
+              op.join(inpath, wavfile), op.join(inpath, tg), outpath, '1'])
