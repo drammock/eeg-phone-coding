@@ -27,5 +27,5 @@ for subdir in subdirs:
         wavfile = op.splitext(tg)[0] + '.wav'
         if not op.exists(outpath):
             os.makedirs(outpath)
-        call(['praat', 'extract-labeled-intervals.praat',
+        call(['praat', '--run', 'extract-labeled-intervals.praat',
               op.join(inpath, wavfile), op.join(inpath, tg), outpath, '1'])
