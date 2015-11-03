@@ -23,7 +23,7 @@ for subdir in subdirs:
     inpath = op.join(indir, subdir)
     tgpath = op.join(tgdir, subdir)
     outpath = op.join(outdir, subdir)
-    files = os.listdir(inpath)
+    files = os.listdir(tgpath)
     textgrids = [f for f in files if f[-9:] == '.TextGrid']
     for tg in textgrids:
         wavfile = op.splitext(tg)[0] + '.wav'

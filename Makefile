@@ -3,7 +3,9 @@ all: clean highpassed excised normed
 .PHONY: all clean
 
 clean:
-	rm -r stimuli/* stimuli-rms/* recordings-highpassed/*/*.wav
+	rm -rf stimuli/* 
+	rm -rf stimuli-rms/*
+	rm -rf recordings-highpassed/*
 
 highpassed: 
 	python highpass.py
