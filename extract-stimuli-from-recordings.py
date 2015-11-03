@@ -15,11 +15,13 @@ import os.path as op
 from subprocess import call
 
 indir = 'recordings-highpassed'
+tgdir = 'textgrids'
 outdir = 'stimuli'
 subdirs = os.walk(indir).next()[1]
 
 for subdir in subdirs:
     inpath = op.join(indir, subdir)
+    tgpath = op.join(tgdir, subdir)
     outpath = op.join(outdir, subdir)
     files = os.listdir(inpath)
     textgrids = [f for f in files if f[-9:] == '.TextGrid']
@@ -28,4 +30,4 @@ for subdir in subdirs:
         if not op.exists(outpath):
             os.makedirs(outpath)
         call(['praat', '--run', 'extract-labeled-intervals.praat',
-              op.join(inpath, wavfile), op.join(inpath, tg), outpath, '1'])
+              op.join(inpath, wavfile), op.join(tgpath, tg), outpath, '1'])
