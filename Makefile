@@ -1,9 +1,8 @@
-all: cleanall highpassed excised normed
-
-.PHONY: all cleanall
+all: highpassed excised normed
 
 cleanall: cleanhighpassed cleanexcised cleanrms
-	
+
+.PHONY: all cleanall
 
 cleanhighpassed:
 	rm -rf recordings-highpassed/*
