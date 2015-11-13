@@ -1,19 +1,26 @@
-all: clean highpassed excised normed
+all: cleanall highpassed excised normed
 
-.PHONY: all clean
+.PHONY: all cleanall
 
-clean:
-	rm -rf stimuli/* 
-	rm -rf stimuli-rms/*
+cleanall: cleanhighpassed cleanexcised cleanrms
+	
+
+cleanhighpassed:
 	rm -rf recordings-highpassed/*
 
-highpassed: 
+cleanexcised:
+	rm -rf stimuli/* 
+
+cleanrms:
+	rm -rf stimuli-rms/*
+
+highpassed: cleanhighpassed
 	python highpass.py
 
-excised: highpassed
+excised: cleanexcised
 	python extract-stimuli-from-recordings.py
 
-normed: excised
+normed: cleanrms
 	python rms-normalize-and-asciify.py
 
 slides: slide-prompts/%.pdf
