@@ -35,10 +35,10 @@ for subdir in subdirs:
     assert all([w[-4:] == '.wav' for w in wavfiles])
     for wavfile in wavfiles:
         wav, fs = read_wav(op.join(sd, wavfile))
+        mono = wav[0] if wav.ndim > 1 else wav  # convert to mono
         b, a = ss.butter(4, cutoff / (fs/2.), btype='high')
-        lp = ss.lfilter(b, a, wav)
-        out = lp[0] if lp.ndim > 1 else lp  # convert to mono
-        outsub = op.join(outdir, lxmap[subdir])
-        if not op.exists(outsub):
-            os.makedirs(outsub)
-        write_wav(op.join(outsub, wavfile), out, fs, overwrite=True)
+        hp = ss.lfilter(b, a, mono)
+        outsubdir = op.join(outdir, lxmap[subdir])
+        if not op.exists(outsubdir):
+            os.makedirs(outsubdir)
+        write_wav(op.join(outsubdir, wavfile), hp, fs, overwrite=True)
