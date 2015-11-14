@@ -22,7 +22,5 @@ excised: cleanexcised
 normed: cleanrms
 	python rms-normalize-and-asciify.py
 
-slides: slide-prompts/%.pdf
-
-slide-prompts/%.pdf: wordlists/%.csv
+slides:
 	Rscript make-slides.R
