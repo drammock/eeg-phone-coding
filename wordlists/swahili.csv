@@ -1,41 +1,41 @@
-phone,syllable,word,highlight,translation
-p,pa,paa,,roof
-pʰ,pa,paa,,gazelle
-pʰ,pa,paka,,cat
-ɓ,ba,baba,,father
-ᵐb,mba,mbali,,far
-tʰ,ta,tai,,"eagle, vulture"
-t,ta,takataka,,garbage
-ɗ,da,dada,,sister
-ⁿd,nda,ndama,,calf
-t̠ʃ,cha,cha,,dawn
-t̠ʃʰ,cha,chachu,,yeast
-ʄ,ja,jani,,leaf
-ᶮɟ,nja,njaa,,hunger
-k,ka,kadha,,etc.
-kʰ,ka,kata,,cut
-kʰ,ka,kaa,,crab
-ɠ,ga,ganda,,"tree bark"
-ᵑɡ,nga,ngapi,,"how many? how much?"
-m,ma,mama,,mother
-n,na,nani,,who?
-ɲ,nya,nyama,,"meat, flesh"
-ᶬv,mva,mvua,mv,rain
-ⁿz,nza,anza,,begin!
-v,va,vaa,,"to wear"
-f,fa,faa,,"to be useful"
-ð,dha,dhambi,,"sin, crime"
-θ,tha,thani,,"thinking, I thought"
-z,za,zaba,,"slap, hit"
-s,sa,sana,,very
-ʃ,sha,shaka,,"trouble, problem, doubt"
-ɣ,gha,ghali,,expensive
-x,kha,,,"(borrowed from arabic, usually [h])"
-h,ha,hapa,,here
-ɾ,ra,rafiki,,friend
-l,la,landa,,resemble
-j,ya,yaya,,nursemaid
-w,wa,wapi,,where?
-ɡ,ga,gamba,,turtle
-ᵑɡ,ng'a,ng'ang'ana,,"try, strive"
-ŋ,ng'a,ng'ambo,,farther
+phone,syllable,word,highlight,translation,male
+p,pa,paa,,roof,pʰ
+pʰ,pa,paa,,gazelle,
+pʰ,pa,paka,,cat,
+ɓ,ba,baba,,father,b
+ᵐb,mba,mbali,,far,
+tʰ,ta,tai,,"eagle, vulture",
+t,ta,takataka,,garbage,tʰ
+ɗ,da,dada,,sister,
+ⁿd,nda,ndama,,calf,
+t̠ʃ,cha,cha,,dawn,t̠ʃʰ
+t̠ʃʰ,cha,chachu,,yeast,
+ʄ,ja,jani,,leaf,t̠ʃ
+ᶮɟ,nja,njaa,,hunger,
+k,ka,kadha,,etc.,kʰ
+kʰ,ka,kata,,cut,
+kʰ,ka,kaa,,crab,
+ɠ,ga,ganda,,"tree bark",ɣ
+ᵑɡ,nga,ngapi,,"how many? how much?",
+m,ma,mama,,mother,
+n,na,nani,,who?,
+ɲ,nya,nyama,,"meat, flesh",
+ᶬv,mva,mvua,mv,rain,
+ⁿz,nza,anza,,begin!,
+v,va,vaa,,"to wear",
+f,fa,faa,,"to be useful",
+ð,dha,dhambi,,"sin, crime",
+θ,tha,thani,,"thinking, I thought",
+z,za,zaba,,"slap, hit",
+s,sa,sana,,very,
+ʃ,sha,shaka,,"trouble, problem, doubt",
+ɣ,gha,ghali,,expensive,
+x,kha,,,"(borrowed from arabic, usually [h])",
+h,ha,hapa,,here,
+ɾ,ra,rafiki,,friend,
+l,la,landa,,resemble,
+j,ya,yaya,,nursemaid,
+w,wa,wapi,,where?,
+ɡ,ga,gamba,,turtle,
+ᵑɡ,ng'a,ng'ang'ana,,"try, strive",
+ŋ,ng'a,ng'ambo,,farther,
