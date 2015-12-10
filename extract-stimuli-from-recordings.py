@@ -17,7 +17,7 @@ from subprocess import call
 indir = 'recordings-highpassed'
 tgdir = 'textgrids'
 outdir = 'stimuli'
-subdirs = os.walk(indir).next()[1]
+subdirs = os.walk(indir).next()[1]  # list of only *immediate* subdirs of indir
 
 for subdir in subdirs:
     inpath = op.join(indir, subdir)
