@@ -19,9 +19,20 @@ for intv to n_intv
 	if label$ <> ""
 		st = Get starting point: tier, intv
 		nd = Get end point: tier, intv
+		# prevent duplicate filenames
+		findex = 0
+		fnames = Create Strings as file list: "fnames", outdir$ + "*.wav"
+		nfiles = Get number of strings
+		for nfile to nfiles
+			selectObject: fnames
+			fname$ = Get string: nfile
+			if label$ + "-" + string$(findex) + ".wav" = fname$
+				findex = findex + 1
+			endif
+		endfor
 		selectObject: wv
 		tmp = Extract part: st, nd, "rectangular", 1, "no"
-		Save as WAV file: outdir$ + label$ + ".wav"
+		Save as WAV file: outdir$ + label$ + "-" + string$(findex) + ".wav"
 		Remove
 	endif
 endfor
