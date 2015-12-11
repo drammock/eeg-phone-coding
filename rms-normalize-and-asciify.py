@@ -54,7 +54,7 @@ asciify = {u'ʃa': 'esh',
            u'kʰa': 'k-aspirated',
            u't̠ʃʰa': 'tesh-aspirated',
            u'tʃʰa': 'tesh-aspirated',
-           u'ʈʂʰa': 't-retroflex-aspirated',
+           u'ʈʂʰa': 'ts-retroflex-aspirated',
            u'tsʰa': 'ts-aspirated',
            u'tɕʰa': 'tc-curl-aspirated',
            u'ɹa': 'r-turned',
@@ -90,6 +90,6 @@ for subdir in subdirs:
         wavout = wav * rms_out / rms_in
         if not op.exists(outpath):
             os.makedirs(outpath)
-        fname = asciify[syll] if syll in asciify.keys() else syll
+        fname = asciify[syll] if syll in asciify.keys() else syll[:-1]
         write_wav(op.join(outpath, fname + syll_ix + '.wav'), wavout, fs,
                   overwrite=True)
