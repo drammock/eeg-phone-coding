@@ -83,10 +83,13 @@ for subdir in subdirs:
     wavfiles = [f for f in files if f[-4:] == '.wav']
     for wavfile in wavfiles:
         syll = wavfile[:-6].decode('utf-8')
+        # retain token indices only for english syllables:
+        syll_ix = wavfile[-6:-4] if subdir[:3] in ['eng'] else ''
         wav, fs = read_wav(op.join(inpath, wavfile))
         rms_in = rms(wav)
         wavout = wav * rms_out / rms_in
         if not op.exists(outpath):
             os.makedirs(outpath)
         fname = asciify[syll] if syll in asciify.keys() else syll
-        write_wav(op.join(outpath, fname + '.wav'), wavout, fs, overwrite=True)
+        write_wav(op.join(outpath, fname + syll_ix + '.wav'), wavout, fs,
+                  overwrite=True)
