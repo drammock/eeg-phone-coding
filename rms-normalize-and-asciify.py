@@ -40,6 +40,7 @@ asciify = {u'ʃa': 'esh',
            u'ða': 'eth',
            u'θa': 'theta',
            u't̠ʃa': 'tesh',
+           u'tʃa': 'tesh',
            u'ʈʂa': 'ts-retroflex',
            u'ᵐba': 'b-prenasalized',
            u'ⁿda': 'd-prenasalized',
@@ -52,9 +53,22 @@ asciify = {u'ʃa': 'esh',
            u'tʰa': 't-aspirated',
            u'kʰa': 'k-aspirated',
            u't̠ʃʰa': 'tesh-aspirated',
+           u'tʃʰa': 'tesh-aspirated',
            u'ʈʂʰa': 't-retroflex-aspirated',
            u'tsʰa': 'ts-aspirated',
            u'tɕʰa': 'tc-curl-aspirated',
+           u'ɹa': 'r-turned',
+           u'ɽa': 'flap-retroflex',
+           u'ʈa': 't-retroflex',
+           u'ɽʱa': 'flap-retroflex-breathy',
+           u'ɡʱa': 'g-breathy',
+           u'bʱa': 'b-breathy',
+           u'd̪ʱa': 'd-dental-breathy',
+           u'ɖa': 'd-retroflex',
+           u'ɖʱa': 'd-retroflex-breathy',
+           u'd̠ʒʱa': 'dezh-breathy',
+           u'ʈʰa': 't-retroflex-aspirated',
+           u't̪ʰa': 't-dental-aspirated',
            }
 
 rms_out = 0.01
@@ -68,7 +82,7 @@ for subdir in subdirs:
     files = os.listdir(inpath)
     wavfiles = [f for f in files if f[-4:] == '.wav']
     for wavfile in wavfiles:
-        syll = wavfile[:-4].decode('utf-8')
+        syll = wavfile[:-6].decode('utf-8')
         wav, fs = read_wav(op.join(inpath, wavfile))
         rms_in = rms(wav)
         wavout = wav * rms_out / rms_in
