@@ -1,26 +1,26 @@
-phone,syllable,word,highlight,translation
-p,pa,pap,,priest
-b,ba,baba,,doll
-t̪,ta,tag,,"member of a group"
-d̪,da,dada,,nanny
-k,ka,kap,,receive
-ɡ,ga,gaz,,"weed, nefarious"
-ts,ca,cakk,,scallop
-dz,dza,madzag,,twine
-t̠ʃ,csa,csak,,only
-d̠ʒ,dzsa,bandzsa,,"squint, cross-eyed"
-c,tya,atya,,"father (priest)"
-ɟ,gya,gyapot,,cotton
-m,ma,ma,,today
-n̪,na,nap,,sun
-ɲ,nya,nyak,,neck
-f,fa,fa,,tree
-v,va,vág,vá,to cut
-s,sza,szag,,smell
-z,za,zacc,,"coffee grounds"
-ʃ,sa,sakk,,chess
-ʒ,zsa,zsabós,,ruffled
-h,ha,hat,,six
-r̪,ra,ragály,,epidemic
-j,ja,javak,,posessions
-l̪,la,láp,lá,bog
+phone,syllable,word,highlight,translation,female,result
+p,pa,pap,,priest,pʰa,transcribe-as-read
+b,ba,baba,,doll,,
+t̪,ta,tag,,"member of a group",t̪ʰa,transcribe-as-read
+d̪,da,dada,,nanny,,
+k,ka,kap,,receive,kʰa,transcribe-as-read
+ɡ,ga,gaz,,"weed, nefarious",,
+ts,ca,cakk,,scallop,tsʰa,transcribe-as-read
+dz,dza,madzag,,twine,,
+t̠ʃ,csa,csak,,only,t̠ʃʰa,transcribe-as-read
+d̠ʒ,dzsa,bandzsa,,"squint, cross-eyed",,
+c,tya,atya,,"father (priest)",cʰa,transcribe-as-read
+ɟ,gya,gyapot,,cotton,,
+m,ma,ma,,today,,
+n̪,na,nap,,sun,,
+ɲ,nya,nyak,,neck,,
+f,fa,fa,,tree,,
+v,va,vág,vá,"to cut",,
+s,sza,szag,,smell,,
+z,za,zacc,,"coffee grounds",,
+ʃ,sa,sakk,,chess,,
+ʒ,zsa,zsabós,,ruffled,,
+h,ha,hat,,six,,
+r̪,ra,ragály,,epidemic,,
+j,ja,javak,,posessions,,
+l̪,la,láp,lá,bog,,
