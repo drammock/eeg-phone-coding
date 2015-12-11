@@ -1,3 +1,5 @@
+#! /usr/bin/env praat
+
 form Extract wavs at labeled intervals
 	sentence wvfile
 	sentence tgfile
