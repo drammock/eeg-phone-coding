@@ -1,6 +1,6 @@
 all: highpassed excised normed
 
-cleanall: cleanhighpassed cleanexcised cleanrms
+cleanall: cleanhighpassed cleanexcised cleanrms cleanboundaries
 
 .PHONY: all cleanall
 
@@ -12,6 +12,9 @@ cleanexcised:
 
 cleanrms:
 	rm -rf stimuli-rms/*
+
+cleanboundaries:
+	rm -rf stimuli-tg/*
 
 highpassed: cleanhighpassed
 	python highpass.py
