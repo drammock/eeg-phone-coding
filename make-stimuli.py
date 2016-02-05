@@ -52,11 +52,18 @@ wav_and_fs = [read_wav(x) for x in allfiles]
 fs = [x[1] for x in wav_and_fs]
 assert_equal(len(set(fs)), 1)  # make sure sampling rate consistent
 fs = float(fs[0])
-wavs = np.array([x[0] for x in wav_and_fs])
+wavs = [x[0] for x in wav_and_fs]
 assert_equal(len(wavs), len(allfiles))  # make sure they all loaded
+# store wav data in one big array
+durs = np.array([x.shape[-1] for x in wavs])
+wavarray = np.zeros((len(wavs), 1, durs.max()))
+for ix, (wav, dur) in enumerate(zip(wavs, durs)):
+    wavarray[ix, :, :dur] = wav
+'''
 test_wavs = wavs[~train_indices]
 train_wavs = wavs[train_indices]
 train_indices = np.tile(range(len(train_wavs)), train_reps)
+'''
 del wavs, wav_and_fs
 
 # iterate over subjects
@@ -72,6 +79,7 @@ for subj in range(n_subj):
                                this_test_wavs[rep_test_indices]))
     this_order = rng.permutation(len(rep_wavs))
     this_wavs = rep_wavs[this_order]
-    this_isis = np.linspace(*isi_lims, len(this_wavs) - 1)
+    this_isis = np.linspace(*isi_lims, num=len(this_wavs) - 1)
+    # build trials and blocks
     this_stimdurs = np.array([x.shape[-1] for x in this_wavs])
-
+    np.vstack((this_stimdurs, this_isis))
