@@ -19,7 +19,8 @@ from expyfun.stimuli import read_wav, write_wav
 lxmap = {'hungarian-male': 'hun-m', 'hungarian-female': 'hun-f',
          'chinese-male': 'cmn-m', 'chinese-female': 'cmn-f',
          'swahili-male': 'swh-m', 'swahili-female': 'swh-f',
-         'english-male': 'eng-m', 'english-female': 'eng-f',
+         'english-male-1': 'eng-m1', 'english-female-1': 'eng-f1',
+         'english-male-2': 'eng-m2', 'english-female-2': 'eng-f2',
          'dutch-male': 'nld-m', 'dutch-female': 'nld-f',
          'hindi-male': 'hin-m', 'hindi-female': 'hin-f'}
 
