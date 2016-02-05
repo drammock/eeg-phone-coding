@@ -2,7 +2,7 @@ File type = "ooTextFile"
 Object class = "TextGrid"
 
 xmin = 0 
-xmax = 0.5056235827664399 
+xmax = 0.5239455782312925 
 tiers? <exists> 
 size = 1 
 item []: 
@@ -10,8 +10,8 @@ item []:
         class = "TextTier" 
         name = "boundary" 
         xmin = 0 
-        xmax = 0.5056235827664399 
+        xmax = 0.5239455782312925 
         points: size = 1 
         points [1]:
-            number = 0.14058427815570673 
+            number = 0.16204420296257033 
             mark = "" 
