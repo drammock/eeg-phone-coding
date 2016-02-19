@@ -10,6 +10,8 @@ This script makes audio stimuli from folders of component WAV files.
 # Created on Mon Nov 30 13:41:39 2015
 # License: BSD (3-clause)
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import os
 import numpy as np
 import pandas as pd
@@ -19,7 +21,6 @@ from itertools import combinations
 from expyfun.io import read_wav, write_wav
 from expyfun.stimuli import resample
 from pyglet.media import load as pygload
-
 
 # file paths
 workdir = os.getcwd()
@@ -49,7 +50,7 @@ write_wavs = True
 for stimdir in traindirs + testdirs + engtestdirs:
     stimpath = op.join(stimroot, stimdir)
     wavs = sorted(glob(op.join(stimpath, '*.wav')))
-    if stimdir in traindirs:  # exclude excess tokens
+    if stimdir in traindirs:  # include only 3 tokens (a few CVs have 4)
         wavs = [x for x in wavs if x[-5] in ('0', '1', '2')]
         trainfiles.extend(wavs)
     else:
@@ -75,21 +76,23 @@ nchan = nchan[0]
 if do_resample:
     wavs = [resample(x, fs_out, fs, n_jobs='cuda') for x in wavs]
     fs = float(fs_out)
-# store wav data in one big array
+# store wav data in one big array (shorter wavs zero-padded at end)
 wav_nsamps = np.array([x.shape[-1] for x in wavs])
-wavarray = np.zeros((len(wavs), nchan, wav_nsamps.max()))
+wav_array = np.zeros((len(wavs), nchan, wav_nsamps.max()))
 for ix, (wav, dur) in enumerate(zip(wavs, wav_nsamps)):
-    wavarray[ix, :, :dur] = wav
+    wav_array[ix, :, :dur] = wav
 del wavs, wav_and_fs
 
 # read in videos to get block durations
 videopaths = sorted(glob(op.join(videodir, '*.m4v')))
 videonames = [op.split(x)[1] for x in videopaths]
 videodurs = np.array([pygload(vp).duration for vp in videopaths])
-# initialize dataframe
+
+# initialize dataframe to store various params
 df = pd.DataFrame()
 
 for subj in range(n_subj):
+    print('subj {:02}, block'.format(subj), end=' ')
     # init some vars
     all_blocks_syll_order = list()
     all_blocks_onset_samp = list()
@@ -127,6 +130,7 @@ for subj in range(n_subj):
     all_blocks_max_nsamps = np.floor(this_video_durs * fs).astype(int)
     first_idx = 0
     for block_idx, this_block_max_nsamp in enumerate(all_blocks_max_nsamps):
+        print(block_idx, end=' ')
         # calculate which syllables will fit in this block
         rel_offsets = syll_offset_samp - syll_onset_samp[first_idx]
         if rel_offsets.max() < this_block_max_nsamp:
@@ -148,8 +152,8 @@ for subj in range(n_subj):
                                       this_block_syll_order):
             # patch syllable into block wav
             if write_wavs:
-                this_block_wav[:, onset:offset] = wavarray[idx, :,
-                                                           :wav_nsamps[idx]]
+                this_block_wav[:, onset:offset] = wav_array[idx, :,
+                                                            :wav_nsamps[idx]]
             # append record to data frame
             is_training = talkers[idx] in traindirs
             record = dict(subj=subj, block=block_idx,
@@ -161,12 +165,20 @@ for subj in range(n_subj):
         # write out block wav
         if write_wavs:
             fname = 'block-{:02}.wav'.format(block_idx)
-            write_wav(op.join(outdir, subjdir, fname), this_block_wav, fs)
+            write_wav(op.join(outdir, subjdir, fname), this_block_wav, int(fs),
+                      overwrite=True)
         # iterate
         first_idx = last_idx
         if first_idx == nsyll * nrep:
             break
+    print()  # newline between subjs
+# save dataframe (note the bytes on the separator... pandas bug)
+column_order = ['subj', 'block', 'vname', 'vdur', 'talker', 'syll', 'onset',
+                'offset', 'train']
+df.to_csv(op.join(paramdir, 'master-dataframe.tsv'), sep=b'\t', index=False,
+          columns=column_order)
 # save global params
-globalvars = dict(wavarray=wavarray, wav_nsamps=wav_nsamps, fs=fs)
+wavnames = [x[1+x.index(op.sep):] for x in allfiles]
+globalvars = dict(wav_array=wav_array, wav_nsamps=wav_nsamps, fs=fs,
+                  wavnames=wavnames)
 np.savez(op.join(paramdir, 'global-params.npz'), **globalvars)
-df.to_csv(op.join(paramdir, 'master-dataframe.tsv'), sep='\t', index=False)
