@@ -19,7 +19,7 @@ from glob import glob
 from os import path as op
 from itertools import combinations
 from expyfun.io import read_wav, write_wav
-from expyfun.stimuli import resample
+from expyfun.stimuli import resample, get_tdt_rates
 from pyglet.media import load as pygload
 
 # file paths
@@ -42,7 +42,7 @@ combos = list(combinations(testdirs, 2))
 trainfiles = list()
 testfiles = list()
 nrep = 20
-fs_out = 24414
+fs_out = get_tdt_rates()['25k']
 do_resample = True
 write_wavs = True
 
@@ -75,7 +75,7 @@ nchan = nchan[0]
 # resample to fs_out
 if do_resample:
     wavs = [resample(x, fs_out, fs, n_jobs='cuda') for x in wavs]
-    fs = float(fs_out)
+    fs = fs_out
 # store wav data in one big array (shorter wavs zero-padded at end)
 wav_nsamps = np.array([x.shape[-1] for x in wavs])
 wav_array = np.zeros((len(wavs), nchan, wav_nsamps.max()))
