@@ -12,8 +12,9 @@ This script plays audio and video.
 
 
 import numpy as np
-import pandas as pd
-import expyfun as ef
+from pandas import read_csv
+from expyfun import ExperimentController
+from expyfun.stimuli import get_tdt_rates
 from glob import glob
 import os.path as op
 
@@ -22,11 +23,11 @@ globalvars = np.load(op.join('params', 'global-params.npz'))
 wav_array = globalvars['wav_array']
 wav_nsamp = globalvars['wav_nsamps']
 wav_names = globalvars['wavnames'].tolist()
-fs = ef.stimuli.get_tdt_rates()['25k'] if round(globalvars['fs']) == 24414 \
-    else globalvars['fs']
+fs = (get_tdt_rates()['25k'] if round(globalvars['fs']) == 24414 else
+      globalvars['fs'])
 del globalvars
 # load & calc trial-level params
-df = pd.read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t')
+df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t')
 df['wav_path'] = df['talker'] + op.sep + df['syll'] + '.wav'
 df['wav_idx'] = [wav_names.index(x) for x in df['wav_path']]
 df['wav_nsamp'] = [wav_nsamp[x] for x in df['wav_idx']]
@@ -34,15 +35,21 @@ df['onset_sec'] = df['onset'] / fs
 df['offset_sec'] = df['offset'] / fs
 df['trial_id'] = (df['block'].astype(int).apply(format, args=('02',)) + '_' +
                   df['talker'] + '_' + df['syll'])
+digits = np.ceil(np.log2(wav_array.shape[0])).astype(int)
+df['ttl_id'] = df['wav_idx'].apply(np.binary_repr, width=digits)
+df['ttl_id'] = df['ttl_id'].apply(lambda x: [int(y) for y in list(x)])
+
 # video paths
 video = sorted(glob(op.join('videos', '*.m4v')))
 assert len(video) == 20
 
 # startup ExperimentController
+continue_key = 1
 ec_args = dict(exp_name='jsalt-follow-up', full_screen=True, enable_video=True,
-               participant='foo', session='1', version='dev', stim_rms=0.02,
-               stim_db=70.)
-with ef.ExperimentController(**ec_args) as ec:
+               participant='foo', session='1', version='dev', stim_rms=0.01,
+               stim_db=70., output_dir='expyfun-data-raw')
+
+with ExperimentController(**ec_args) as ec:
     screen_period = 1. / ec.estimate_screen_fs(60)
     subj = int(ec.session)
     audio = sorted(glob(op.join('stimuli-final', 'subj-{:02}'.format(subj),
@@ -51,60 +58,57 @@ with ef.ExperimentController(**ec_args) as ec:
     del audio
     assert blocks in (12, 13)
     # reduce data frame to subject-specific data
-    df = df[df['subj'].isin([subj])].reset_index(drop=True)
+    subj_df = df[df['subj'].isin([subj])].reset_index(drop=True)
     for block in range(blocks):
         # subset data frame for this block
-        this_df = df[df['block'].isin([block])].copy()
-        block_lens = df[['subj', 'block']].groupby('block').aggregate(np.size)
-        digits = np.ceil(np.log2(block_lens.max())).astype(int).values
-        this_df['ttl_id'] = this_df.index.to_series().apply(np.binary_repr,
-                                                            width=digits)
-        this_df['next_onset_sec'] = np.roll(this_df['onset_sec'].values, -1)
+        blk_df = subj_df[subj_df['block'].isin([block])].copy()
+        blk_len = df[['subj', 'block']].groupby('block').aggregate(np.size)
         # get the video file
-        assert len(set(this_df['vname'])) == 1
-        vname = this_df['vname'].values[0]
+        assert len(set(blk_df['vname'])) == 1
+        vname = blk_df['vname'].values[0]
         vpath = op.join('videos', vname)
         assert vpath in video
         ec.load_video(vpath)
         ec.video.set_scale(fill=True)
         ec.call_on_next_flip(ec.video.play)
-        # construct the full ttl id
-        ttl_base = np.binary_repr(subj, 4) + np.binary_repr(block, 4)
-        this_df['ttl_id'] = this_df['ttl_id'].apply(lambda x: ttl_base + x)
-        this_df['ttl_id'] = this_df['ttl_id'].apply(lambda x:
-                                                    [int(y) for y in list(x)])
+        # prepare syllable-level variables
+        strings = blk_df['trial_id'].values.astype(str)
+        floats = blk_df[['onset_sec', 'offset_sec']].values
+        ints = blk_df[['wav_idx', 'wav_nsamp']].values
+        lists = blk_df['ttl_id'].values
         # iterate through syllables
-        strings = this_df['trial_id'].values.astype(str)
-        floats = this_df[['onset_sec', 'offset_sec']].values
-        ints = this_df[['wav_idx', 'wav_nsamp']].values
-        objs = this_df['ttl_id'].values
-        ec.load_buffer(np.zeros((2, 24414)))
-        for ix, (trial_id, (onset, offset), (wav_idx, wav_nsamp),
-                 ttl_id) in enumerate(zip(strings, floats, ints, objs)):
-            #wav = wav_array[wav_idx, :, :wav_nsamp]
-            #ec.load_buffer(wav)
-            ec.identify_trial(ec_id=trial_id, ttl_id=ttl_id)
+        for ix, (trial_id, (onset, offset), (wav_idx, wav_dur_samps),
+                 ttl_id) in enumerate(zip(strings, floats, ints, lists)):
+            wav = wav_array[wav_idx, :, :wav_dur_samps]
+            ec.load_buffer(wav)
+            ec.identify_trial(ec_id=trial_id, ttl_id=dict(id_=ttl_id,
+                                                          wait_for_last=False,
+                                                          delay=0.01))
             # start initial stimulus
             if not ix:
-                t = ec.flip()
                 t_zero = ec.start_stimulus()
             # timing
-            this_audio_start = t_zero + onset - screen_period / 2
-            this_audio_stop = t_zero + offset
+            this_audio_start = t_zero + onset - screen_period * 0.9
+            this_audio_stop = t_zero + offset  # OK if stop is one flip late
             t = ec.get_time()
             if ix:
                 while t < this_audio_start:
                     t = ec.flip()
-                    #flips.append(t)
                 t = ec.start_stimulus()
             while t < this_audio_stop:
                 t = ec.flip()
-                #flips.append(t)
             ec.stop()
             ec.trial_ok()
-            #ec.flush()
-
-'''
-from matplotlib import pyplot as plt
-_ = plt.hist(np.diff(flips), bins=100)
-'''
+        msg = 'End of block {} of {}. Please wait...'.format(block + 1, blocks)
+        ec.screen_text(msg, live_keys=None)
+        ec.flip()
+        ec.delete_video()
+        ec.flush()
+        if block == blocks - 1:
+            msg = ('All done! Sit tight and we will come disconnect the EEG.')
+            max_wait = 5.
+        else:
+            msg = ('Take a break now if you like, then press {} to start the '
+                   'next block.'.format(continue_key))
+            max_wait = np.inf
+        ec.screen_prompt(msg, live_keys=[continue_key], max_wait=max_wait)
