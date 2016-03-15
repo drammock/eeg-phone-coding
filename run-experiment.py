@@ -16,6 +16,8 @@ from pandas import read_csv
 from expyfun import ExperimentController
 from expyfun.stimuli import get_tdt_rates
 from glob import glob
+from pyglet.image import ImageData
+from OpenGL.GL import GLubyte
 import os.path as op
 
 # load experiment parameters
@@ -28,7 +30,7 @@ fs = (get_tdt_rates()['25k'] if round(globalvars['fs']) == 24414 else
 del globalvars
 # load & calc trial-level params
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t')
-df['wav_path'] = df['talker'] + op.sep + df['syll'] + '.wav'
+df['wav_path'] = df['talker'] + '/' + df['syll'] + '.wav'  # do NOT use op.sep
 df['wav_idx'] = [wav_names.index(x) for x in df['wav_path']]
 df['wav_nsamp'] = [wav_nsamp[x] for x in df['wav_idx']]
 df['onset_sec'] = df['onset'] / fs
@@ -46,8 +48,8 @@ assert len(video) == 20
 # startup ExperimentController
 continue_key = 1
 ec_args = dict(exp_name='jsalt-follow-up', full_screen=True, enable_video=True,
-               participant='foo', session='1', version='dev', stim_rms=0.01,
-               stim_db=70., output_dir='expyfun-data-raw')
+               participant='foo', session='0', version='0ee0951',
+               stim_rms=0.01, stim_db=65., output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
     screen_period = 1. / ec.estimate_screen_fs(60)
@@ -57,6 +59,10 @@ with ExperimentController(**ec_args) as ec:
     blocks = len(audio)
     del audio
     assert blocks in (12, 13)
+    # black frame for breaks between blocks
+    pixels = np.zeros(3 * ec.window_size_pix.prod(), dtype=int).tolist()
+    raw_pixels = (GLubyte * len(pixels))(*pixels)
+    black_frame = ImageData(*ec.window_size_pix, format='RGB', data=raw_pixels)
     # reduce data frame to subject-specific data
     subj_df = df[df['subj'].isin([subj])].reset_index(drop=True)
     for block in range(blocks):
@@ -69,7 +75,7 @@ with ExperimentController(**ec_args) as ec:
         vpath = op.join('videos', vname)
         assert vpath in video
         ec.load_video(vpath)
-        ec.video.set_scale(fill=True)
+        ec.video.set_scale('fill')
         ec.call_on_next_flip(ec.video.play)
         # prepare syllable-level variables
         strings = blk_df['trial_id'].values.astype(str)
@@ -99,8 +105,10 @@ with ExperimentController(**ec_args) as ec:
                 t = ec.flip()
             ec.stop()
             ec.trial_ok()
+        ec.video.pause()
+        ec.video._texture.blit_into(black_frame, 0, 0, 0)
         msg = 'End of block {} of {}. Please wait...'.format(block + 1, blocks)
-        ec.screen_text(msg, live_keys=None)
+        ec.screen_text(msg)
         ec.flip()
         ec.delete_video()
         ec.flush()
