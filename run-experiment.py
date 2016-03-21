@@ -46,7 +46,7 @@ assert len(video) == 20
 # startup ExperimentController
 continue_key = 1
 ec_args = dict(exp_name='jsalt-follow-up', full_screen=True, enable_video=True,
-               participant='foo', session='0', version='dev',  # 0ee0951
+               participant='foo', session='0', version='dev',  # 0ee0951 (drammock, 6a74a7c)
                stim_rms=0.01, stim_db=65., output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
