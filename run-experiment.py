@@ -64,7 +64,7 @@ ec_args = dict(exp_name='jsalt-follow-up', full_screen=True,
                output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
-    ec.screen_prompt(instructions, max_wait=0.5)
+    ec.screen_prompt(instructions)
     subj = int(ec.session)
     audio = sorted(glob(op.join('stimuli-final', 'subj-{:02}'.format(subj),
                                 '*.wav')))
@@ -84,8 +84,6 @@ with ExperimentController(**ec_args) as ec:
         vname = blk_df['vname'].values[0]
         vpath = op.join('videos', vname)
         assert vpath in video
-        Popen([exe, '-f', '--no-audio', '--no-video-title', '--play-and-exit',
-               vpath])
         # prepare syllable-level variables
         strings = blk_df['trial_id'].values.astype(str)
         floats = blk_df[['onset_sec', 'offset_sec']].values
@@ -100,6 +98,8 @@ with ExperimentController(**ec_args) as ec:
                                                           delay=0.01))
             # start initial stimulus
             if not ix:
+                Popen([exe, '-f', '--no-audio', '--no-video-title',
+                       '--play-and-exit', vpath])
                 t_zero = ec.start_stimulus(flip=False)
             this_audio_start = t_zero + onset
             this_audio_stop = t_zero + offset
