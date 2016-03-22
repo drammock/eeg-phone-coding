@@ -16,7 +16,7 @@ from pandas import read_csv
 from expyfun import ExperimentController
 from expyfun.stimuli import get_tdt_rates
 from platform import system
-from subprocess import call
+from subprocess import Popen
 from glob import glob
 import os.path as op
 
@@ -28,6 +28,7 @@ wav_names = globalvars['wavnames'].tolist()
 fs = (get_tdt_rates()['25k'] if round(globalvars['fs']) == 24414 else
       globalvars['fs'])
 del globalvars
+stim_rms = np.sqrt(2 * 0.01 ** 2)  # rms'd the mono files to 0.01
 # load & calc trial-level params
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t')
 df['wav_path'] = df['talker'] + '/' + df['syll'] + '.wav'  # do NOT use op.sep
@@ -44,6 +45,10 @@ df['ttl_id'] = df['ttl_id'].apply(lambda x: [int(y) for y in list(x)])
 # video paths
 video = sorted(glob(op.join('videos', '*.m4v')))
 assert len(video) == 20
+if system() == 'Windows':
+    exe = op.join('C:\\', 'Program Files', 'VideoLAN', 'VLC', 'vlc.exe')
+else:
+    exe = 'vlc'
 
 # instructions
 instructions = ('In this experiment you will hear speech sounds from several '
@@ -55,10 +60,11 @@ instructions = ('In this experiment you will hear speech sounds from several '
 continue_key = 1
 ec_args = dict(exp_name='jsalt-follow-up', full_screen=True,
                participant='pilot', session='5', version='0ee0951',
-               stim_rms=0.01, stim_db=65., output_dir='expyfun-data-raw')
+               stim_rms=stim_rms, stim_db=65., check_rms='wholefile',
+               output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
-    ec.screen_prompt(instructions)
+    ec.screen_prompt(instructions, max_wait=0.5)
     subj = int(ec.session)
     audio = sorted(glob(op.join('stimuli-final', 'subj-{:02}'.format(subj),
                                 '*.wav')))
@@ -78,11 +84,8 @@ with ExperimentController(**ec_args) as ec:
         vname = blk_df['vname'].values[0]
         vpath = op.join('videos', vname)
         assert vpath in video
-        if system() == 'Windows':
-            call(['vlc', '-f', '--no-audio', '--play-and-exit', vpath])
-            #call(['wmplayer', vpath, '/fullscreen'])
-        else:
-            call(['vlc', '-f', '--no-audio', '--play-and-exit', vpath])
+        Popen([exe, '-f', '--no-audio', '--no-video-title', '--play-and-exit',
+               vpath])
         # prepare syllable-level variables
         strings = blk_df['trial_id'].values.astype(str)
         floats = blk_df[['onset_sec', 'offset_sec']].values
@@ -102,8 +105,10 @@ with ExperimentController(**ec_args) as ec:
             this_audio_stop = t_zero + offset
             if ix:
                 ec.start_stimulus(flip=False, when=this_audio_start)
+            ec.listen_presses()
             ec.wait_until(this_audio_stop)
             ec.stop()
+            ec.get_presses()
             ec.trial_ok()
         ec.flush()
         ec.set_visible(True)
