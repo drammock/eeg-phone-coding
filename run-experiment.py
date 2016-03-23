@@ -51,17 +51,19 @@ else:
     exe = 'vlc'
 
 # instructions
-instructions = ('In this experiment you will hear speech sounds from several '
-                'different talkers. All you have to do is passively listen. '
-                'To prevent boredom, a silent cartoon will play during each '
-                'block. Press the 1 button when you\'re ready to start.')
+instructions = ('In this experiment you get to watch cartoons! You\'ll watch '
+                '11 or 12 episodes of Shaun the Sheep (about 7 minutes each). '
+                'The cartoon\'s audio is muted, and you will hear some speech '
+                'sounds instead; all you have to do is watch the cartoon and '
+                'passively listen. '
+                'Press the 1 button when you\'re ready to start.')
 
 # startup ExperimentController
 continue_key = 1
 ec_args = dict(exp_name='jsalt-follow-up', full_screen=True,
-               participant='pilot', session='5', version='0ee0951',
+               #participant='pilot', session='5',
                stim_rms=stim_rms, stim_db=65., check_rms='wholefile',
-               output_dir='expyfun-data-raw')
+               version='0ee0951', output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
     ec.screen_prompt(instructions)
@@ -94,12 +96,13 @@ with ExperimentController(**ec_args) as ec:
                  ttl_id) in enumerate(zip(strings, floats, ints, lists)):
             ec.load_buffer(wav_array[wav_idx])
             ec.identify_trial(ec_id=trial_id, ttl_id=dict(id_=ttl_id,
-                                                          wait_for_last=False,
-                                                          delay=0.01))
+                                                          wait_for_last=True,
+                                                          delay=0.02))
             # start initial stimulus
             if not ix:
                 Popen([exe, '-f', '--no-audio', '--no-video-title',
                        '--play-and-exit', vpath])
+                ec.wait_secs(1.)
                 t_zero = ec.start_stimulus(flip=False)
             this_audio_start = t_zero + onset
             this_audio_stop = t_zero + offset
@@ -113,11 +116,13 @@ with ExperimentController(**ec_args) as ec:
         ec.flush()
         ec.set_visible(True)
         if block == blocks - 1:
-            msg = ('All done! Sit tight and we will come disconnect the EEG.')
+            msg = 'All done! Sit tight and we will come disconnect the EEG.'
             max_wait = 5.
         else:
+            extra = (' This will be the last block, so the audio might end '
+                     'before the cartoon does.') if block == blocks - 2 else ''
             msg = ('End of block {} of {}. Take a break now if you like, '
                    'then press {} to start the next block.'
-                   ''.format(block + 1, blocks, continue_key))
+                   ''.format(block + 1, blocks, continue_key)) + extra
             max_wait = np.inf
         ec.screen_prompt(msg, live_keys=[continue_key], max_wait=max_wait)
