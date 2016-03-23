@@ -1,0 +1,49 @@
+# Experiment name
+JSALT-followup
+
+# Training script
+N/A
+
+# Experiment script
+C:\Experiments\drmccloy\jsalt-followup\run-experiment.py
+
+## Experiment script prompts
+- session: serial integer (first subj is 1, second subj is 2, etc)
+- participant: subject two-character alphabetic code
+- starting block: integer between 0 and 12 (inclusive). In normal cases just
+  press ENTER to accept the default (0).
+
+# Equipment
+32-channel EEG
+
+# Run time
+- Setup/capping: 15-20 min
+- Experiment: 90 min
+- Cleanup: 5-10 min
+
+# Setup before subject arrives
+- Turn on MARLO and TDT
+- Open run script in Spyder
+- Move booth keyboard/mouse aside 
+- Deploy the cone of silence and "quiet" door signs
+
+# Booth lights: ALL OFF
+
+# Spiel
+In this experiment we will use EEG to record how your brain responds to
+different speech sounds. Have you had an EEG before?
+	[ EEG uses electrodes on the scalp to detect the electrical activity
+	  in your brain; no electricity is sent into your scalp through the
+	  electrodes. ]
+
+You don't have to pay special attention to the speech sounds or respond in any
+way; in fact, we will play short animated films for you to watch, so just sit
+comfortably, try not to fidget too much, and enjoy the cartoons.
+
+Because you'll be connected up to the EEG recorder, it's easiest if you can
+make it through the whole experiment without leaving the booth, so if you need
+to get a drink or use the bathroom, please do it before we start. If at any time
+during the experiment you _do_ need to leave the booth, there is a button on the
+table you can use to alert us, and we'll come in and unhook you.
+
+Any questions?
