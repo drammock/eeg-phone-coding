@@ -22,10 +22,17 @@ C:\Experiments\drmccloy\jsalt-followup\run-experiment.py
 - Cleanup: 5-10 min
 
 # Setup before subject arrives
+## MARLO
 - Turn on MARLO and TDT
 - Open run script in Spyder
 - Move booth keyboard/mouse aside 
 - Deploy the cone of silence and "quiet" door signs
+## EEG (if you know head size in advance)
+- connect EEG electrodes to cap
+- connect actiBattery to actiChAmp, connect actiChAmp
+- start pyCorder, load config "binaural_cortical" (32 ch, 1000 Hz)
+- EEG recording filename: jsalt_binaural_cortical_XXX.eeg
+  (replace XXX with session number, e.g., 001)
 
 # Booth lights: ALL OFF
 
