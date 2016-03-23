@@ -13,7 +13,7 @@ This script plays audio and video.
 
 import numpy as np
 from pandas import read_csv
-from expyfun import ExperimentController
+from expyfun import ExperimentController, get_keyboard_input
 from expyfun.stimuli import get_tdt_rates
 from platform import system
 from subprocess import Popen
@@ -66,16 +66,22 @@ ec_args = dict(exp_name='jsalt-follow-up', full_screen=True,
                version='0ee0951', output_dir='expyfun-data-raw')
 
 with ExperimentController(**ec_args) as ec:
-    ec.screen_prompt(instructions)
-    subj = int(ec.session) - 1
+    ec.set_visible(False)
+    subj = int(ec.session) - 1  # convert to 0-indexed
     audio = sorted(glob(op.join('stimuli-final', 'subj-{:02}'.format(subj),
                                 '*.wav')))
     blocks = len(audio)
     del audio
     assert blocks in (12, 13)
+    starting_block = get_keyboard_input('starting block (leave blank & push '
+                                        'ENTER to start at beginning): ',
+                                        default=0, out_type=int,
+                                        valid=range(blocks))
+    ec.set_visible(True)
+    ec.screen_prompt(instructions)
     # reduce data frame to subject-specific data
     subj_df = df[df['subj'].isin([subj])].reset_index(drop=True)
-    for block in range(blocks):
+    for block in range(starting_block, blocks):
         ec.screen_prompt('Here we go!', max_wait=0.7, live_keys=[], attr=False)
         ec.set_visible(False)
         # subset data frame for this block
@@ -114,10 +120,12 @@ with ExperimentController(**ec_args) as ec:
             ec.get_presses()
             ec.trial_ok()
         ec.flush()
+        ec.system_beep()
         ec.set_visible(True)
         if block == blocks - 1:
-            msg = 'All done! Sit tight and we will come disconnect the EEG.'
-            max_wait = 5.
+            ec.system_beep()
+            msg = 'All done! We will come disconnect the EEG now.'
+            max_wait = 3.
         else:
             extra = (' This will be the last block, so the audio might end '
                      'before the cartoon does.') if block == blocks - 2 else ''
