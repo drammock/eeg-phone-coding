@@ -67,7 +67,7 @@ ec_args = dict(exp_name='jsalt-follow-up', full_screen=True,
 
 with ExperimentController(**ec_args) as ec:
     ec.screen_prompt(instructions)
-    subj = int(ec.session)
+    subj = int(ec.session) - 1
     audio = sorted(glob(op.join('stimuli-final', 'subj-{:02}'.format(subj),
                                 '*.wav')))
     blocks = len(audio)
