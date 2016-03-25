@@ -158,8 +158,8 @@ for subj in range(n_subj):
             # append record to data frame
             is_training = talkers[idx] in traindirs
             record = dict(subj=subj, block=block_idx,
-                          vdur=this_video_durs[block_idx],
-                          vname=this_video_names[block_idx],
+                          vid_dur=this_video_durs[block_idx],
+                          vid_name=this_video_names[block_idx],
                           talker=talkers[idx], syll=syllables[idx],
                           train=is_training, onset=onset, offset=offset)
             df = df.append(record, ignore_index=True)
@@ -173,13 +173,28 @@ for subj in range(n_subj):
         if first_idx == nsyll * nrep:
             break
     print()  # newline between subjs
+
+# calculate trial-level params
+wav_names = [x[1 + x.index(op.sep):] for x in allfiles]
+df['wav_path'] = df['talker'] + '/' + df['syll'] + '.wav'  # do NOT use op.sep
+df['wav_idx'] = [wav_names.index(x) for x in df['wav_path']]
+df['wav_nsamp'] = [wav_nsamps[x] for x in df['wav_idx']]
+df['onset_sec'] = df['onset'] / fs
+df['offset_sec'] = df['offset'] / fs
+# generate trial IDs and TTL stamps
+df['wav_idx'] = [wav_names.index(x) for x in df['wav_path']]
+digits = np.ceil(np.log2(wav_array.shape[0])).astype(int)
+df['ttl_id'] = df['wav_idx'].apply(np.binary_repr, width=digits)
+df['ttl_id'] = df['ttl_id'].apply(lambda x: [int(y) for y in list(x)])
+df['trial_id'] = (df['block'].astype(int).apply(format, args=('02',)) + '_' +
+                  df['talker'] + '_' + df['syll'])
 # save dataframe (note the bytes on the separator... pandas bug)
-column_order = ['subj', 'block', 'vname', 'vdur', 'talker', 'syll', 'onset',
-                'offset', 'train']
+column_order = ['subj', 'block', 'trial_id', 'ttl_id', 'talker', 'syll',
+                'train', 'onset', 'offset', 'onset_sec', 'offset_sec',
+                'wav_path', 'wav_idx', 'wav_nsamp', 'vid_name', 'vid_dur']
 df.to_csv(op.join(paramdir, 'master-dataframe.tsv'), sep=b'\t', index=False,
           columns=column_order)
 # save global params
-wavnames = [x[1+x.index(op.sep):] for x in allfiles]
 globalvars = dict(wav_array=wav_array, wav_nsamps=wav_nsamps, fs=fs,
-                  wavnames=wavnames, pad=pad / 2.)
+                  wav_names=wav_names, pad=pad / 2.)
 np.savez(op.join(paramdir, 'global-params.npz'), **globalvars)

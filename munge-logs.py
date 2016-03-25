@@ -28,8 +28,14 @@ outfile = 'clean-dataframe.tsv'
 tabs = sorted(glob(op.join(logdir, '*.tab')))
 logs = sorted(glob(op.join(logdir, '*.log')))
 
-# add a sequential trial integer to params
+# load trial parameters
 params = pd.read_csv(op.join(paramdir, paramfile), sep='\t')
+# because pandas.read_csv(... dtype) argument doesn't work:
+for col in ('subj', 'block', 'onset', 'offset', 'wav_idx', 'wav_nsamp'):
+    params[col] = params[col].apply(int)
+# convert string back to list
+params['ttl_id'] = params['ttl_id'].apply(literal_eval)
+# add a sequential "trial" integer to params
 params['trial'] = params.groupby('subj')['subj'].transform(
     lambda x: np.arange(x.size))
 
@@ -68,16 +74,17 @@ for ix, tab in enumerate(tabs):
     else:
         df = pd.concat(df, this_df)
 
-df_all = params.merge(df, on=('subj', 'block', 'talker', 'syll', 'trial'))
+df_all = params.merge(df, on=('subj', 'block', 'talker', 'syll', 'trial_id',
+                              'trial'))
 assert df_all.shape[0] == params.shape[0]  # true if data from all 12 subjs
 
-# make sure timing makes sense: actual onset times are within 20 ms of expected
+# make sure timing makes sense: actual onset times are within 50 ms of expected
 # onset times (will use actual in analysis, this just makes sure nothing went
 # drastically wrong during experiment)
 fs = get_tdt_rates()['25k']
 assert all(df_all.groupby(['subj', 'block'])[['start_time', 'onset']].apply(
     lambda x: np.allclose(x['start_time'] - x['start_time'].min(),
-                          x['onset'] / fs, atol=0.02, rtol=0)))
+                          x['onset'] / fs, atol=0.05, rtol=0)))
 
 if not op.isdir(outdir):
     mkdir(outdir)
