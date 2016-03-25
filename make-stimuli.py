@@ -29,14 +29,15 @@ stimroot = 'stimuli-rms'
 testdirs = ('hin-m', 'hun-f', 'swh-m', 'nld-f')
 engtestdirs = ('eng-m1', 'eng-f1')
 traindirs = ('eng-m2', 'eng-f2')
-outdir = op.join(workdir, 'stimuli-final')
+outdir = op.join(workdir, 'stimuli-final-rev')
 paramdir = op.join(workdir, 'params')
 if not op.isdir(paramdir):
     os.mkdir(paramdir)
 
 # config
 rand = np.random.RandomState(seed=0)
-isi_lims = (0.25, 0.75)
+isi_lims = (0.3, 0.8)
+pad = 5.  # total silent seconds at start/end of video (half at each end)
 n_subj = 12
 combos = list(combinations(testdirs, 2))
 trainfiles = list()
@@ -127,7 +128,7 @@ for subj in range(n_subj):
     syll_offset_samp = np.cumsum(all_nsamps + np.r_[0, isi_nsamps[:-1]])
     assert np.array_equal(syll_offset_samp - syll_onset_samp, all_nsamps)
     # split into blocks
-    all_blocks_max_nsamps = np.floor(this_video_durs * fs).astype(int)
+    all_blocks_max_nsamps = np.floor((this_video_durs - pad) * fs).astype(int)
     first_idx = 0
     for block_idx, this_block_max_nsamp in enumerate(all_blocks_max_nsamps):
         print(block_idx, end=' ')
@@ -180,5 +181,5 @@ df.to_csv(op.join(paramdir, 'master-dataframe.tsv'), sep=b'\t', index=False,
 # save global params
 wavnames = [x[1+x.index(op.sep):] for x in allfiles]
 globalvars = dict(wav_array=wav_array, wav_nsamps=wav_nsamps, fs=fs,
-                  wavnames=wavnames)
+                  wavnames=wavnames, pad=pad / 2.)
 np.savez(op.join(paramdir, 'global-params.npz'), **globalvars)

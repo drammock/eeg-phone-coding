@@ -22,6 +22,7 @@ import os.path as op
 
 # load experiment parameters
 globalvars = np.load(op.join('params', 'global-params.npz'))
+pad = globalvars['pad']
 wav_array = globalvars['wav_array']
 wav_nsamp = globalvars['wav_nsamps']
 wav_names = globalvars['wavnames'].tolist()
@@ -52,7 +53,7 @@ else:
 
 # instructions
 instructions = ('In this experiment you get to watch cartoons! You\'ll watch '
-                '11 or 12 episodes of Shaun the Sheep (about 7 minutes each). '
+                '13 or 14 episodes of Shaun the Sheep (about 6 minutes each). '
                 'The cartoon\'s audio is muted, and you will hear some speech '
                 'sounds instead; all you have to do is watch the cartoon and '
                 'passively listen. '
@@ -72,7 +73,7 @@ with ExperimentController(**ec_args) as ec:
                                 '*.wav')))
     blocks = len(audio)
     del audio
-    assert blocks in (12, 13)
+    assert blocks in (13, 14)
     starting_block = get_keyboard_input('starting block (leave blank & push '
                                         'ENTER to start at beginning): ',
                                         default=0, out_type=int,
@@ -108,7 +109,7 @@ with ExperimentController(**ec_args) as ec:
             if not ix:
                 Popen([exe, '-f', '--no-audio', '--no-video-title',
                        '--play-and-exit', vpath])
-                ec.wait_secs(1.)
+                ec.wait_secs(pad)
                 t_zero = ec.start_stimulus(flip=False)
             this_audio_start = t_zero + onset
             this_audio_stop = t_zero + offset
@@ -125,7 +126,7 @@ with ExperimentController(**ec_args) as ec:
         if block == blocks - 1:
             ec.system_beep()
             msg = 'All done! We will come disconnect the EEG now.'
-            max_wait = 3.
+            max_wait = 1.5
         else:
             extra = (' This will be the last block, so the audio might end '
                      'before the cartoon does.') if block == blocks - 2 else ''
