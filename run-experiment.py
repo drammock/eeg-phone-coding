@@ -87,7 +87,7 @@ with ExperimentController(**ec_args) as ec:
         ec.set_visible(False)
         # subset data frame for this block
         blk_df = subj_df[subj_df['block'].isin([block])].copy()
-        blk_len = df[['subj', 'block']].groupby('block').aggregate(np.size)
+        video_dur = np.unique(blk_df['vdur'])
         # get the video file
         assert len(set(blk_df['vname'])) == 1
         vname = blk_df['vname'].values[0]
@@ -115,19 +115,18 @@ with ExperimentController(**ec_args) as ec:
             this_audio_stop = t_zero + offset
             if ix:
                 ec.start_stimulus(flip=False, when=this_audio_start)
-            ec.listen_presses()
             ec.wait_until(this_audio_stop)
             ec.stop()
-            ec.get_presses()
             ec.trial_ok()
         ec.flush()
-        ec.system_beep()
-        ec.set_visible(True)
         if block == blocks - 1:
             ec.system_beep()
+            ec.set_visible(True)
             msg = 'All done! We will come disconnect the EEG now.'
             max_wait = 1.5
         else:
+            ec.wait_until(t_zero + video_dur - pad)
+            ec.set_visible(True)
             extra = (' This will be the last block, so the audio might end '
                      'before the cartoon does.') if block == blocks - 2 else ''
             msg = ('End of block {} of {}. Take a break now if you like, '
