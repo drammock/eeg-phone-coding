@@ -30,3 +30,6 @@ cvtable:
 
 slides:
 	Rscript make-slides.R
+
+backup:
+	rsync -re 'ssh -p2222' ./ butchie.ilabs.uw.edu:~/backup
