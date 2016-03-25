@@ -83,6 +83,7 @@ with ExperimentController(**ec_args) as ec:
     # reduce data frame to subject-specific data
     subj_df = df[df['subj'].isin([subj])].reset_index(drop=True)
     for block in range(starting_block, blocks):
+        ec.stamp_triggers(block + 1, check='int4')  # stamp block identifier
         ec.screen_prompt('Here we go!', max_wait=0.7, live_keys=[], attr=False)
         ec.set_visible(False)
         # subset data frame for this block
