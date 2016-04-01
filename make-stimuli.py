@@ -196,5 +196,5 @@ df.to_csv(op.join(paramdir, 'master-dataframe.tsv'), sep=b'\t', index=False,
           columns=column_order)
 # save global params
 globalvars = dict(wav_array=wav_array, wav_nsamps=wav_nsamps, fs=fs,
-                  wav_names=wav_names, pad=pad / 2.)
+                  wav_names=wav_names, isi_range=isi_lims, pad=pad / 2.)
 np.savez(op.join(paramdir, 'global-params.npz'), **globalvars)
