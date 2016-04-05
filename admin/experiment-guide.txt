@@ -31,8 +31,8 @@ C:\Experiments\drmccloy\jsalt-followup\run-experiment.py
 - connect EEG electrodes to cap
 - connect actiBattery to actiChAmp, connect actiChAmp
 - start pyCorder, load config "binaural_cortical" (32 ch, 1000 Hz)
-- EEG recording filename: jsalt_binaural_cortical_XXX.eeg
-  (replace XXX with session number, e.g., 001)
+- EEG recording filename: jsalt_binaural_cortical_XX_YYY.eeg
+  (replace XX with participant code and YYY with session number, e.g., IJ_001)
 
 # Booth lights: ALL OFF
 
