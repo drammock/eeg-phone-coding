@@ -16,13 +16,15 @@ geometry:
 
 # End time: ________________
 
+# EEG file name:
+jsalt_binaural_cortical_\<SUBJECT.CODE\>\_\<EXP.SESSION\>.eeg \
+*example:* jsalt_binaural_cortical_IJ_001.eeg
+
 #
 
 ---------------------------------------------------------------------------
  Block   Completed?   EEG data saved?  Notes
 ------- ------------ ----------------- ------------------------------------
-0
-
 1
 
 2
@@ -45,7 +47,11 @@ geometry:
 
 11
 
-(12)
+12
+
+13
+
+(14)
 ---------------------------------------------------------------------------
 
-(not all subjects will have block 12).
+(not all subjects will have block 14).
