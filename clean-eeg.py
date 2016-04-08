@@ -24,10 +24,13 @@ from pandas import read_csv
 # manually-set params
 subjects = dict(IJ=1)
 plot_evokeds = False
+do_baseline = False
+have_dss = False
 if plot_evokeds:
     from matplotlib import pyplot as plt
     from matplotlib import rcParams
     rcParams['lines.linewidth'] = 0.5
+rand = np.random.RandomState(seed=0)
 
 # file i/o
 paramdir = 'params'
@@ -63,18 +66,16 @@ vowel_durs = np.array([wav_dur_dict[key] for key in wav_names]
                       ) - consonant_durs
 vowel_dur_dict = {key: dur for key, dur in zip(wav_names, vowel_durs)}
 assert np.allclose(wav_durs, consonant_durs + vowel_durs)
-"""
-print('consonant min: {}  max: {}'.format(round(consonant_durs.min(), 3),
-                                          round(consonant_durs.max(), 3)))
-print('vowel min: {}  max: {}'.format(round(vowel_durs.min(), 3),
-                                      round(vowel_durs.max(), 3)))
-"""
+
 # we care about first 200ms of brain response
 tmax = wav_durs.max() + 0.2
-# include extra pre-zero time: allows later shifting to align on C-V transition
+# include lots of pre-stim time: allows later shifting to align C-V transition
 tmin = consonant_durs.min() - consonant_durs.max()
 # make sure brain response from previous syllable not in baseline
-baseline = (0.2 - isi_range.min(), 0)
+baseline_times = (0.2 - isi_range.min(), 0)
+# if we're aligning based on C-V transition instead of C-onset:
+tmin_cv = 0 - consonant_durs.max()
+tmax_cv = vowel_durs.max() + 0.2
 
 # create event dict
 master_ev_id = dict()
@@ -88,6 +89,8 @@ for subj_code, subj in subjects.items():
     basename = op.join(outdir, '{0:03}-{1}-'.format(subj, subj_code))
     raw = mne.io.read_raw_brainvision(op.join(eegdir, header),
                                       preload=True, response_trig_shift=None)
+    picks = mne.pick_types(raw.info, meg=False, eeg=True, eog=False,
+                           stim=False, exclude='bads')
     raw_events = mne.find_events(raw)
     # decode triggers to get proper event codes
     stim_start_indices = np.where(raw_events[:, -1] == 1)[0]
@@ -98,78 +101,87 @@ for subj_code, subj in subjects.items():
         events[ix, -1] = binary_to_decimals(raw_events[st:nd, -1] // 4 - 1, 9)
     event_id = {k: v for k, v in master_ev_id.items() if v in events[:, -1]}
     rev_ev_id = {v: k for k, v in master_ev_id.items() if v in events[:, -1]}
-    mne.write_events(basename + 'raw-eve.txt', events)
-    # artifact removal
-    raw.filter(l_freq=0.5, h_freq=40., l_trans_bandwidth=0.4,
-               n_jobs='cuda', copy=False)
-    picks = mne.pick_types(raw.info, meg=False, eeg=True, eog=False,
-                           stim=False, exclude='bads')
-    # TODO: implement as DSS instead of ICA
-    ica = mne.preprocessing.ICA(n_components=0.95, method='fastica')
+    mne.write_events(basename + 'c-aligned-eve.txt', events)
+    # generate arrays of stimulus durations respecting presentation order
+    consonant_dur_by_trial = np.array([consonant_dur_dict[rev_ev_id[_id]]
+                                       for _id in events[:, -1]])
+    vowel_dur_by_trial = np.array([vowel_dur_dict[rev_ev_id[_id]]
+                                   for _id in events[:, -1]])
+    wav_dur_by_trial = np.array([wav_dur_dict[rev_ev_id[_id]]
+                                 for _id in events[:, -1]])
+    # prepare time-shifted event codes aligned on C-V boundary
+    orig_secs = np.squeeze([raw.index_as_time(samp) for samp in events[:, 0]])
+    events_cv = events.copy()
+    events_cv[:, 0] = raw.time_as_index(orig_secs + consonant_dur_by_trial)
+    mne.write_events(basename + 'v-aligned-eve.txt', events_cv)
+    # filter, could be: l_freq=0.5, l_trans_bandwidth=0.4
+    raw.filter(l_freq=1, h_freq=40., n_jobs='cuda', copy=False)
+    # TODO: implement artifact removal as DSS instead of ICA
+    ica = mne.preprocessing.ICA(n_components=0.95, method='fastica',
+                                random_state=rand)
     ica.fit(raw, picks=picks, decim=10, reject=dict(eeg=250e-6))
     ica.apply(raw, copy=False)
-    # generate epochs
+    # generate epochs aligned on C onset
+    baseline = baseline_times if do_baseline else None
     mne.io.set_eeg_reference(raw, ref_channels=['Ch17'], copy=False)
     epochs = mne.Epochs(raw, events, event_id, tmin, tmax, picks=picks,
                         add_eeg_ref=True, baseline=baseline, preload=True)
-    # prepare to re-align epochs
-    orig_secs = np.squeeze([raw.index_as_time(samp) for samp in events[:, 0]])
-    consonant_dur_by_trial = np.array([consonant_dur_dict[rev_ev_id[_id]]
-                                       for _id in events[:, -1]])
-    wav_dur_by_trial = np.array([wav_dur_dict[rev_ev_id[_id]]
-                                 for _id in events[:, -1]])
-    tmin_cv = 0 - consonant_durs.max()
-    tmax_cv = vowel_durs.max()
-    # shift timepoint of stim-start trigger to C-V boundary. Must do this
-    # _after_ baselining. Can't use epochs.crop due to +/-1 sample issues.
-    events_cv = events.copy()
-    events_cv[:, 0] = raw.time_as_index(orig_secs + consonant_dur_by_trial)
+    # generate epochs aligned on C-V transition
     epochs_cv = mne.Epochs(raw, events_cv, event_id, tmin_cv, tmax_cv,
                            picks=picks, baseline=None, preload=True)
-    epochs_cv._data[:] = np.nan
-    # zero-pad and crop epochs
-    for ix, (c_dur, w_dur) in enumerate(zip(consonant_dur_by_trial,
-                                            wav_dur_by_trial)):
-        _tmin = c_dur - consonant_durs.max()
-        consonant_start_ix = np.searchsorted(epochs.times, 0.)
-        vowel_end_ix = np.searchsorted(epochs.times, w_dur + 0.2)
-        tmin_ix = np.searchsorted(epochs.times, _tmin)
-        tmax_ix = tmin_ix + epochs_cv.times.size
-        # zero-out EEG responses irrelevant to the current stimulus
-        epochs_cv._data[ix, :, :consonant_start_ix] = 0.
-        epochs_cv._data[ix, :, vowel_end_ix:] = 0.
-        # crop
-        epochs_cv._data[ix] = epochs._data[ix, :, tmin_ix:tmax_ix]
-    assert np.all(~np.isnan(epochs_cv._data))
-    # TODO: apply DSS here, instead of applying it to Raw
-    # (will it still work now that the times have shifted???)
-    # may need to abandon baselining and shift trigger times from the get-go...
-    mne.write_events(basename + 'eve.txt', events_cv)
-    epochs_cv.save(basename + 'epo.fif.gz')
-    # generate evoked
-    # TODO: will I even need evokeds after DSS?  Should calculation of evokeds
-    # come after DSS or before?
-    print('generating evokeds...')
-    evoked_dict = {key: epochs_cv[rev_ev_id[_id]].average()
-                   for key, _id in event_id.items()}
-    mne.write_evokeds(basename + 'ave.fif', evoked_dict.values())
-    # sample plot
-    if plot_evokeds:
-        nrow, ncol = (3, 2)
-        fig, axs = plt.subplots(nrow, ncol)
-        axs = np.expand_dims(axs, axis=1) if len(axs.shape) == 1 else axs
-        for ix, (key, evoked) in enumerate(evoked_dict.items()):
-            cv_boundary = consonant_dur_dict[key] * 1000.  # convert to ms
-            if ix < nrow * ncol:
-                ax = axs[ix // ncol, ix % ncol]
-                _ = evoked.plot(axes=ax, show=False, titles=key)
-                ylim = ax.get_ylim()
-                _ = ax.vlines(0 - cv_boundary, *ylim, colors='red')
-                _ = ax.set_ylim(*ylim)
-            else:
-                break
-        plt.tight_layout()
-        fig.show()
+    # zero-out EEG responses irrelevant to the current stimulus
+    for e_ix, e in enumerate((epochs, epochs_cv)):
+        for ix, (c_dur, v_dur, w_dur) in enumerate(zip(consonant_dur_by_trial,
+                                                       vowel_dur_by_trial,
+                                                       wav_dur_by_trial)):
+            c_start = 0. - c_dur if e_ix else 0.
+            v_end = (v_dur if e_ix else w_dur) + 0.2
+            e._data[ix, :, :np.searchsorted(e.times, c_start)] = 0.
+            e._data[ix, :, np.searchsorted(e.times, v_end):] = 0.
+            if e_ix and do_baseline:
+                # replace unbaselined data with baselined data
+                mint = np.searchsorted(epochs.times, 0.)
+                maxt = np.searchsorted(epochs.times, w_dur + 0.2)
+                e._data[ix, :, c_start:v_end] = epochs._data[ix, :, mint:maxt]
+
+    # TODO: apply DSS here, instead of applying it to Raw ???
+    epochs.save(basename + 'c-aligned-epo.fif.gz')
+    epochs_cv.save(basename + 'v-aligned-epo.fif.gz')
+
+    # if no DSS, average across epochs and channels
+    if not have_dss:
+        for ix, e in enumerate((epochs, epochs_cv)):
+            avg_data = np.zeros((len(event_id), e.times.size))
+            for key, _id in event_id.items():
+                evoked = e[rev_ev_id[_id]].average()
+                avg_data[ix] = evoked.data.mean(axis=0)
+            fname = basename + ('c' if ix else 'v') + '-aligned-xchan-avg.npy'
+            np.save(fname, avg_data)
+        """
+        # generate evoked
+        print('generating evokeds...')
+        evoked_dict = {key: epochs_cv[rev_ev_id[_id]].average()
+                       for key, _id in event_id.items()}
+
+        mne.write_evokeds(basename + 'ave.fif', evoked_dict.values())
+        # sample plot
+        if plot_evokeds:
+            nrow, ncol = (3, 2)
+            fig, axs = plt.subplots(nrow, ncol)
+            axs = np.expand_dims(axs, axis=1) if len(axs.shape) == 1 else axs
+            for ix, (key, evoked) in enumerate(evoked_dict.items()):
+                cv_boundary = consonant_dur_dict[key] * 1000.  # convert to ms
+                if ix < nrow * ncol:
+                    ax = axs[ix // ncol, ix % ncol]
+                    _ = evoked.plot(axes=ax, show=False, titles=key)
+                    ylim = ax.get_ylim()
+                    _ = ax.vlines(0 - cv_boundary, *ylim, colors='red')
+                    _ = ax.set_ylim(*ylim)
+                else:
+                    break
+            plt.tight_layout()
+            fig.show()
+        """
 
 # finish
 np.savez(op.join(paramdir, 'subjects.npz'), **subjects)
