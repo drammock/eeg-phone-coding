@@ -15,6 +15,7 @@ boundary of each stimulus syllable.
 
 from __future__ import division, print_function
 import mne
+from mne_sandbox.preprocessing import dss
 import numpy as np
 from os import mkdir
 from os import path as op
@@ -22,15 +23,8 @@ from expyfun import binary_to_decimals
 from pandas import read_csv
 
 # manually-set params
-subjects = dict(IJ=1)
-plot_evokeds = False
-do_baseline = False
-have_dss = False
-if plot_evokeds:
-    from matplotlib import pyplot as plt
-    from matplotlib import rcParams
-    rcParams['lines.linewidth'] = 0.5
-rand = np.random.RandomState(seed=0)
+subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6)
+do_baseline = True
 
 # file i/o
 paramdir = 'params'
@@ -46,7 +40,6 @@ params = np.load(op.join(paramdir, paramfile))
 isi_range = params['isi_range']
 wav_names = params['wav_names']
 wav_nsamps = params['wav_nsamps']
-# wav_array = params['wav_array']
 stim_fs = params['fs'].astype(float)
 del params
 
@@ -89,9 +82,35 @@ for subj_code, subj in subjects.items():
     basename = op.join(outdir, '{0:03}-{1}-'.format(subj, subj_code))
     raw = mne.io.read_raw_brainvision(op.join(eegdir, header),
                                       preload=True, response_trig_shift=None)
+    raw_events = mne.find_events(raw)
+    # deal with subjects who had hardware failure and had to restart a block
+    try:
+        h = 'jsalt_binaural_cortical_{0}_{1:03}-2.vhdr'.format(subj_code, subj)
+        raw2 = mne.io.read_raw_brainvision(op.join(eegdir, h), preload=True,
+                                           response_trig_shift=None)
+        raw1_events = mne.find_events(raw)
+        raw2_events = mne.find_events(raw2)
+        raw1_blocks = set(raw1_events[:, -1])
+        raw2_blocks = set(raw2_events[:, -1])
+        if len(raw1_blocks & raw2_blocks) == 3:  # common block in [1, 4, 8]
+            common_block = [1, 4, 8][len(raw1_blocks) // 4]
+        else:
+            common_block = (raw1_blocks & raw2_blocks) - set([1, 4, 8])
+            assert len(common_block) == 1
+            common_block = common_block.pop()
+        common_block_ix = np.where(raw1_events[:, -1] == common_block)[0]
+        assert common_block_ix.size == 1
+        first_raw2_ix = raw1_events.shape[0] + 1
+        raw = mne.concatenate_raws([raw, raw2])
+        raw_events = mne.find_events(raw)
+        raw_events = np.r_[raw_events[:common_block_ix[0]],
+                           raw_events[first_raw2_ix:]]
+        del (h, raw2, raw1_events, raw2_events, common_block, common_block_ix,
+             first_raw2_ix)
+    except IOError:
+        pass
     picks = mne.pick_types(raw.info, meg=False, eeg=True, eog=False,
                            stim=False, exclude='bads')
-    raw_events = mne.find_events(raw)
     # decode triggers to get proper event codes
     stim_start_indices = np.where(raw_events[:, -1] == 1)[0]
     stim_start_indices = stim_start_indices[1:]  # 1st trigger is block number
@@ -116,11 +135,6 @@ for subj_code, subj in subjects.items():
     mne.write_events(basename + 'v-aligned-eve.txt', events_cv)
     # filter, could be: l_freq=0.5, l_trans_bandwidth=0.4
     raw.filter(l_freq=1, h_freq=40., n_jobs='cuda', copy=False)
-    # TODO: implement artifact removal as DSS instead of ICA
-    ica = mne.preprocessing.ICA(n_components=0.95, method='fastica',
-                                random_state=rand)
-    ica.fit(raw, picks=picks, decim=10, reject=dict(eeg=250e-6))
-    ica.apply(raw, copy=False)
     # generate epochs aligned on C onset
     baseline = baseline_times if do_baseline else None
     mne.io.set_eeg_reference(raw, ref_channels=['Ch17'], copy=False)
@@ -129,59 +143,37 @@ for subj_code, subj in subjects.items():
     # generate epochs aligned on C-V transition
     epochs_cv = mne.Epochs(raw, events_cv, event_id, tmin_cv, tmax_cv,
                            picks=picks, baseline=None, preload=True)
-    # zero-out EEG responses irrelevant to the current stimulus
-    for e_ix, e in enumerate((epochs, epochs_cv)):
+    # zero-out EEG responses irrelevant to the current stimulus (ideally
+    # not necessary, but maybe helpful due to short ISIs)
+    for e_ix, e in enumerate((epochs_cv, epochs)):
         for ix, (c_dur, v_dur, w_dur) in enumerate(zip(consonant_dur_by_trial,
                                                        vowel_dur_by_trial,
                                                        wav_dur_by_trial)):
-            c_start = 0. - c_dur if e_ix else 0.
-            v_end = (v_dur if e_ix else w_dur) + 0.2
-            e._data[ix, :, :np.searchsorted(e.times, c_start)] = 0.
-            e._data[ix, :, np.searchsorted(e.times, v_end):] = 0.
-            if e_ix and do_baseline:
-                # replace unbaselined data with baselined data
+            c_start = 0. if e_ix else 0. - c_dur
+            v_end = (w_dur if e_ix else v_dur) + 0.2
+            c_start_ix = np.searchsorted(e.times, c_start)
+            v_end_ix = np.searchsorted(e.times, v_end)
+            # replace unbaselined data with baselined data
+            if do_baseline and not e_ix:
                 mint = np.searchsorted(epochs.times, 0.)
                 maxt = np.searchsorted(epochs.times, w_dur + 0.2)
-                e._data[ix, :, c_start:v_end] = epochs._data[ix, :, mint:maxt]
-
-    # TODO: apply DSS here, instead of applying it to Raw ???
+                # deal with +/- 1 sample issues
+                if np.abs((v_end_ix - c_start_ix) - (maxt - mint)) == 1:
+                    v_end_ix = c_start_ix + (maxt - mint)
+                # replace unbaselined data with baselined data
+                e._data[ix, :, c_start_ix:v_end_ix] = epochs._data[ix, :,
+                                                                   mint:maxt]
+            # zero out the early/late parts
+            e._data[ix, :, :c_start_ix] = 0.
+            e._data[ix, :, v_end_ix:] = 0.
+        # compute DSS matrix
+        dss_mat = dss(e, data_thresh=1e-3, bias_thresh=1e-3, return_data=False)
+        align = 'v' if e_ix else 'c'
+        np.save(basename + '{}-aligned-dssmat.npy'.format(align), dss_mat,
+                allow_pickle=False)
+    # save epochs
     epochs.save(basename + 'c-aligned-epo.fif.gz')
     epochs_cv.save(basename + 'v-aligned-epo.fif.gz')
-
-    # if no DSS, average across epochs and channels
-    if not have_dss:
-        for ix, e in enumerate((epochs, epochs_cv)):
-            avg_data = np.zeros((len(event_id), e.times.size))
-            for key, _id in event_id.items():
-                evoked = e[rev_ev_id[_id]].average()
-                avg_data[ix] = evoked.data.mean(axis=0)
-            fname = basename + ('c' if ix else 'v') + '-aligned-xchan-avg.npy'
-            np.save(fname, avg_data)
-        """
-        # generate evoked
-        print('generating evokeds...')
-        evoked_dict = {key: epochs_cv[rev_ev_id[_id]].average()
-                       for key, _id in event_id.items()}
-
-        mne.write_evokeds(basename + 'ave.fif', evoked_dict.values())
-        # sample plot
-        if plot_evokeds:
-            nrow, ncol = (3, 2)
-            fig, axs = plt.subplots(nrow, ncol)
-            axs = np.expand_dims(axs, axis=1) if len(axs.shape) == 1 else axs
-            for ix, (key, evoked) in enumerate(evoked_dict.items()):
-                cv_boundary = consonant_dur_dict[key] * 1000.  # convert to ms
-                if ix < nrow * ncol:
-                    ax = axs[ix // ncol, ix % ncol]
-                    _ = evoked.plot(axes=ax, show=False, titles=key)
-                    ylim = ax.get_ylim()
-                    _ = ax.vlines(0 - cv_boundary, *ylim, colors='red')
-                    _ = ax.set_ylim(*ylim)
-                else:
-                    break
-            plt.tight_layout()
-            fig.show()
-        """
 
 # finish
 np.savez(op.join(paramdir, 'subjects.npz'), **subjects)
