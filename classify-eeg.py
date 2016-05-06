@@ -52,6 +52,8 @@ df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
 df['lang'] = df['talker'].apply(lambda x: x[:3])
 df['valid'] = (df['lang'] == 'eng') & ~df['train']
 df['test'] = ~(df['lang'] == 'eng')
+foreign_langs = list(set(df['lang']) - set(['eng']))
+
 # make sure every stimulus is either training, validation, or testing
 # and make sure training, validation, & testing don't overlap
 assert df.shape[0] == df['train'].sum() + df['valid'].sum() + df['test'].sum()
@@ -137,11 +139,6 @@ eng_redundant = np.in1d(feat_tab.columns, eng_redundant)
 nonredundant = feat_tab.columns[~(eng_vacuous | eng_privative | eng_redundant)]
 feat_tab = feat_tab[nonredundant]
 eng_feat_tab = eng_feat_tab[nonredundant]
-# save reference feature tables
-feat_tab.to_csv(op.join(outdir, 'reference-feature-table.tsv'), sep='\t',
-                encoding='utf-8')
-eng_feat_tab.to_csv(op.join(outdir, 'english-reference-feature-table.tsv'),
-                    sep='\t', encoding='utf-8')
 # convert features to binary (discards distinction between neg. & unvalued)
 if make_feats_binary:
     feat_tab = feat_tab.apply(lambda x: x == '+').astype(int)
@@ -151,6 +148,11 @@ else:
     # determine dtype for later use in structured arrays
     dty = 'a{}'.format(max([len(x) for x in np.unique(feat_tab).astype(str)]))
     rec_dtypes = [(str(f), dty) for f in feat_tab.columns]
+# save reference feature tables
+feat_tab.to_csv(op.join(outdir, 'reference-feature-table.tsv'), sep='\t',
+                encoding='utf-8')
+eng_feat_tab.to_csv(op.join(outdir, 'english-reference-feature-table.tsv'),
+                    sep='\t', encoding='utf-8')
 # clean up
 del (corrections, eng_cons, eng_feat_tab, eng_vacuous, eng_privative,
      eng_redundant, nonredundant, ascii_cons)
@@ -161,6 +163,7 @@ events = list()
 subjs = list()
 cons = list()
 feats = list()
+langs = list()
 subj_feat_classifiers = dict()
 
 # read in cleaned EEG data
@@ -193,7 +196,6 @@ for subj_code, subj in subjects.items():
         this_feat = [feat_tab[feat].loc[ipa[con]] for feat in feat_tab.columns]
         this_feats.append(this_feat)
     this_feats = np.array(this_feats, dtype=str)
-    # this_feats = fromarrays(this_feats.T, dtype=rec_dtypes)
     this_feats = np.array([tuple(x) for x in this_feats], dtype=rec_dtypes)
     # boolean masks for training / validation / testing
     this_train_mask = np.array([training_dict[e] for e in this_events])
@@ -206,6 +208,7 @@ for subj_code, subj in subjects.items():
     subjs.extend([subj] * this_data.shape[0])
     cons.extend(this_cons)
     feats.extend(this_feats)
+    langs.extend(this_lang)
     if classify_individ_subjs:
         # concatenate DSS components
         data_cat = this_data[:, :n_dss_channels, :].reshape(this_data.shape[0],
@@ -248,6 +251,7 @@ for subj_code, subj in subjects.items():
 epochs = np.array(epochs)
 events = np.array(events)
 subjs = np.squeeze(subjs)
+langs = np.array(langs)
 cons = np.array(cons)
 feats = np.array(feats, dtype=rec_dtypes)
 epochs_cat = epochs[:, :n_dss_channels, :].reshape(epochs.shape[0], -1)
@@ -261,6 +265,8 @@ test_probs = list()
 classifier_dict = dict()
 test_performance = dict()
 # validation_performance = dict()
+language_dict = {lang: list() for lang in foreign_langs}
+
 
 # do across-subject LDA
 for fname in feat_tab.columns:
@@ -274,37 +280,48 @@ for fname in feat_tab.columns:
     validation_performance[fname] = n_corr / valid_mask.sum()
     """
     # foreign sounds: classification results
-    foreign_test = lda_trained.predict(epochs_cat[test_mask])
-    test_resps = foreign_test if test_resps is None else np.c_[test_resps,
-                                                               foreign_test]
-    # foreign sounds: probabilities
-    foreign_prob = lda_trained.predict_proba(epochs_cat[test_mask])
-    dtype_names = ['{}{}'.format(['+', '-'][val], fname)
-                   for val in lda_trained.classes_]
-    dtype_forms = [float] * len(lda_trained.classes_)
-    foreign_prob = np.array([tuple(x) for x in foreign_prob],
-                            dtype=dict(names=dtype_names, formats=dtype_forms))
-    test_probs.append(foreign_prob)
-    # foreign sounds: basic stats
-    foreign_correct = feats[fname][test_mask] == foreign_test
-    n_corr = np.sum(foreign_correct)
-    test_performance[fname] = n_corr / test_mask.sum()
+    for lang in foreign_langs:
+        lang_mask = langs == lang
+        test_data = epochs_cat[(test_mask & lang_mask)]
+        """
+        foreign_test = lda_trained.predict(test_data)
+        test_resps = (foreign_test if test_resps is None
+                      else np.c_[test_resps, foreign_test])
+        """
+        foreign_prob = lda_trained.predict_proba(test_data)
+        dtype_names = ['{}{}'.format(['+', '-'][val], fname)
+                       for val in lda_trained.classes_]
+        dtype_forms = [float] * len(lda_trained.classes_)
+        foreign_prob = np.array([tuple(x) for x in foreign_prob],
+                                dtype=dict(names=dtype_names,
+                                           formats=dtype_forms))
+        language_dict[lang].append(foreign_prob)
+        """
+        # foreign sounds: basic stats
+        foreign_correct = feats[fname][test_mask] == foreign_test
+        n_corr = np.sum(foreign_correct)
+        test_performance[fname] = n_corr / test_mask.sum()
+        """
     # save classifier objects
     classifier_dict[fname] = lda_trained
-    """
-    """
-# convert to DataFrames
-test_resps_df = DataFrame(test_resps, columns=feat_tab.columns,
-                          index=cons[test_mask])
-test_probs_df = DataFrame(merge_arrays(test_probs, flatten=True),
-                          index=cons[test_mask])
-# write to file
-test_resps_df.to_csv(op.join(outdir, 'classifier-output.tsv'), sep='\t')
-test_probs_df.to_csv(op.join(outdir, 'classifier-probabilities.tsv'), sep='\t')
+np.savez('classifiers.npz', **classifier_dict)
 
+# convert to DataFrames and save
+for lang in foreign_langs:
+    lang_mask = langs == lang
+    """
+    test_resps_df = DataFrame(test_resps, columns=feat_tab.columns,
+                              index=cons[test_mask])
+    test_resps_df.to_csv(op.join(outdir, 'classifier-output.tsv'), sep='\t')
+    """
+    test_probs_df = DataFrame(merge_arrays(language_dict[lang], flatten=True),
+                              index=cons[(test_mask & lang_mask)])
+    test_probs_df.to_csv(op.join(outdir, 'classifier-probabilities-{}.tsv'
+                                 ''.format(lang)), sep='\t')
+
+"""
 print('\n'.join(['{:0.2} ({})'.format(v, k)
                  for k, v in test_performance.items()]))
-"""
 """
 
 """
