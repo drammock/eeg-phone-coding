@@ -123,15 +123,19 @@ eng_feat_tab = feat_tab.loc[eng_cons]
 eng_vacuous = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
 eng_privative = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
                                    '0' in np.unique(x)).values
+"""
+# ignore other redundancies; may bootstrap classif. of foreign sounds
+eng_redundant = np.zeros_like(feat_tab.columns, dtype=bool)
+"""
 # other redundant features (based on linguistic knowledge, not easy to infer)
-eng_redundant = ['delayedRelease',  # no stop / affricate pairs at same place
-                 'nasal',           # m, n are the only +sonorant -continuant
-                 'lateral',         # l vs r captured by 'distributed'
+eng_redundant = [#'delayedRelease',  # no stop / affricate pairs at same place
+                 #'nasal',           # m, n are the only +sonorant -continuant
+                 #'lateral',         # l vs r captured by 'distributed'
                  # labial sub-features
                  'round',           # w vs j captured by 'labial'
-                 'labiodental',     # no voiceless w to contrast with f
+                 #'labiodental',     # no voiceless w to contrast with f
                  # coronal sub-features
-                 'anterior',        # all non-anterior are +distributed
+                 #'anterior',        # all non-anterior are +distributed
                  # dorsal sub-features
                  'front', 'back'    # w vs j captured by 'labial'
                  ]
@@ -167,7 +171,9 @@ langs = list()
 subj_feat_classifiers = dict()
 
 # read in cleaned EEG data
+print('reading data: subject', end=' ')
 for subj_code, subj in subjects.items():
+    print(str(subj), end=' ')
     basename = op.join(eegdir, '{0:03}-{1}-{2}-aligned-'
                        .format(int(subj), subj_code, align))
     if have_dss and use_dss:
@@ -246,6 +252,7 @@ for subj_code, subj in subjects.items():
                                                      this_valid_mask.sum()))
             '''
         subj_feat_classifiers[subj_code] = feat_classifiers
+print()
 
 # convert global containers to arrays
 epochs = np.array(epochs)
@@ -269,7 +276,9 @@ language_dict = {lang: list() for lang in foreign_langs}
 
 
 # do across-subject LDA
+print('training classifiers:')
 for fname in feat_tab.columns:
+    print('  {}'.format(fname), end=': ')
     lda_classif = LDA(solver='svd')
     lda_trained = lda_classif.fit(X=epochs_cat[train_mask],
                                   y=feats[fname][train_mask])
@@ -281,6 +290,7 @@ for fname in feat_tab.columns:
     """
     # foreign sounds: classification results
     for lang in foreign_langs:
+        print(lang, end=' ')
         lang_mask = langs == lang
         test_data = epochs_cat[(test_mask & lang_mask)]
         """
@@ -302,9 +312,10 @@ for fname in feat_tab.columns:
         n_corr = np.sum(foreign_correct)
         test_performance[fname] = n_corr / test_mask.sum()
         """
+    print()
     # save classifier objects
     classifier_dict[fname] = lda_trained
-np.savez('classifiers.npz', **classifier_dict)
+np.savez(op.join(outdir, 'classifiers.npz'), **classifier_dict)
 
 # convert to DataFrames and save
 for lang in foreign_langs:

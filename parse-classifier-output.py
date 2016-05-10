@@ -20,11 +20,14 @@ import numpy as np
 from os import mkdir
 from os import path as op
 from glob import glob
-from pandas import DataFrame, Panel, read_csv
+from pandas import Series, DataFrame, Panel, read_csv
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 # flags
 plot = True
+savefig = True
+plt.ioff()
 
 # file i/o
 outdir = 'processed-data'
@@ -38,6 +41,11 @@ feat_ref = read_csv(op.join(outdir, 'reference-feature-table.tsv'), sep='\t',
                     index_col=0, encoding='utf-8')
 feat_ref_eng = read_csv(op.join(outdir, 'english-reference-feature-table.tsv'),
                         sep='\t', index_col=0, encoding='utf-8')
+sort_order = ['labial', 'coronal', 'dorsal', 'continuant', 'consonantal',
+              'sonorant', 'periodicGlottalSource', 'distributed', 'strident']
+feat_ref = feat_ref.sort_values(by=sort_order, ascending=False)
+feat_ref_eng = feat_ref_eng.sort_values(by=sort_order, ascending=False)
+all_segments = feat_ref.index.values.astype(unicode)
 eng_segments = feat_ref_eng.index.values.astype(unicode)
 # convert to binary if needed
 if isinstance(feat_ref.iloc[0, 0], (str, unicode)):
@@ -46,7 +54,8 @@ if isinstance(feat_ref.iloc[0, 0], (str, unicode)):
 featscores = dict()
 feattruths = dict()
 confmats = dict()
-equal_error_rates = dict()
+confmats_normed = dict()
+equal_error_rates = DataFrame()
 # load each language's classification results
 foreign_files = glob(op.join(outdir, 'classifier-probabilities-*.tsv'))
 foreign_langs = [op.split(x)[1][-7:-4] for x in foreign_files]
@@ -86,7 +95,7 @@ for fname, lang in zip(foreign_files, foreign_langs):
         lowvalue = np.array([ratios.loc[b, i] for b, i in
                              zip(ratios.index[lowbound_ix],
                                  lowbound_ix.index)])
-        converged = np.allclose(lowvalue, 1)
+        converged = np.allclose(lowvalue[~np.isnan(lowvalue)], 1)
         thresholds = thresh_mat[range(thresh_mat.shape[0]),
                                 ratios.index[lowbound_ix]]
         steps = steps / 10
@@ -100,31 +109,29 @@ for fname, lang in zip(foreign_files, foreign_langs):
     false_neg = (~predictions.values & feattruth.values).sum(axis=0)
     assert np.array_equal(false_pos, false_neg)
     equal_error_rate = false_pos / predictions.shape[0]
-    equal_error_rates[lang] = equal_error_rate
+    equal_error_rates[lang] = Series(equal_error_rate, index=featscore.columns)
     # create confusion matrix
-    foreign_segments = predictions.index.unique().tolist()
+    foreign_segments = feat_ref.index[np.in1d(feat_ref.index,
+                                              predictions.index.unique())]
     feat_ref_foreign = feat_ref.loc[foreign_segments]
-    # binary mask of feature matches, shape: (foreign_cons, eng_cons, feat)
+    # make binary mask of feature matches: shape=(foreign_cons, eng_cons, feat)
+    # 1. add 1 to remap binary feature values as 1 (absence) or 2 (presence)
+    # 2. multiply each English phone's feature value with each foreign one
+    # 3. if product is 1 or 4 then feats. match, if product is 2 then mismatch
     mask = np.einsum('ik,jk->ijk', 1 + feat_ref_foreign, 1 + feat_ref_eng) != 2
-    eer_mat = np.abs(mask.astype(int) - equal_error_rate)
-    confusion_matrix = eer_mat.prod(axis=-1)
+    # convert equal_error_rate to (1 - equal_error_rate) when features match
+    # (this yields probability of "correct" classification for each feature
+    # when considering feature values of each English phone as a prior)
+    feat_prob_mat = np.abs(mask.astype(int) - equal_error_rate)
+    # compute product of feature classif. probs. to get phone classif. prob.
+    phone_prob_mat = feat_prob_mat.prod(axis=-1)
+    confusion_matrix = phone_prob_mat
     confmats[lang] = DataFrame(confusion_matrix, index=foreign_segments,
                                columns=eng_segments)
 
-if plot:
-    plt.rc('font', serif='Charis SIL', family='serif')
-    plt.rc('axes.spines', top=False, right=False)
-    plt.rc('xtick.major', size=2)
-    plt.rc('ytick.major', size=2)
-    plt.rc('ytick', right=False)
-    plt.rc('xtick', top=False)
-    fig, axs = plt.subplots(2, 2, squeeze=False)
-    for ix, lang in enumerate(foreign_langs):
-        confmat = confmats[lang]
-        ax = axs[ix % axs.shape[0], ix // axs.shape[0]]
-        _ = ax.imshow(confmat)
-        _ = ax.yaxis.set_ticks(range(confmat.shape[0]))
-        _ = ax.xaxis.set_ticks(range(confmat.shape[1]))
-        _ = ax.yaxis.set_ticklabels(confmat.index)
-        _ = ax.xaxis.set_ticklabels(confmat.columns)
-        _ = ax.set_title(lang)
+# save results
+np.save(op.join(outdir, 'foreign-langs.npy'), foreign_langs)
+equal_error_rates.to_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t')
+for lang, confmat in confmats.items():
+    confmat.to_csv(op.join(outdir, 'confusion-matrix-{}.tsv'.format(lang)),
+                   sep='\t', encoding='utf-8')

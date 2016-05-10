@@ -24,7 +24,7 @@ from pandas import read_csv
 from ast import literal_eval
 
 # manually-set params
-subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6)
+subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9)
 do_baseline = True
 save_dss_data = True
 save_dss_mat = True
@@ -132,7 +132,7 @@ for subj_code, subj in subjects.items():
         raw_events = np.r_[raw_events[:common_block_ix[0]],
                            raw_events[first_raw2_ix:]]
         del (h, raw2, raw1_events, raw2_events, common_block, common_block_ix,
-             first_raw2_ix)
+             first_raw2_ix, two_runs)
     # picks
     picks = mne.pick_types(raw.info, meg=False, eeg=True, eog=False,
                            stim=False, exclude='bads')
@@ -162,7 +162,7 @@ for subj_code, subj in subjects.items():
     # baseline, reference, and filter
     baseline = baseline_times if do_baseline else None
     mne.io.set_eeg_reference(raw, ref_channels=['Ch17'], copy=False)
-    raw.filter(l_freq=1, h_freq=40., n_jobs='cuda', copy=False)
+    raw.filter(l_freq=1, h_freq=40., n_jobs='cuda')
     # generate epochs aligned on C onset
     epochs = mne.Epochs(raw, events, event_id, tmin, tmax, picks=picks,
                         add_eeg_ref=True, baseline=baseline, preload=True)
