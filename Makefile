@@ -41,16 +41,19 @@ backup:
 
 # intermediate analysis files
 params/ascii-to-ipa.json:
-	python create-ipa-dict.py
+	python make-ascii-to-ipa-dict.py
 
 params/*eference-feature-table.tsv: params/ascii-to-ipa.json
-	python subset-feature-tables.py
+	python make-feature-subset-tables.py
 
 processed-data/eeg-confusion-matrix-*.tsv: params/ascii-to-ipa.json params/reference-feature-table.tsv params/english-reference-feature-table.tsv
 	python parse-classifier-output.py
 
 params/features-confusion-matrix-*.tsv: params/ascii-to-ipa.json
-	python generate-feature-based-confusion-matrices.py
+	python make-feature-based-confusion-matrices.py
+
+processed-data/weighted-confusion-matrix-*.tsv: processed-data/eeg-confusion-matrix-*.tsv params/features-confusion-matrix-*.tsv
+	python make-weighted-confusion-matrices.py
 
 # EEG processing
 preprocess_eeg:
@@ -66,5 +69,5 @@ plot_feature_matrices: params/features-confusion-matrix-*.tsv
 plot_confusion_matrices: processed-data/eeg-confusion-matrix-*.tsv
 	python plot-confusion-matrices.py
 
-plot_weighted_confusion_matrices: processed-data/eeg-confusion-matrix-*.tsv params/features-confusion-matrix-*.tsv
-	echo "not yet implemented"
+plot_weighted_confusion_matrices: processed-data/weighted-confusion-matrix-*.tsv
+	python plot-weighted-confusion-matrices.py
