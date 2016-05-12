@@ -35,7 +35,7 @@ feat_path_eng = op.join(paramdir, 'english-reference-feature-table.tsv')
 feat_ref_eng = read_csv(feat_path_eng, sep='\t', index_col=0, encoding='utf-8')
 feat_ref = read_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
                     index_col=0, encoding='utf-8')
-sort_order = ['labial', 'coronal', 'dorsal', 'continuant', 'consonantal',
+sort_order = ['consonantal', 'labial', 'coronal', 'dorsal', 'continuant',
               'sonorant', 'periodicGlottalSource', 'distributed', 'strident']
 feat_ref = feat_ref.sort_values(by=sort_order, ascending=False)
 feat_ref_eng = feat_ref_eng.sort_values(by=sort_order, ascending=False)
