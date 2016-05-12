@@ -23,7 +23,11 @@ with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
 
 # load trial params
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
-              usecols=['subj', 'syll'], dtype=dict(subj=int, syll=str))
+              usecols=['talker', 'syll'], dtype=dict(talker=str, syll=str))
+df['lang'] = df['talker'].apply(lambda x: x[:3])
+df['cons'] = df['syll'].apply(lambda x: x[:-2].replace('-', '_')
+                              if x.split('-')[-1] in ('0', '1', '2')
+                              else x.replace('-', '_'))
 
 # load feature table
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),

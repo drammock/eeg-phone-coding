@@ -52,7 +52,10 @@ ipa = dict(t_dental=u't̪', gamma=u'ɣ', t_dental_aspirated=u't̪ʰ',
 # fix some segment mismatches between dict and feature table
 corrections = dict(fronted_x=u'x', v_prenasalized=u'ɱv', b_prenasalized=u'mb',
                    d_prenasalized=u'nd', j_bar_prenasalized=u'ɲɟ',
-                   z_prenasalized=u'nz', g_prenasalized=u'ŋɡ', c_cedilla=u'ç')
+                   z_prenasalized=u'nz', g_prenasalized=u'ŋɡ', c_cedilla=u'ç',
+                   d_retroflex_breathy=u'ɖ̤', d_dental_breathy=u'd̪̤',
+                   g_breathy=u'ɡ̤', flap_retroflex_breathy=u'ɽ̤',
+                   dezh_breathy=u'd̠ʒ̤')
 ipa.update(corrections)
 # add in consonants that are within ASCII
 all_cons = np.unique(df['cons'].apply(str.replace, args=('-', '_'))
