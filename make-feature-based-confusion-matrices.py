@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-Script 'generate-feature-based-confusion-matrices.py'
+Script 'make-feature-based-confusion-matrices.py'
 ===============================================================================
 
 This script converts phonological feature values (output from a series of
@@ -21,6 +21,7 @@ from pandas import read_csv
 
 # file I/O
 paramdir = 'params'
+outdir = 'processed-data'
 
 # load list of languages
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
@@ -82,5 +83,5 @@ for ix, lang in enumerate(foreign_langs):
     match = eng_feat_tab.apply(lambda x: np.sum(x.astype(str)[np.newaxis, :] ==
                                                 this_feat_tab, axis=1), axis=1)
     # save
-    fpath = op.join(paramdir, 'features-confusion-matrix-{}.tsv').format(lang)
+    fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     match.to_csv(fpath, sep='\t', encoding='utf-8')

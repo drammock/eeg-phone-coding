@@ -61,6 +61,10 @@ for fname, lang in zip(foreign_files, foreign_langs):
     featscore.index = [ipa[x] for x in featscore.index]     # convert to IPA
     featscore.columns = [x[1:] for x in featscore.columns]  # remove +/- sign
     assert len(featscore.columns) == len(np.unique(featscore.columns))
+    # TODO: determine missing features based on all languages
+    # TODO: add missing features as 0.5
+    # TODO: ignore missing features during threshold finding
+    # TODO: save out featscore tables?
     # ground truth
     feattruth = DataFrame([feat_ref.loc[seg] for seg in featscore.index])
     featscores[lang] = featscore

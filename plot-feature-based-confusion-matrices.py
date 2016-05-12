@@ -28,6 +28,7 @@ figsize = (4, 24)
 # file I/O
 figdir = 'figures'
 paramdir = 'params'
+outdir = 'processed-data'
 
 # load list of languages
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
@@ -52,7 +53,7 @@ axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), 1),
 
 # iterate over languages
 for ix, lang in enumerate(foreign_langs):
-    fpath = op.join(paramdir, 'features-confusion-matrix-{}.tsv').format(lang)
+    fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     featmatch = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
     confmat = -np.log2(featmatch.T) if negative_log else featmatch.T
     ax = axs[ix]
