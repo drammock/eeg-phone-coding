@@ -12,7 +12,7 @@ This script feeds epoched EEG data into a classifier.
 # Created on Wed Apr  6 12:43:04 2016
 # License: BSD (3-clause)
 
-# TODO: try averaging different # of tokens (2,4,5) before training classifier
+# TODO: try averaging different # of tokens (2,4,5) before training classifier?
 
 from __future__ import division, print_function
 import mne
@@ -77,42 +77,12 @@ for key, cons, lang in zip(df['wav_idx'], df['cons'], df['lang']):
     cons_dict[key] = cons.replace('-', '_')
     lang_dict[key] = lang
 
-# convert ASCII to IPA for feature lookup
-ipa = dict(t_dental=u't̪', gamma=u'ɣ', t_dental_aspirated=u't̪ʰ',
-           g_breathy=u'ɡʱ', t_retroflex_aspirated=u'ʈʰ',
-           tesh_aspirated=u't̠ʃʰ', r_cap_inverted=u'ʁ', d_implosive=u'ɗ',
-           tc_curl=u'tɕ', d_retroflex_breathy=u'ɖʱ', j_bar=u'ɟ',
-           engma=u'ŋ', fronted_x=u'x̟', r_turned=u'ɹ', theta=u'θ',
-           d_dental_breathy=u'd̪ʱ', ts_aspirated=u'tsʰ',
-           b_prenasalized=u'ᵐb', ezh=u'ʒ', b_implosive=u'ɓ',
-           s_retroflex=u'ʂ', b_breathy=u'bʱ', flap_retroflex_breathy=u'ɽʱ',
-           z_prenasalized=u'ⁿz', g=u'ɡ', nu=u'ʋ', r_dental=u'r̪',
-           p_aspirated=u'pʰ', g_prenasalized=u'ᵑɡ', c_cedilla=u'ç',
-           dezh_breathy=u'd̠ʒʱ', ts_retroflex_aspirated=u'ʈʂʰ',
-           t_aspirated=u'tʰ', l_dental=u'l̪', c_aspirated=u'cʰ', esh=u'ʃ',
-           ts_retroflex=u'ʈʂ', k_aspirated=u'kʰ', eth=u'ð',
-           v_prenasalized=u'ᶬv', n_palatal=u'ɲ', tesh=u't̠ʃ',
-           n_dental=u'n̪', dezh=u'd̠ʒ', c_curl=u'ɕ',
-           j_bar_prenasalized=u'ᶮɟ', d_retroflex=u'ɖ', uvular_trill=u'ʀ',
-           tc_curl_aspirated=u'tɕʰ', d_dental=u'd̪', chi=u'χ',
-           d_prenasalized=u'ⁿd', flap_retroflex=u'ɽ', t_retroflex=u'ʈ')
-# fix some segment mismatches between feature table and dict
-corrections = dict(fronted_x=u'x', v_prenasalized=u'ɱv', b_prenasalized=u'mb',
-                   d_prenasalized=u'nd', j_bar_prenasalized=u'ɲɟ',
-                   z_prenasalized=u'nz', g_prenasalized=u'ŋɡ', c_cedilla=u'ç')
-ipa.update(corrections)
-# add in consonants that are within ASCII
-all_cons = np.unique(df['cons'].apply(str.replace, args=('-', '_'))
-                     ).astype(unicode)
-ascii_cons = all_cons[np.in1d(all_cons, ipa.keys(), invert=True)]
-ipa.update({k: k for k in ascii_cons})
-# save IPA dict for later use
-with open(op.join(outdir, 'ascii-to-ipa.json'), 'w') as out:
-    out.write(json.dumps(ipa))
-
+# import ASCII to IPA dictionary
+with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
+    ipa = json.load(ipafile)
 # reduce feature table to only the segments we need
-feat_tab = read_csv('phoible-segments-features.tsv', sep='\t',
-                    encoding='utf-8', index_col=0)
+feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
+                    sep='\t', encoding='utf-8', index_col=0)
 feat_tab = feat_tab.iloc[np.in1d(feat_tab.index, ipa.values())]
 assert feat_tab.shape[0] == len(ipa)
 # remove any features that are fully redundant within the training set
@@ -123,21 +93,17 @@ eng_feat_tab = feat_tab.loc[eng_cons]
 eng_vacuous = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
 eng_privative = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
                                    '0' in np.unique(x)).values
-"""
-# ignore other redundancies; may bootstrap classif. of foreign sounds
-eng_redundant = np.zeros_like(feat_tab.columns, dtype=bool)
-"""
-# other redundant features (based on linguistic knowledge, not easy to infer)
-eng_redundant = [#'delayedRelease',  # no stop / affricate pairs at same place
-                 #'nasal',           # m, n are the only +sonorant -continuant
-                 #'lateral',         # l vs r captured by 'distributed'
-                 # labial sub-features
-                 'round',           # w vs j captured by 'labial'
-                 #'labiodental',     # no voiceless w to contrast with f
-                 # coronal sub-features
-                 #'anterior',        # all non-anterior are +distributed
-                 # dorsal sub-features
-                 'front', 'back'    # w vs j captured by 'labial'
+# other redundant features (based on linguistic knowledge, not easy to infer);
+# here we list all that *could* be excluded, but only exclude features
+# [round, front, back] because they cause problems in later analysis
+# (they lead to a whole column of NaNs in the confusion matrices)
+eng_redundant = ['round',           # (labial) w vs j captured by 'labial'
+                 'front', 'back'    # (dorsal) w vs j captured by 'labial'
+                 # 'delayedRelease',  # (manner) no homorganic stop/affr. pairs
+                 # 'nasal',           # (manner) {m,n} captured by +son. -cont.
+                 # 'lateral',         # (manner) l vs r captured by distrib.
+                 # 'labiodental',     # (labial) no vless w to contrast with f
+                 # 'anterior',        # (coronal) all non-anter. are +distrib.
                  ]
 eng_redundant = np.in1d(feat_tab.columns, eng_redundant)
 nonredundant = feat_tab.columns[~(eng_vacuous | eng_privative | eng_redundant)]
@@ -153,13 +119,13 @@ else:
     dty = 'a{}'.format(max([len(x) for x in np.unique(feat_tab).astype(str)]))
     rec_dtypes = [(str(f), dty) for f in feat_tab.columns]
 # save reference feature tables
-feat_tab.to_csv(op.join(outdir, 'reference-feature-table.tsv'), sep='\t',
+feat_tab.to_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
                 encoding='utf-8')
-eng_feat_tab.to_csv(op.join(outdir, 'english-reference-feature-table.tsv'),
+eng_feat_tab.to_csv(op.join(paramdir, 'english-reference-feature-table.tsv'),
                     sep='\t', encoding='utf-8')
 # clean up
-del (corrections, eng_cons, eng_feat_tab, eng_vacuous, eng_privative,
-     eng_redundant, nonredundant, ascii_cons)
+del (eng_cons, eng_feat_tab, eng_vacuous, eng_privative, eng_redundant,
+     nonredundant)
 
 # init some global containers
 epochs = list()
@@ -267,13 +233,9 @@ valid_mask = np.array([validate_dict[e] for e in events])
 test_mask = np.array([testing_dict[e] for e in events])
 
 # more containers
-test_resps = None
-test_probs = list()
 classifier_dict = dict()
-test_performance = dict()
-# validation_performance = dict()
+validation = list()
 language_dict = {lang: list() for lang in foreign_langs}
-
 
 # do across-subject LDA
 print('training classifiers:')
@@ -282,63 +244,38 @@ for fname in feat_tab.columns:
     lda_classif = LDA(solver='svd')
     lda_trained = lda_classif.fit(X=epochs_cat[train_mask],
                                   y=feats[fname][train_mask])
-    """
-    # validate
-    eng_validate = lda_trained.predict(epochs_cat[valid_mask])
-    n_corr = np.sum(feats[fname][valid_mask] == eng_validate)
-    validation_performance[fname] = n_corr / valid_mask.sum()
-    """
+    # handle class names and dtypes for structured array
+    dtype_names = ['{}{}'.format(['+', '-'][val], fname)
+                   for val in lda_trained.classes_]
+    dtype_forms = [float] * len(lda_trained.classes_)
+    dtype_dict = dict(names=dtype_names, formats=dtype_forms)
+    # validate on new English talkers
+    eng_prob = lda_trained.predict_proba(epochs_cat[valid_mask])
+    eng_prob = np.array([tuple(x) for x in eng_prob], dtype=dtype_dict)
+    validation.append(eng_prob)
     # foreign sounds: classification results
     for lang in foreign_langs:
         print(lang, end=' ')
         lang_mask = langs == lang
         test_data = epochs_cat[(test_mask & lang_mask)]
-        """
-        foreign_test = lda_trained.predict(test_data)
-        test_resps = (foreign_test if test_resps is None
-                      else np.c_[test_resps, foreign_test])
-        """
         foreign_prob = lda_trained.predict_proba(test_data)
-        dtype_names = ['{}{}'.format(['+', '-'][val], fname)
-                       for val in lda_trained.classes_]
-        dtype_forms = [float] * len(lda_trained.classes_)
         foreign_prob = np.array([tuple(x) for x in foreign_prob],
-                                dtype=dict(names=dtype_names,
-                                           formats=dtype_forms))
+                                dtype=dtype_dict)
         language_dict[lang].append(foreign_prob)
-        """
-        # foreign sounds: basic stats
-        foreign_correct = feats[fname][test_mask] == foreign_test
-        n_corr = np.sum(foreign_correct)
-        test_performance[fname] = n_corr / test_mask.sum()
-        """
     print()
     # save classifier objects
     classifier_dict[fname] = lda_trained
 np.savez(op.join(outdir, 'classifiers.npz'), **classifier_dict)
 
 # convert to DataFrames and save
+validation_df = DataFrame(merge_arrays(validation, flatten=True),
+                          index=cons[valid_mask])
+validation_df.to_csv(op.join(outdir, 'classifier-probabilities-eng.tsv'),
+                     sep='\t')
+
 for lang in foreign_langs:
     lang_mask = langs == lang
-    """
-    test_resps_df = DataFrame(test_resps, columns=feat_tab.columns,
-                              index=cons[test_mask])
-    test_resps_df.to_csv(op.join(outdir, 'classifier-output.tsv'), sep='\t')
-    """
     test_probs_df = DataFrame(merge_arrays(language_dict[lang], flatten=True),
                               index=cons[(test_mask & lang_mask)])
     test_probs_df.to_csv(op.join(outdir, 'classifier-probabilities-{}.tsv'
                                  ''.format(lang)), sep='\t')
-
-"""
-print('\n'.join(['{:0.2} ({})'.format(v, k)
-                 for k, v in test_performance.items()]))
-"""
-
-"""
-import matplotlib.pyplot as plt
-for ev in np.unique(this_events)[:1]:
-    ixs = this_events == ev
-    plt.plot(data[ixs, 0, :].T, linewidth=0.5)
-    plt.plot(data[ixs, 0, :].mean(0), linewidth=1.5)
-"""

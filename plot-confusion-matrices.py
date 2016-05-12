@@ -1,10 +1,19 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-"""
-Created on Mon May  9 16:57:22 2016
 
-@author: drmccloy
 """
+===============================================================================
+Script 'plot-confusion-matrices.py'
+===============================================================================
+
+This script plots confusion matrices for English vs foreign speech sounds for
+four different languages. The confusion matrices are based on distinctive
+feature classifiers trained on EEG responses to the speech sounds.
+"""
+# @author: drmccloy
+# Created on Wed Apr  6 12:43:04 2016
+# License: BSD (3-clause)
+
 
 from __future__ import division, print_function
 import numpy as np
@@ -18,14 +27,18 @@ plt.ioff()
 savefig = True
 
 # file I/O
+figdir = 'figures'
+paramdir = 'params'
 outdir = 'processed-data'
-foreign_langs = np.load(op.join(outdir, 'foreign-langs.npy'))
+
+foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 confmats = dict()
 for lang in foreign_langs:
-    fname = op.join(outdir, 'confusion-matrix-{}.tsv'.format(lang))
+    fname = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang))
     confmats[lang] = read_csv(fname, sep='\t', index_col=0, encoding='utf-8')
 
-lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch')
+lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
+                  eng='English')
 
 # style setup
 colormap = 'viridis'
@@ -42,8 +55,8 @@ figsize = np.array([width, heights.sum()]) * 7.5 / width
 
 # initialize figure
 fig = plt.figure(figsize=figsize)
-axs = ImageGrid(fig, 111, nrows_ncols=(4, 2), axes_pad=(0.4, 0.6),
-                label_mode='all')
+axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), 2),
+                axes_pad=(0.4, 0.6), label_mode='all')
 
 for ix, lang in enumerate(foreign_langs):
     confmat = confmats[lang]
@@ -64,7 +77,7 @@ for ix, lang in enumerate(foreign_langs):
     _ = ax1.yaxis.set_ticklabels(confmat.index)
     _ = ax1.set_ylabel(lang_names[lang])
 if savefig:
-    fig.savefig('confusion-matrices.pdf')
+    fig.savefig(op.join(figdir, 'eeg-confusion-matrices.pdf'))
 else:
     plt.ion()
     plt.show()

@@ -21,26 +21,20 @@ from os import mkdir
 from os import path as op
 from glob import glob
 from pandas import Series, DataFrame, Panel, read_csv
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
-
-# flags
-plot = True
-savefig = True
-plt.ioff()
 
 # file i/o
+paramdir = 'params'
 outdir = 'processed-data'
 if not op.isdir(outdir):
     mkdir(outdir)
 
 # load ancillary data
-with open(op.join(outdir, 'ascii-to-ipa.json'), 'r') as ipafile:
+with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
-feat_ref = read_csv(op.join(outdir, 'reference-feature-table.tsv'), sep='\t',
+feat_path_eng = op.join(paramdir, 'english-reference-feature-table.tsv')
+feat_ref_eng = read_csv(feat_path_eng, sep='\t', index_col=0, encoding='utf-8')
+feat_ref = read_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
                     index_col=0, encoding='utf-8')
-feat_ref_eng = read_csv(op.join(outdir, 'english-reference-feature-table.tsv'),
-                        sep='\t', index_col=0, encoding='utf-8')
 sort_order = ['labial', 'coronal', 'dorsal', 'continuant', 'consonantal',
               'sonorant', 'periodicGlottalSource', 'distributed', 'strident']
 feat_ref = feat_ref.sort_values(by=sort_order, ascending=False)
@@ -100,7 +94,9 @@ for fname, lang in zip(foreign_files, foreign_langs):
                                 ratios.index[lowbound_ix]]
         steps = steps / 10
         thresh_mat = np.atleast_2d(thresholds).T + steps
-    print()
+    nans = np.isnan(lowvalue)
+    print(' NaNs: {0} ({1})'.format(nans.sum(),
+                                    ' '.join(featscore.columns[nans])))
     del (iteration, thresh, feat, ix, thr, false_pos, false_neg, ratios,
          lowbound_ix, lowvalue, converged, steps, thresh_mat)
     # calculate equal error rates for each feature
@@ -130,8 +126,8 @@ for fname, lang in zip(foreign_files, foreign_langs):
                                columns=eng_segments)
 
 # save results
-np.save(op.join(outdir, 'foreign-langs.npy'), foreign_langs)
+np.save(op.join(paramdir, 'foreign-langs.npy'), foreign_langs)
 equal_error_rates.to_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t')
 for lang, confmat in confmats.items():
-    confmat.to_csv(op.join(outdir, 'confusion-matrix-{}.tsv'.format(lang)),
+    confmat.to_csv(op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang)),
                    sep='\t', encoding='utf-8')
