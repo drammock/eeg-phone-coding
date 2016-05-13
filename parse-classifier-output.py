@@ -53,7 +53,35 @@ equal_error_rates = DataFrame()
 # load each language's classification results
 foreign_files = glob(op.join(outdir, 'classifier-probabilities-*.tsv'))
 foreign_langs = [op.split(x)[1][-7:-4] for x in foreign_files]
+# figure out which features we want (across all languages)
+all_phones = []
+# TODO: save as JSON and then load in
+# the phone set needed for the probabilistic transcription system
+eng_phones = [u'aɪ', u'aʊ', u'b', u'd', u'eɪ', u'f', u'h', u'iː', u'j',
+              u'k', u'kʰ', u'l', u'm', u'n', u'oʊ', u'p', u'pʰ', u's',
+              u't', u'tʃ', u'tʰ', u'u', u'v', u'w', u'x', u'z', u'æ', u'ð',
+              u'ŋ', u'ɑ', u'ɔ', u'ɔɪ', u'ə', u'ɛ', u'ɛə', u'ɟʝ', u'ɡ',
+              u'ɪ', u'ɫ', u'ɻ', u'ʃ', u'ʊ', u'ʌ', u'ʒ', u'θ']
+all_phones.extend(eng_phones)
 for fname, lang in zip(foreign_files, foreign_langs):
+    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
+                           sep='\t', encoding='utf-8')
+    all_phones.extend(np.squeeze(this_phones).values.astype(unicode).tolist())
+all_phones = list(set(all_phones))
+# read in PHOIBLE feature data
+feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
+                    sep='\t', encoding='utf-8', index_col=0)
+feat_tab = feat_tab.loc[all_phones]
+assert feat_tab.shape[0] == len(all_phones)
+# eliminate redundant features
+vacuous = feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
+privative = feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
+                           '0' in np.unique(x)).values
+feat_tab = feat_tab.iloc[:, ~(vacuous | privative)]
+
+# iterate over languages
+for fname, lang in zip(foreign_files, foreign_langs):
+    # load classification results
     featprob = read_csv(fname, sep='\t', index_col=0)
     # use probabilities as scores
     pos_class = featprob.columns[[x.startswith('+') for x in featprob.columns]]
@@ -61,10 +89,6 @@ for fname, lang in zip(foreign_files, foreign_langs):
     featscore.index = [ipa[x] for x in featscore.index]     # convert to IPA
     featscore.columns = [x[1:] for x in featscore.columns]  # remove +/- sign
     assert len(featscore.columns) == len(np.unique(featscore.columns))
-    # TODO: determine missing features based on all languages
-    # TODO: add missing features as 0.5
-    # TODO: ignore missing features during threshold finding
-    # TODO: save out featscore tables?
     # ground truth
     feattruth = DataFrame([feat_ref.loc[seg] for seg in featscore.index])
     featscores[lang] = featscore
@@ -103,11 +127,24 @@ for fname, lang in zip(foreign_files, foreign_langs):
                                     ' '.join(featscore.columns[nans])))
     del (iteration, thresh, feat, ix, thr, false_pos, false_neg, ratios,
          lowbound_ix, lowvalue, converged, steps, thresh_mat)
-    # calculate equal error rates for each feature
+    # check thresholds are actually yielding equal error rates
     predictions = (featscore >= thresholds).astype(int)
     false_pos = (predictions.values & ~feattruth.values).sum(axis=0)
     false_neg = (~predictions.values & feattruth.values).sum(axis=0)
     assert np.array_equal(false_pos, false_neg)
+    """
+    raise RuntimeError
+    # TODO: determine missing features
+    missing_feats = feat_tab.columns[np.in1d(featscore.columns,
+                                             feat_tab.columns, invert=True)]
+    # TODO: add EER of missing features as 0.5
+    shape = (featscore.shape[0], missing_feats.size)
+    missing_columns = DataFrame(0.5 * np.ones(shape), index=featscore.index,
+                                columns=missing_feats)
+    new_df = pd.concat(featscore, missing_columns)
+    # TODO: save out featscore tables?
+    """
+    # calculate equal error rates for each feature
     equal_error_rate = false_pos / predictions.shape[0]
     equal_error_rates[lang] = Series(equal_error_rate, index=featscore.columns)
     # create confusion matrix

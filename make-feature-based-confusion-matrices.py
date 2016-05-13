@@ -30,6 +30,7 @@ foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
 
+# TODO: save as JSON and then load in
 # the phone set needed for the probabilistic transcription system:
 eng_phones = [u'aɪ', u'aʊ', u'b', u'd', u'eɪ', u'f', u'h', u'iː', u'j',
               u'k', u'kʰ', u'l', u'm', u'n', u'oʊ', u'p', u'pʰ', u's',
