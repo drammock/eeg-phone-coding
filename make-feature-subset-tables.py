@@ -21,6 +21,15 @@ paramdir = 'params'
 with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
 
+# load language phone sets
+foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+all_phonemes = list()
+for lang in foreign_langs:
+    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
+                           encoding='utf-8', header=None)
+    all_phonemes.extend(np.squeeze(this_phones).astype(unicode).tolist())
+all_phonemes = list(set(all_phonemes))
+
 # load trial params
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
               usecols=['talker', 'syll'], dtype=dict(talker=str, syll=str))
@@ -34,17 +43,18 @@ feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
                     sep='\t', encoding='utf-8', index_col=0)
 
 # reduce feature table to only the segments we need
-feat_tab = feat_tab.iloc[np.in1d(feat_tab.index, ipa.values())]
-assert feat_tab.shape[0] == len(ipa)
+all_phones = list(set(ipa.values() + all_phonemes))
+feat_tab_all = feat_tab.iloc[np.in1d(feat_tab.index, all_phones)]
+feat_tab_cons = feat_tab.iloc[np.in1d(feat_tab.index, ipa.values())]
 
 # remove any features that are fully redundant within the training set
-eng_cons = np.unique(df['cons'].loc[df['lang'] == 'eng']
+cons_eng = np.unique(df['cons'].loc[df['lang'] == 'eng']
                      .apply(str.replace, args=('-', '_'))).astype(unicode)
-eng_cons = [ipa[x] for x in eng_cons]
-eng_feat_tab = feat_tab.loc[eng_cons]
-eng_vacuous = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
-eng_privative = eng_feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
-                                   '0' in np.unique(x)).values
+cons_eng = [ipa[x] for x in cons_eng]
+feat_tab_cons_eng = feat_tab_cons.loc[cons_eng]
+eng_vacuous = feat_tab_cons_eng.apply(lambda x: len(np.unique(x)) == 1).values
+eng_privative = feat_tab_cons_eng.apply(lambda x: len(np.unique(x)) == 2 and
+                                        '0' in np.unique(x)).values
 # other redundant features (based on linguistic knowledge, not easy to infer);
 # here we list all that *could* be excluded, but only exclude features
 # [round, front, back] because they cause problems in later analysis
@@ -59,19 +69,24 @@ eng_redundant = ['round',           # (labial) w vs j captured by 'labial'
                  ]
 eng_redundant = np.in1d(feat_tab.columns, eng_redundant)
 nonredundant = feat_tab.columns[~(eng_vacuous | eng_privative | eng_redundant)]
-feat_tab = feat_tab[nonredundant]
-eng_feat_tab = eng_feat_tab[nonredundant]
+# feat_tab = feat_tab[nonredundant]
+feat_tab_all = feat_tab_all[nonredundant]
+feat_tab_cons = feat_tab_cons[nonredundant]
+feat_tab_cons_eng = feat_tab_cons_eng[nonredundant]
 # convert features to binary (discards distinction between neg. & unvalued)
 if make_feats_binary:
-    feat_tab = feat_tab.apply(lambda x: x == '+').astype(int)
-    eng_feat_tab = eng_feat_tab.apply(lambda x: x == '+').astype(int)
-    rec_dtypes = [(str(f), int) for f in feat_tab.columns]
-else:
-    # determine dtype for later use in structured arrays
-    dty = 'a{}'.format(max([len(x) for x in np.unique(feat_tab).astype(str)]))
-    rec_dtypes = [(str(f), dty) for f in feat_tab.columns]
+    # feat_tab = feat_tab.apply(lambda x: x == '+').astype(int)
+    feat_tab_all = feat_tab_all.apply(lambda x: x == '+').astype(int)
+    feat_tab_cons = feat_tab_cons.apply(lambda x: x == '+').astype(int)
+    feat_tab_cons_eng = feat_tab_cons_eng.apply(lambda x: x == '+').astype(int)
 # save reference feature tables
+"""
 feat_tab.to_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
                 encoding='utf-8')
-eng_feat_tab.to_csv(op.join(paramdir, 'english-reference-feature-table.tsv'),
+"""
+fname = op.join(paramdir, 'reference-feature-table-english.tsv')
+feat_tab_cons_eng.to_csv(fname, sep='\t', encoding='utf-8')
+feat_tab_cons.to_csv(op.join(paramdir, 'reference-feature-table-cons.tsv'),
+                     sep='\t', encoding='utf-8')
+feat_tab_all.to_csv(op.join(paramdir, 'reference-feature-table-all.tsv'),
                     sep='\t', encoding='utf-8')

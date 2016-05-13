@@ -58,8 +58,8 @@ with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
 
 # load feature table
-feat_ref = read_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
-                    index_col=0, encoding='utf-8')
+feat_ref = read_csv(op.join(paramdir, 'reference-feature-table-cons.tsv'),
+                    sep='\t', index_col=0, encoding='utf-8')
 
 # determine dtype for later use in structured arrays
 if isinstance(feat_ref.iloc[0, 0], int):  # feats are binary

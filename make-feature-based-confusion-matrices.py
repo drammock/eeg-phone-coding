@@ -30,13 +30,11 @@ foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
 
-# TODO: save as JSON and then load in
-# the phone set needed for the probabilistic transcription system:
-eng_phones = [u'aɪ', u'aʊ', u'b', u'd', u'eɪ', u'f', u'h', u'iː', u'j',
-              u'k', u'kʰ', u'l', u'm', u'n', u'oʊ', u'p', u'pʰ', u's',
-              u't', u'tʃ', u'tʰ', u'u', u'v', u'w', u'x', u'z', u'æ', u'ð',
-              u'ŋ', u'ɑ', u'ɔ', u'ɔɪ', u'ə', u'ɛ', u'ɛə', u'ɟʝ', u'ɡ',
-              u'ɪ', u'ɫ', u'ɻ', u'ʃ', u'ʊ', u'ʌ', u'ʒ', u'θ']
+# these phone sets are determined by the output of the probabilistic
+# transcription system; may not correspond to the languages' phonemes
+eng_phones = read_csv(op.join(paramdir, 'eng-phones.tsv'), encoding='utf-8',
+                      header=None)
+eng_phones = np.squeeze(eng_phones.values).astype(unicode).tolist()
 
 # load master features table
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
@@ -49,13 +47,10 @@ sort_order = ['syllabic', 'consonantal', 'labial', 'coronal', 'dorsal',
 
 # iterate over languages
 for ix, lang in enumerate(foreign_langs):
-    try:
-        # TODO: need to get updated foreign phone lists from MHJ / PJ
-        this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
-                               sep='\t', encoding='utf-8')
-        this_phones = np.squeeze(this_phones).values.astype(unicode).tolist()
-    except IOError:
-        this_phones = eng_phones
+    # TODO: need to get updated foreign phone lists from MHJ / PJ
+    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
+                           encoding='utf-8', header=None)
+    this_phones = np.squeeze(this_phones.values).astype(unicode).tolist()
     # find which features are contrastive
     all_phones = list(set(this_phones + eng_phones))
     all_feat_tab = feat_tab.loc[all_phones]

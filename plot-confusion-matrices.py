@@ -34,7 +34,7 @@ outdir = 'processed-data'
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 confmats = dict()
 for lang in foreign_langs:
-    fname = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang))
+    fname = op.join(outdir, 'eeg-weights-matrix-{}.tsv'.format(lang))
     confmats[lang] = read_csv(fname, sep='\t', index_col=0, encoding='utf-8')
 
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
@@ -77,6 +77,7 @@ for ix, lang in enumerate(foreign_langs):
         ax.set_yticks(np.arange(confmat.shape[0])[::2], minor=True)
         ax.set_yticklabels(confmat.index[1::2], minor=False, size=labelsize)
         ax.set_yticklabels(confmat.index[::2], minor=True, size=labelsize)
+        ax.tick_params(axis='both', color='0.8')
         if ix == len(foreign_langs) - 1:
             ax.set_xlabel('English')
     if ix == 0:
@@ -84,7 +85,7 @@ for ix, lang in enumerate(foreign_langs):
         ax2.set_title('-log2(prob)')
     ax1.set_ylabel(lang_names[lang])
 if savefig:
-    fig.savefig(op.join(figdir, 'eeg-confusion-matrices.pdf'))
+    fig.savefig(op.join(figdir, 'eeg-weights-matrices.pdf'))
 else:
     plt.ion()
     plt.show()

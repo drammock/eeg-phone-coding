@@ -40,9 +40,9 @@ labelsize = 8
 colormap = 'viridis_r' if negative_log else 'viridis'
 plt.rc('font', serif='Charis SIL', family='serif', size=12)
 plt.rc('axes.spines', top=False, right=False, left=False, bottom=False)
-plt.rc('xtick.major', size=10, pad=2, width=0.25)
+plt.rc('xtick.major', size=10, pad=2, width=0.2)
+plt.rc('ytick.major', size=12, pad=2, width=0.2)
 plt.rc('xtick.minor', size=0, pad=2)
-plt.rc('ytick.major', size=12, pad=2, width=0.25)
 plt.rc('ytick.minor', size=0, pad=2)
 plt.rc('ytick', right=False)
 plt.rc('xtick', top=False)
@@ -67,9 +67,9 @@ for ix, lang in enumerate(foreign_langs):
     ax.set_xticklabels(confmat.columns[::2], minor=True, size=labelsize)
     ax.set_yticklabels(confmat.index[1::2], minor=False, size=labelsize)
     ax.set_yticklabels(confmat.index[::2], minor=True, size=labelsize)
+    ax.tick_params(axis='both', color='0.8')
     if ix == len(foreign_langs) - 1:
         ax.set_xlabel('English')
-
 # finish
 if savefig:
     plt.savefig(op.join(figdir, 'feature-confusion-matrices.pdf'))
