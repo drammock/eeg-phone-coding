@@ -45,12 +45,15 @@ sort_order = ['syllabic', 'consonantal', 'labial', 'coronal', 'dorsal',
               'continuant', 'sonorant', 'periodicGlottalSource', 'distributed',
               'strident']
 
+# load list of languages
+foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
+                  eng='English')
+phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
+
 # iterate over languages
 for ix, lang in enumerate(foreign_langs):
-    # TODO: need to get updated foreign phone lists from MHJ / PJ
-    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
-                           encoding='utf-8', header=None)
-    this_phones = np.squeeze(this_phones.values).astype(unicode).tolist()
+    this_phones = phonesets[lang].tolist()
     # find which features are contrastive
     all_phones = list(set(this_phones + eng_phones))
     all_feat_tab = feat_tab.loc[all_phones]
@@ -76,8 +79,11 @@ for ix, lang in enumerate(foreign_langs):
     eng_feat_tab = eng_feat_tab.apply(lambda x: x == '+').astype(int)
     """
     # find feature distance
-    match = eng_feat_tab.apply(lambda x: np.sum(x.astype(str)[np.newaxis, :] ==
-                                                this_feat_tab, axis=1), axis=1)
+    mismatch = eng_feat_tab.apply(lambda x: np.sum(x.astype(str)[None, :] !=
+                                                   this_feat_tab, axis=1),
+                                  axis=1)
+    # convert to confusion probability
+    confusion_probability = np.exp(-1 * mismatch)
     # save
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
-    match.to_csv(fpath, sep='\t', encoding='utf-8')
+    confusion_probability.to_csv(fpath, sep='\t', encoding='utf-8')

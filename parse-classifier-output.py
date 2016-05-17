@@ -22,6 +22,9 @@ from os import path as op
 from glob import glob
 from pandas import Series, DataFrame, Panel, read_csv, concat
 
+# flags
+add_missing_feats = False
+
 # file i/o
 paramdir = 'params'
 outdir = 'processed-data'
@@ -38,11 +41,11 @@ feat_ref_all = read_csv(op.join(paramdir, 'reference-feature-table-all.tsv'),
 feat_ref = read_csv(op.join(paramdir, 'reference-feature-table-cons.tsv'),
                     sep='\t', index_col=0, encoding='utf-8')
 # this sort order is for the classifier features only
-sort_order = ['consonantal', 'labial', 'coronal', 'dorsal', 'continuant',
-              'sonorant', 'periodicGlottalSource', 'distributed', 'strident']
-feat_ref_cons = feat_ref.sort_values(by=sort_order, ascending=False)
-feat_ref_all = feat_ref_all.sort_values(by=sort_order, ascending=False)
-feat_ref_eng = feat_ref_eng.sort_values(by=sort_order, ascending=False)
+sort_by = ['consonantal', 'labial', 'coronal', 'dorsal', 'continuant',
+           'sonorant', 'periodicGlottalSource', 'distributed', 'strident']
+feat_ref_cons = feat_ref.sort_values(by=sort_by, ascending=False)
+feat_ref_all = feat_ref_all.sort_values(by=sort_by, ascending=False)
+feat_ref_eng = feat_ref_eng.sort_values(by=sort_by, ascending=False)
 feat_ref = feat_ref_all
 # convert to binary if needed
 if isinstance(feat_ref.iloc[0, 0], (str, unicode)):
@@ -55,18 +58,9 @@ confmats_normed = dict()
 equal_error_rates = DataFrame()
 
 # load each language's phone sets
-# these phone sets are determined by the output of the probabilistic
-# transcription system; may not correspond to the languages' phonemes
-fnames = glob(op.join(paramdir, '*-phones.tsv'))
-langs = [op.split(x)[1][:3] for x in fnames]
-phonesets = dict()
-for lang in langs:
-    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
-                           encoding='utf-8', header=None)
-    this_phones = np.squeeze(this_phones.values).astype(unicode).tolist()
-    phonesets[lang] = this_phones
-all_phones = [phone for inventory in phonesets.values() for phone in inventory]
-all_phones = list(set(all_phones))
+langs = [op.split(x)[1][:3] for x in glob(op.join(paramdir, '*-phones.tsv'))]
+phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
+all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
 
 # read in PHOIBLE feature data
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
@@ -81,14 +75,8 @@ privative = feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
 feat_tab = feat_tab.iloc[:, ~(vacuous | privative)]
 
 # add 'syllabic' to beginning of sort order to group vowels together
-sort_order = ['syllabic'] + sort_order
-feat_tab = feat_tab.sort_values(by=sort_order, ascending=False)
-
-# sort phonesets to fall in same order as feat_tab
-for lang in langs:
-    indices = [np.where(feat_tab.index.values.astype(unicode) == x)[0][0]
-               for x in phonesets[lang]]
-    phonesets[lang] = np.array(phonesets[lang])[np.argsort(indices)].tolist()
+sort_by = ['syllabic'] + sort_by
+feat_tab = feat_tab.sort_values(by=sort_by, ascending=False)
 
 # load each language's classification results
 foreign_files = glob(op.join(outdir, 'classifier-probabilities-*.tsv'))
@@ -148,31 +136,27 @@ for fname, lang in zip(foreign_files, foreign_langs):
     assert np.array_equal(false_pos, false_neg)
     # calculate equal error rates for each feature
     equal_error_rate = false_pos / predictions.shape[0]
-    # add EER of 0.5 for all missing features
-    missing_feats = feat_tab.columns[np.in1d(feat_tab.columns,
-                                             featscore.columns, invert=True)]
-    equal_error_rate = np.r_[equal_error_rate,
-                             0.5 * np.ones(missing_feats.size)]
-    # convert to Series & save to global variable
-    equal_error_rate = Series(equal_error_rate,
-                              index=np.r_[featscore.columns, missing_feats])
-    equal_error_rates[lang] = equal_error_rate
-    # add missing features to reference feature tables
-    z = np.zeros((feat_ref.shape[0], missing_feats.size), dtype=int)
-    missing_df = DataFrame(z, columns=missing_feats, index=feat_ref.index)
-    feat_ref_expanded = concat((feat_ref, missing_df), axis=1)
-    # repeat for english feature table
-    """
-    z = np.zeros((feat_ref_eng.shape[0], missing_feats.size), dtype=int)
-    missing_df = DataFrame(z, columns=missing_feats, index=feat_ref_eng.index)
-    feat_ref_eng_expanded = concat((feat_ref_eng, missing_df), axis=1)
-    """
+    if add_missing_feats:
+        # add EER of 0.5 for all missing features
+        missing_feats = feat_tab.columns[np.in1d(feat_tab.columns,
+                                                 featscore.columns,
+                                                 invert=True)]
+        equal_error_rate = np.r_[equal_error_rate,
+                                 0.5 * np.ones(missing_feats.size)]
+        # convert to Series
+        equal_error_rate = Series(equal_error_rate,
+                                  index=np.r_[featscore.columns,
+                                              missing_feats])
+        # add missing features to reference feature tables
+        z = np.zeros((feat_ref.shape[0], missing_feats.size), dtype=int)
+        missing_df = DataFrame(z, columns=missing_feats, index=feat_ref.index)
+        feat_ref_expanded = concat((feat_ref, missing_df), axis=1)
+    else:
+        equal_error_rate = Series(equal_error_rate, index=featscore.columns)
+        feat_ref_expanded = feat_ref
+    # propogate add'l features to english feature table
     feat_ref_eng_expanded = feat_ref_expanded.loc[phonesets['eng']]
     # create confusion matrix
-    """
-    phonesets[lang] = feat_ref.index[np.in1d(feat_ref_expanded.index,
-                                     featscore.index.unique())]
-    """
     feat_ref_foreign = feat_ref_expanded.loc[phonesets[lang]]
     # make binary mask of feature matches: shape=(foreign_cons, eng_cons, feat)
     # 1. add 1 to remap binary feature values as 1 (absence) or 2 (presence)
@@ -184,8 +168,10 @@ for fname, lang in zip(foreign_files, foreign_langs):
     # (this yields probability of "correct" classification for each feature
     # when considering feature values of each English phone as a prior)
     feat_prob_mat = np.abs(mask.astype(int) - equal_error_rate.values)
-    # compute product of feature classif. probs. to get phone classif. prob.
-    weights_matrix = feat_prob_mat.prod(axis=-1)
+    # aggregate feature classif. probs. into phone classif. probs.
+    weights_matrix = np.exp(-np.sum(-np.log(feat_prob_mat), axis=-1))
+    # save to global variables
+    equal_error_rates[lang] = equal_error_rate
     weights_mats[lang] = DataFrame(weights_matrix, index=phonesets[lang],
                                    columns=phonesets['eng'])
 
@@ -193,5 +179,5 @@ for fname, lang in zip(foreign_files, foreign_langs):
 np.save(op.join(paramdir, 'foreign-langs.npy'), foreign_langs)
 equal_error_rates.to_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t')
 for lang, wmat in weights_mats.items():
-    wmat.to_csv(op.join(outdir, 'eeg-weights-matrix-{}.tsv'.format(lang)),
+    wmat.to_csv(op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang)),
                 sep='\t', encoding='utf-8')

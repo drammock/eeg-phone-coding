@@ -23,12 +23,7 @@ with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
 
 # load language phone sets
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
-all_phonemes = list()
-for lang in foreign_langs:
-    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
-                           encoding='utf-8', header=None)
-    all_phonemes.extend(np.squeeze(this_phones).astype(unicode).tolist())
-all_phonemes = list(set(all_phonemes))
+all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
 
 # load trial params
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
@@ -43,7 +38,7 @@ feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
                     sep='\t', encoding='utf-8', index_col=0)
 
 # reduce feature table to only the segments we need
-all_phones = list(set(ipa.values() + all_phonemes))
+all_phones = list(set(ipa.values() + all_phones))
 feat_tab_all = feat_tab.iloc[np.in1d(feat_tab.index, all_phones)]
 feat_tab_cons = feat_tab.iloc[np.in1d(feat_tab.index, ipa.values())]
 

@@ -3,12 +3,13 @@
 
 """
 ===============================================================================
-Script 'plot-confusion-matrices.py'
+Script 'plot-weights-matrices.py'
 ===============================================================================
 
-This script plots confusion matrices for English vs foreign speech sounds for
-four different languages. The confusion matrices are based on distinctive
-feature classifiers trained on EEG responses to the speech sounds.
+This script plots matrices for English vs foreign speech sounds for four
+different languages. The matrices are based on distinctive feature classifiers
+trained on EEG responses to the speech sounds, and are used as weights for
+confusion matrices based on distinctive feature values.
 """
 # @author: drmccloy
 # Created on Wed Apr  6 12:43:04 2016
@@ -25,6 +26,7 @@ plt.ioff()
 
 # flags
 savefig = True
+figwidth = 4  # figure width in inches; height auto-calculated
 
 # file I/O
 figdir = 'figures'
@@ -32,13 +34,14 @@ paramdir = 'params'
 outdir = 'processed-data'
 
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
+                  eng='English')
+
+# load confusion matrices
 confmats = dict()
 for lang in foreign_langs:
     fname = op.join(outdir, 'eeg-weights-matrix-{}.tsv'.format(lang))
     confmats[lang] = read_csv(fname, sep='\t', index_col=0, encoding='utf-8')
-
-lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
-                  eng='English')
 
 # style setup
 labelsize = 8
@@ -52,38 +55,34 @@ plt.rc('ytick.minor', size=0, pad=2)
 plt.rc('ytick', right=False)
 plt.rc('xtick', top=False)
 
-width = 2 * confmats[foreign_langs[0]].shape[1]
+width = confmats[foreign_langs[0]].shape[1]
 heights = np.array([confmats[lg].shape[0] for lg in foreign_langs])
-figsize = np.array([width, heights.sum()]) * 7.5 / width
+figsize = np.array([width, heights.sum()]) * figwidth / width
 
 # initialize figure
 fig = plt.figure(figsize=figsize)
-axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), 2),
+axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), 1),
                 axes_pad=(0.4, 0.6), label_mode='all')
 
-for ix, lang in enumerate(foreign_langs):
+# for ix, lang in enumerate(foreign_langs):
+for ix, (ax, lang) in enumerate(zip(axs, foreign_langs)):
     confmat = confmats[lang]
-    confmat_log = -np.log2(confmat)
-    ax1 = axs[ix * 2]
-    ax2 = axs[ix * 2 + 1]
-    for ax, data, cmap in zip([ax1, ax2], [confmat, confmat_log],
-                              ['viridis', 'viridis_r']):
-        _ = ax.imshow(data, cmap=plt.get_cmap(cmap))
-        ax.set_xticks(np.arange(confmat.shape[1])[1::2], minor=False)
-        ax.set_xticks(np.arange(confmat.shape[1])[::2], minor=True)
-        ax.set_xticklabels(confmat.columns[1::2], minor=False, size=labelsize)
-        ax.set_xticklabels(confmat.columns[::2], minor=True, size=labelsize)
-        ax.set_yticks(np.arange(confmat.shape[0])[1::2], minor=False)
-        ax.set_yticks(np.arange(confmat.shape[0])[::2], minor=True)
-        ax.set_yticklabels(confmat.index[1::2], minor=False, size=labelsize)
-        ax.set_yticklabels(confmat.index[::2], minor=True, size=labelsize)
-        ax.tick_params(axis='both', color='0.8')
-        if ix == len(foreign_langs) - 1:
-            ax.set_xlabel('English')
+    _ = ax.imshow(confmat, cmap=plt.get_cmap(colormap))
+    # format garnishes
+    ax.set_xticks(np.arange(confmat.shape[1])[1::2], minor=False)
+    ax.set_xticks(np.arange(confmat.shape[1])[::2], minor=True)
+    ax.set_xticklabels(confmat.columns[1::2], minor=False, size=labelsize)
+    ax.set_xticklabels(confmat.columns[::2], minor=True, size=labelsize)
+    ax.set_yticks(np.arange(confmat.shape[0])[1::2], minor=False)
+    ax.set_yticks(np.arange(confmat.shape[0])[::2], minor=True)
+    ax.set_yticklabels(confmat.index[1::2], minor=False, size=labelsize)
+    ax.set_yticklabels(confmat.index[::2], minor=True, size=labelsize)
+    ax.tick_params(axis='both', color='0.8')
+    ax.set_ylabel(lang_names[lang])
+    if ix == len(foreign_langs) - 1:
+        ax.set_xlabel('English')
     if ix == 0:
-        ax1.set_title('prob')
-        ax2.set_title('-log2(prob)')
-    ax1.set_ylabel(lang_names[lang])
+        ax.set_title('Classifier confusions')
 if savefig:
     fig.savefig(op.join(figdir, 'eeg-weights-matrices.pdf'))
 else:

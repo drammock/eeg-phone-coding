@@ -14,7 +14,7 @@ This script plots confusion matrices.
 
 from __future__ import division, print_function
 import numpy as np
-from os import path as op
+import os.path as op
 from pandas import read_csv
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
@@ -22,7 +22,7 @@ plt.ioff()
 
 # flags
 savefig = True
-negative_log = True
+negative_log = False
 figsize = (4, 24)
 
 # file I/O
@@ -46,6 +46,10 @@ plt.rc('xtick.minor', size=0, pad=2)
 plt.rc('ytick.minor', size=0, pad=2)
 plt.rc('ytick', right=False)
 plt.rc('xtick', top=False)
+
+# sort to match order of weights
+phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
+
 # initialize figure
 fig = plt.figure(figsize=figsize)
 axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), 1),
