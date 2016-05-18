@@ -48,7 +48,7 @@ stim_fs = params['fs'].astype(float)
 del params
 
 # load C-V transition times
-df = read_csv(cvfile, sep='\t')
+df = read_csv(op.join(paramdir, cvfile), sep='\t')
 df['key'] = df['talker'] + '/' + df['consonant'] + '.wav'
 df['key'] = df['key'].apply(unicode)
 assert set(wav_names) - set(df['key']) == set([])  # have a time for all keys?

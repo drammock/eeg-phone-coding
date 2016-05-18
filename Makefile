@@ -30,7 +30,7 @@ normed: cleanrms
 	python rms-normalize-and-asciify.py
 
 cvtable:
-	praat make-cv-boundary-table.praat stimuli-tg cv-boundary-times.tsv
+	praat make-cv-boundary-table.praat stimuli-tg params/cv-boundary-times.tsv
 
 slides:
 	Rscript make-slides.R

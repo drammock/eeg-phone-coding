@@ -2,7 +2,7 @@
 
 form Read values from point tier
 	sentence rootdir stimuli-tg
-	sentence outfile ./cv-boundary-times.tsv
+	sentence outfile params/cv-boundary-times.tsv
 endform
 
 # handle path sep
