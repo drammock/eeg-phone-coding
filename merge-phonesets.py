@@ -28,7 +28,7 @@ fnames = glob(op.join(paramdir, '*-phones.tsv'))
 langs = [op.split(x)[1][:3] for x in fnames]
 phonesets = dict()
 for lang in langs:
-    # TODO: need to get updated foreign phone lists from MHJ / PJ
+    # TODO: need to get updated phone list (for Hindi) from MHJ / PJ
     this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
                            encoding='utf-8', header=None)
     this_phones = np.squeeze(this_phones.values).astype(unicode).tolist()
@@ -53,9 +53,10 @@ for lang in langs:
                for x in phonesets[lang]]
     phonesets[lang] = np.array(phonesets[lang])[np.argsort(indices)].tolist()
 # apply sort order to all_phones
-indices = [np.where(feat_tab.index.values.astype(unicode) == x)[0][0]
-           for x in all_phones]
-all_phones = np.array(all_phones)[np.argsort(indices)].tolist()
+#indices = [np.where(feat_tab.index.values.astype(unicode) == x)[0][0]
+#           for x in all_phones]
+#all_phones = np.array(all_phones)[np.argsort(indices)].tolist()
+all_phones = feat_tab.index
 
 # save
 np.savez(op.join(paramdir, 'phonesets.npz'), **phonesets)

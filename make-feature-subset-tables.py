@@ -36,9 +36,16 @@ df['cons'] = df['syll'].apply(lambda x: x[:-2].replace('-', '_')
 # load feature table
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
                     sep='\t', encoding='utf-8', index_col=0)
-
-# reduce feature table to only the segments we need
+# combine phone sets with consonants from EEG stimulus transcripts
 all_phones = list(set(ipa.values() + all_phones))
+# make sure we have features for all phones
+synonyms = {u'gː': u'ɡː', u'ɑɻ': u'ɻ', u'tʃː': u't̠ʃː', u'ç': u'ç'}
+indices = np.where(np.in1d(all_phones, feat_tab.index, invert=True))[0]
+missing = np.array(all_phones, dtype=unicode)[indices]
+for ix in indices:
+    all_phones[ix] = synonyms[all_phones[ix]]
+assert np.all(np.in1d(all_phones, feat_tab.index))
+# reduce feature table to only the segments we need
 feat_tab_all = feat_tab.iloc[np.in1d(feat_tab.index, all_phones)]
 feat_tab_cons = feat_tab.iloc[np.in1d(feat_tab.index, ipa.values())]
 
@@ -64,21 +71,15 @@ eng_redundant = ['round',           # (labial) w vs j captured by 'labial'
                  ]
 eng_redundant = np.in1d(feat_tab.columns, eng_redundant)
 nonredundant = feat_tab.columns[~(eng_vacuous | eng_privative | eng_redundant)]
-# feat_tab = feat_tab[nonredundant]
 feat_tab_all = feat_tab_all[nonredundant]
 feat_tab_cons = feat_tab_cons[nonredundant]
 feat_tab_cons_eng = feat_tab_cons_eng[nonredundant]
 # convert features to binary (discards distinction between neg. & unvalued)
 if make_feats_binary:
-    # feat_tab = feat_tab.apply(lambda x: x == '+').astype(int)
     feat_tab_all = feat_tab_all.apply(lambda x: x == '+').astype(int)
     feat_tab_cons = feat_tab_cons.apply(lambda x: x == '+').astype(int)
     feat_tab_cons_eng = feat_tab_cons_eng.apply(lambda x: x == '+').astype(int)
 # save reference feature tables
-"""
-feat_tab.to_csv(op.join(paramdir, 'reference-feature-table.tsv'), sep='\t',
-                encoding='utf-8')
-"""
 fname = op.join(paramdir, 'reference-feature-table-english.tsv')
 feat_tab_cons_eng.to_csv(fname, sep='\t', encoding='utf-8')
 feat_tab_cons.to_csv(op.join(paramdir, 'reference-feature-table-cons.tsv'),
