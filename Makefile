@@ -66,8 +66,8 @@ classify_eeg: params/ascii-to-ipa.json params/reference-feature-table-cons.tsv
 	python classify-eeg.py
 
 # plots
-plot_feature_matrices: params/features-confusion-matrix-*.tsv params/phonesets.npz
-	python plot-feature-based-confusion-matrices.py 
+#plot_feature_matrices: params/features-confusion-matrix-*.tsv params/phonesets.npz
+#	python plot-feature-based-confusion-matrices.py 
 
 #plot_weights_matrices: processed-data/eeg-weights-matrix-*.tsv
 #	python plot-weights-matrices.py

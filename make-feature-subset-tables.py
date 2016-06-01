@@ -39,11 +39,6 @@ feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
 # combine phone sets with consonants from EEG stimulus transcripts
 all_phones = list(set(ipa.values() + all_phones))
 # make sure we have features for all phones
-synonyms = {u'gː': u'ɡː', u'ɑɻ': u'ɻ', u'tʃː': u't̠ʃː', u'ç': u'ç'}
-indices = np.where(np.in1d(all_phones, feat_tab.index, invert=True))[0]
-missing = np.array(all_phones, dtype=unicode)[indices]
-for ix in indices:
-    all_phones[ix] = synonyms[all_phones[ix]]
 assert np.all(np.in1d(all_phones, feat_tab.index))
 # reduce feature table to only the segments we need
 feat_tab_all = feat_tab.iloc[np.in1d(feat_tab.index, all_phones)]
