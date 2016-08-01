@@ -2,7 +2,7 @@
 
 form Read values from point tier
 	sentence rootdir stimuli-tg
-	sentence outfile params/cv-boundary-times.tsv
+	sentence outfile ../params/cv-boundary-times.tsv
 endform
 
 # handle path sep
@@ -10,7 +10,7 @@ if endsWith(rootdir$, "/") = 0
 	rootdir$ = rootdir$ + "/"
 endif
 
-# create output file (append will create files that don't exist)
+# create output file (appendFileLine will create files that don't exist)
 deleteFile: outfile$
 appendFileLine: outfile$, "talker" + tab$ + "consonant" + tab$ + "CV-transition-time"
 
