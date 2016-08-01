@@ -47,8 +47,8 @@ for (lang in langs) {
   fname <- file.path('wordlists', paste0(lang, '.csv'))
   df <- read.csv(fname)
   df$highlight[is.na(df$highlight)] <- ''
-  if(!dir.exists('slide-prompts')) dir.create('slide-prompts')
-  cairo_pdf(file.path('slide-prompts', paste0(lang, '.pdf')), width=8, height=4.5,
+  if(!dir.exists('slides')) dir.create('slides')
+  cairo_pdf(file.path('slides', paste0(lang, '.pdf')), width=8, height=4.5,
             onefile=TRUE, family=fonts[flang], bg='black')
   invisible(apply(df, 1, make_slide, lang))
   dev.off()
