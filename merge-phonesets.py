@@ -67,7 +67,10 @@ for lang in langs:
     indices = [np.where(feat_tab.index.values.astype(unicode) == x)[0][0]
                for x in phonesets[lang]]
     phonesets[lang] = np.array(phonesets[lang])[np.argsort(indices)].tolist()
-
+# create separate list of just the vowels
+vowels = feat_tab[(feat_tab['consonantal'] == '-') &
+                  (feat_tab['syllabic'] == '+')].index.values.astype(unicode)
 # save
 np.savez(op.join(paramdir, 'phonesets.npz'), **phonesets)
 np.save(op.join(paramdir, 'allphones.npy'), all_phones)
+np.save(op.join(paramdir, 'vowels.npy'), vowels)
