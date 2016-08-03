@@ -3,20 +3,20 @@
 
 """
 ===============================================================================
-Script 'make-weighted-confusion-matrices.py'
+Script 'plot-weighted-confusion-matrices.py'
 ===============================================================================
 
-This script combines a feature-based confusion matrix with weights from
-EEG-trained classifiers.
+This script plots feature-based confusion matrices, weights matrices from
+EEG-trained classifiers, and the linear combination of the two.
 """
 # @author: drmccloy
 # Created on Wed Apr  6 12:43:04 2016
 # License: BSD (3-clause)
 
 from __future__ import division, print_function
+from pandas import read_csv
 import numpy as np
 import os.path as op
-from pandas import read_csv
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 plt.ioff()
@@ -53,15 +53,12 @@ plt.rc('ytick.minor', size=0, pad=2)
 plt.rc('ytick', right=False)
 plt.rc('xtick', top=False)
 
-# load list of languages
+# load list of languages, put English last
 foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+foreign_langs = np.append(foreign_langs[foreign_langs != 'eng'], 'eng')
+# pretty names for axis labels
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
-phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
-all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
-eng = phonesets['eng']
-# put English last
-foreign_langs = np.append(foreign_langs[foreign_langs != 'eng'], 'eng')
 
 # load data
 confmats = dict()
@@ -71,30 +68,19 @@ for lang in foreign_langs:
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
-    confmat = confmat.T
     # load eeg confusion matrices
     fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang))
     weightmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
-    # make sure entries match
-    assert set(confmat.index) == set(weightmat.index)
-    assert set(confmat.columns) == set(weightmat.columns)
-    # make sure orders match
-    if not np.array_equal(confmat.index, weightmat.index):
-        weightmat = weightmat.iloc[confmat.index, :]
-        assert np.array_equal(confmat.index, weightmat.index)
-    if not np.array_equal(confmat.columns, weightmat.columns):
-        weightmat = weightmat[confmat.columns]
-        assert np.array_equal(confmat.columns, weightmat.columns)
-    # combine
-    weightedmat = (confmat / confmat.values.max() +
-                   weightmat / weightmat.values.max())
+    # load weighted confusion matrices
+    fpath = op.join(outdir, 'weighted-confusion-matrix-{}.tsv'.format(lang))
+    weightedmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
     # save to global dict
-    confmats[lang] = confmat[eng]
-    weightmats[lang] = weightmat[eng]
-    weightedmats[lang] = weightedmat[eng]
+    confmats[lang] = confmat
+    weightmats[lang] = weightmat
+    weightedmats[lang] = weightedmat
 
 # calculate figure size
-matrix_width = 3 * confmats[foreign_langs[0]].shape[1]
+matrix_width = 3 * confmat.shape[1]
 heights = np.array([confmats[lg].shape[0] for lg in foreign_langs])
 figsize = np.array([matrix_width, heights.sum()]) * figwidth / matrix_width
 
