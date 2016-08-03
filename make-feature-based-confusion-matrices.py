@@ -84,6 +84,8 @@ for ix, lang in enumerate(foreign_langs):
                                   axis=1)
     # convert to confusion probability
     confusion_probability = np.exp(-1 * mismatch)
+    # put English on horizontal axis
+    confusion_probability = confusion_probability.T
     # save
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confusion_probability.to_csv(fpath, sep='\t', encoding='utf-8')
