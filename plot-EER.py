@@ -34,7 +34,6 @@ colors = [str(x) for x in np.linspace(0.2, 0.8, 5)]
 plt.rc('font', family='sans-serif', size=8, **{'sans-serif': 'M+ 1c'})
 
 # load data
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 eer = read_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t', index_col=0)
 # sort English first
 eer = eer[['eng', 'hun', 'nld', 'swh', 'hin']]

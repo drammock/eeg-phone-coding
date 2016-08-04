@@ -24,7 +24,8 @@ from pandas import read_csv
 from ast import literal_eval
 
 # manually-set params
-subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9, IV=10)
+subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9, IV=10,
+                IQ=11, IT=12)
 do_baseline = True
 save_dss_data = True
 save_dss_mat = True

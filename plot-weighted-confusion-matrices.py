@@ -54,8 +54,8 @@ plt.rc('ytick', right=False)
 plt.rc('xtick', top=False)
 
 # load list of languages, put English last
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
-foreign_langs = np.append(foreign_langs[foreign_langs != 'eng'], 'eng')
+langs = np.load(op.join(paramdir, 'langs.npy'))
+langs = np.append(langs[langs != 'eng'], 'eng')
 # pretty names for axis labels
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
@@ -64,7 +64,7 @@ lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
 confmats = dict()
 weightmats = dict()
 weightedmats = dict()
-for lang in foreign_langs:
+for lang in langs:
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
@@ -81,16 +81,16 @@ for lang in foreign_langs:
 
 # calculate figure size
 matrix_width = 3 * confmat.shape[1]
-heights = np.array([confmats[lg].shape[0] for lg in foreign_langs])
+heights = np.array([confmats[lg].shape[0] for lg in langs])
 figsize = np.array([matrix_width, heights.sum()]) * figwidth / matrix_width
 
 # initialize figure
 fig = plt.figure(figsize=figsize)
-axs = ImageGrid(fig, 111, nrows_ncols=(len(foreign_langs), ncol),
+axs = ImageGrid(fig, 111, nrows_ncols=(len(langs), ncol),
                 axes_pad=0.5, label_mode='all')
 
 # iterate over languages
-for ix, lang in enumerate(foreign_langs):
+for ix, lang in enumerate(langs):
     matrices = list()
     if plot_feats:
         matrices.append(confmats[lang])
@@ -114,7 +114,7 @@ for ix, lang in enumerate(foreign_langs):
         ax.set_yticklabels(data.index[1::2], minor=False, size=labelsize)
         ax.set_yticklabels(data.index[::2], minor=True, size=labelsize)
         ax.tick_params(axis='both', color='0.8')
-        if ix == len(foreign_langs) - 1:
+        if ix == len(langs) - 1:
             ax.set_xlabel('English')
 # finish
 if savefig:

@@ -42,12 +42,12 @@ def calc_err_prob(mat, ignore_vowels=True):
 
 
 # load data
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+langs = np.load(op.join(paramdir, 'langs.npy'))
 vowels = np.load(op.join(paramdir, 'vowels.npy'))
 # loop over languages
 err_probs = dict()
 mean_err_prob = dict()
-for lang in foreign_langs:
+for lang in langs:
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
@@ -61,6 +61,5 @@ for lang in foreign_langs:
     # find mean EEG-minus-feature for each language
     mean_err_prob[lang] = (err_prob_df['eeg'] - err_prob_df['feature']).mean()
     err_probs[lang] = err_prob_df
-out = DataFrame(mean_err_prob, columns=foreign_langs,
-                index=['eeg_minus_feat']).T
+out = DataFrame(mean_err_prob, columns=langs, index=['eeg_minus_feat']).T
 # TODO: out.to_csv()

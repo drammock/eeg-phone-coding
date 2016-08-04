@@ -22,7 +22,6 @@ with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
 
 # load language phone sets
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
 all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
 
 # load trial params

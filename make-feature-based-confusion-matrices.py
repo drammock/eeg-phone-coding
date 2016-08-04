@@ -23,9 +23,6 @@ from pandas import read_csv
 paramdir = 'params'
 outdir = 'processed-data'
 
-# load list of languages
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
-
 # load ASCII to IPA dictionary
 with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
     ipa = json.load(ipafile)
@@ -39,20 +36,19 @@ eng_phones = np.squeeze(eng_phones.values).astype(unicode).tolist()
 # load master features table
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
                     sep='\t', encoding='utf-8', index_col=0)
-
 # sort order
 sort_order = ['syllabic', 'consonantal', 'labial', 'coronal', 'dorsal',
               'continuant', 'sonorant', 'periodicGlottalSource', 'distributed',
               'strident']
 
 # load list of languages
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+langs = np.load(op.join(paramdir, 'langs.npy'))
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
 phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
 
 # iterate over languages
-for ix, lang in enumerate(foreign_langs):
+for ix, lang in enumerate(langs):
     this_phones = phonesets[lang].tolist()
     # find which features are contrastive
     all_phones = list(set(this_phones + eng_phones))

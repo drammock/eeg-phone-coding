@@ -26,13 +26,13 @@ outdir = 'processed-data'
 phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
 eng = phonesets['eng']
 # load list of languages, put English last
-foreign_langs = np.load(op.join(paramdir, 'foreign-langs.npy'))
+langs = np.load(op.join(paramdir, 'langs.npy'))
 
 # load data
 confmats = dict()
 weightmats = dict()
 weightedmats = dict()
-for lang in foreign_langs:
+for lang in langs:
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)

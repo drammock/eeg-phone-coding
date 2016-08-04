@@ -17,9 +17,8 @@ binary feature classifiers) into segments bearing those feature values.
 from __future__ import division, print_function
 import json
 import numpy as np
+import os.path as op
 from os import mkdir
-from os import path as op
-from glob import glob
 from pandas import Series, DataFrame, Panel, read_csv, concat
 
 # flags
@@ -58,9 +57,9 @@ confmats_normed = dict()
 equal_error_rates = DataFrame()
 
 # load each language's phone sets
-langs = [op.split(x)[1][:3] for x in glob(op.join(paramdir, '*-phones.tsv'))]
 phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
 all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
+langs = np.load(op.join(paramdir, 'langs.npy'))
 
 # read in PHOIBLE feature data
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
@@ -78,12 +77,10 @@ feat_tab = feat_tab.iloc[:, ~(vacuous | privative)]
 sort_by = ['syllabic'] + sort_by
 feat_tab = feat_tab.sort_values(by=sort_by, ascending=False)
 
-# load each language's classification results
-foreign_files = glob(op.join(outdir, 'classifier-probabilities-*.tsv'))
-foreign_langs = [op.split(x)[1][-7:-4] for x in foreign_files]
 # iterate over languages
-for fname, lang in zip(foreign_files, foreign_langs):
+for lang in langs:
     # load classification results
+    fname = op.join(outdir, 'classifier-probabilities-{}.tsv'.format(lang))
     featprob = read_csv(fname, sep='\t', index_col=0)
     # use probabilities as scores
     pos_class = featprob.columns[[x.startswith('+') for x in featprob.columns]]
@@ -176,7 +173,6 @@ for fname, lang in zip(foreign_files, foreign_langs):
                                    columns=phonesets['eng'])
 
 # save results
-np.save(op.join(paramdir, 'foreign-langs.npy'), foreign_langs)
 equal_error_rates.to_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t')
 for lang, wmat in weights_mats.items():
     wmat.to_csv(op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang)),
