@@ -17,7 +17,6 @@ This script feeds epoched EEG data into a classifier.
 from __future__ import division, print_function
 import numpy as np
 from numpy.lib.recfunctions import merge_arrays
-from os import mkdir
 from os import path as op
 from pandas import DataFrame, read_csv
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
