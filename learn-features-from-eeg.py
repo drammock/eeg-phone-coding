@@ -54,7 +54,7 @@ def split_and_resid(data, n_clusters=2, n_jobs=10, random_state=rand,
         predictions = clust.fit_transform(data)
         residuals = None
     elif method == 'spectral':
-        clust = SpectralClustering(n_clusters=n_clusters, n_init=20,
+        clust = SpectralClustering(n_clusters=n_clusters, n_init=25,
                                    affinity='nearest_neighbors',
                                    n_neighbors=10,
                                    eigen_solver='amg',
@@ -76,16 +76,15 @@ featcol = feat_ref.columns.tolist()
 # load merged EEG data & other params
 invars = np.load(op.join(outdir, infile))
 epochs = invars['epochs']
-langs = invars['langs']
 feats = invars['feats']
-cons = invars['cons']
 test_mask = invars['test_mask']
 train_mask = invars['train_mask']
 validation_mask = invars['validation_mask']
 # organize
 full_df = pd.DataFrame(feats)
-full_df['segment'] = cons
-full_df['lang'] = langs
+full_df['segment'] = invars['cons']
+full_df['lang'] = invars['langs']
+full_df['subj'] = invars['subjs']
 
 # reduce dimensionality of time domain with PCA
 if pca_time_domain:
