@@ -19,17 +19,18 @@ import numpy as np
 from os import mkdir
 from os import path as op
 from pandas import read_csv
+from numpy import logical_not as negate
 
 # flags
 align = 'v'  # whether epochs are aligned to consonant (c) or vowel (v) onset
 have_dss = True
-use_dss = True
+use_dss = False
 
 # file i/o
 eegdir = 'eeg-data-clean'
 paramdir = 'params'
 outdir = 'processed-data'
-outfile = 'merged-eeg-data.npz'
+outfile = 'merged-dss-data.npz' if use_dss else 'merged-eeg-data.npz'
 if not op.isdir(outdir):
     mkdir(outdir)
 
@@ -40,8 +41,8 @@ df_types = dict(subj=int, talker=str, syll=str, train=bool, wav_idx=int)
 df = read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
               usecols=df_cols, dtype=df_types)
 df['lang'] = df['talker'].apply(lambda x: x[:3])
-df['valid'] = (df['lang'] == 'eng') & ~df['train']
-df['test'] = ~(df['lang'] == 'eng')
+df['valid'] = (df['lang'] == 'eng') & negate(df['train'])
+df['test'] = negate(df['lang'] == 'eng')
 foreign_langs = list(set(df['lang']) - set(['eng']))
 
 # import ASCII to IPA dictionary
@@ -108,15 +109,6 @@ for subj_code, subj in subjects.items():
             dss_mat = np.load(basename + 'dssmat.npy')
             this_data = np.einsum('ij,hjk->hik', dss_mat, this_data)
             del dss_mat
-    """
-    # reduce dimensionality of time domain with PCA
-    from mne_sandbox.preprocessing._dss import _pca
-    time_cov = np.sum([np.dot(trial.T, trial) for trial in this_data], axis=0)
-    eigval, eigvec = _pca(time_cov, max_components=60)
-    W = np.sqrt(1 / eigval)  # whitening diagonal
-    this_data = np.array([np.dot(trial, eigvec) * W[np.newaxis, :]
-                          for trial in this_data])
-    """
     # can't use mne.read_events with 0-valued event_ids
     this_events = np.loadtxt(basename + 'eve.txt', dtype=int)[:, -1]
     this_cons = np.array([cons_dict[e] for e in this_events])

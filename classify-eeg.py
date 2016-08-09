@@ -34,7 +34,7 @@ classify_individ_subjs = False
 # file i/o
 paramdir = 'params'
 outdir = 'processed-data'
-infile = 'merged-eeg-data.npz'
+infile = 'merged-dss-data.npz' if use_dss else 'merged-eeg-data.npz'
 
 # load feature table
 feat_ref = read_csv(op.join(paramdir, 'reference-feature-table-cons.tsv'),

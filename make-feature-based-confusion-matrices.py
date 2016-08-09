@@ -18,6 +18,7 @@ import json
 import numpy as np
 from os import path as op
 from pandas import read_csv
+from numpy import logical_not as negate
 
 # file I/O
 paramdir = 'params'
@@ -64,8 +65,8 @@ for ix, lang in enumerate(langs):
     eng_feat_tab.index.name = 'eng'
     assert eng_feat_tab.shape[0] == len(eng_phones)
     # remove non-contrastive features
-    this_feat_tab = this_feat_tab.iloc[:, ~(vacuous | privative)]
-    eng_feat_tab = eng_feat_tab.iloc[:, ~(vacuous | privative)]
+    this_feat_tab = this_feat_tab.iloc[:, negate(vacuous | privative)]
+    eng_feat_tab = eng_feat_tab.iloc[:, negate(vacuous | privative)]
     # sort to group natural classes (makes confusion mattix look nicer)
     this_feat_tab = this_feat_tab.sort_values(by=sort_order, ascending=False)
     eng_feat_tab = eng_feat_tab.sort_values(by=sort_order, ascending=False)

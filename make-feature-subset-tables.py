@@ -10,6 +10,7 @@ import json
 import numpy as np
 import os.path as op
 from pandas import read_csv
+from numpy import logical_not as negate
 
 # flags
 make_feats_binary = True
@@ -64,7 +65,8 @@ eng_redundant = ['round',           # (labial) w vs j captured by 'labial'
                  # 'anterior',        # (coronal) all non-anter. are +distrib.
                  ]
 eng_redundant = np.in1d(feat_tab.columns, eng_redundant)
-nonredundant = feat_tab.columns[~(eng_vacuous | eng_privative | eng_redundant)]
+nonredundant = feat_tab.columns[negate(eng_vacuous | eng_privative |
+                                       eng_redundant)]
 feat_tab_all = feat_tab_all[nonredundant]
 feat_tab_cons = feat_tab_cons[nonredundant]
 feat_tab_cons_eng = feat_tab_cons_eng[nonredundant]

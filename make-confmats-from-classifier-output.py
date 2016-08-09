@@ -20,6 +20,7 @@ import numpy as np
 import os.path as op
 from os import mkdir
 from pandas import Series, DataFrame, Panel, read_csv, concat
+from numpy import logical_not as negate
 
 # flags
 add_missing_feats = False
@@ -71,7 +72,7 @@ assert feat_tab.shape[0] == len(all_phones)
 vacuous = feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
 privative = feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
                            '0' in np.unique(x)).values
-feat_tab = feat_tab.iloc[:, ~(vacuous | privative)]
+feat_tab = feat_tab.iloc[:, negate(vacuous | privative)]
 
 # add 'syllabic' to beginning of sort order to group vowels together
 sort_by = ['syllabic'] + sort_by
@@ -101,13 +102,13 @@ for lang in langs:
                       major_axis=featscore.index, minor_axis=featscore.columns)
     converged = False
     iteration = 0
-    print('Finding thresholds ({}): iteration'.format(lang), end=' ')
+    print('Finding EER thresholds ({}): iteration'.format(lang), end=' ')
     while not converged:
         iteration += 1
         print(str(iteration), end=' ')
         for thresh, feat in zip(thresh_mat, featscore):
             for ix, thr in enumerate(thresh):
-                false_pos.loc[ix, :, feat] = (~feattruth[feat].astype(bool) &
+                false_pos.loc[ix, :, feat] = (negate(feattruth[feat]) &
                                               (featscore[feat] >= thr))
                 false_neg.loc[ix, :, feat] = (feattruth[feat].astype(bool) &
                                               (featscore[feat] < thr))
@@ -116,7 +117,7 @@ for lang in langs:
         lowvalue = np.array([ratios.loc[b, i] for b, i in
                              zip(ratios.index[lowbound_ix],
                                  lowbound_ix.index)])
-        converged = np.allclose(lowvalue[~np.isnan(lowvalue)], 1)
+        converged = np.allclose(lowvalue[negate(np.isnan(lowvalue))], 1)
         thresholds = thresh_mat[range(thresh_mat.shape[0]),
                                 ratios.index[lowbound_ix]]
         steps = steps / 10
@@ -128,8 +129,8 @@ for lang in langs:
          lowbound_ix, lowvalue, converged, steps, thresh_mat)
     # check thresholds are actually yielding equal error rates
     predictions = (featscore >= thresholds).astype(int)
-    false_pos = (predictions.values & ~feattruth.values).sum(axis=0)
-    false_neg = (~predictions.values & feattruth.values).sum(axis=0)
+    false_pos = (predictions.values & negate(feattruth.values)).sum(axis=0)
+    false_neg = (negate(predictions.values) & feattruth.values).sum(axis=0)
     assert np.array_equal(false_pos, false_neg)
     # calculate equal error rates for each feature
     equal_error_rate = false_pos / predictions.shape[0]
