@@ -24,7 +24,7 @@ from numpy import logical_not as negate
 # flags
 align = 'v'  # whether epochs are aligned to consonant (c) or vowel (v) onset
 have_dss = True
-use_dss = False
+use_dss = True
 
 # file i/o
 eegdir = 'eeg-data-clean'
