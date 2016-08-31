@@ -19,8 +19,9 @@ import json
 import numpy as np
 import os.path as op
 from os import mkdir
-from pandas import Series, DataFrame, Panel, read_csv, concat
+from pandas import Series, DataFrame, read_csv, concat
 from numpy import logical_not as negate
+from aux_functions import find_EER_threshold
 
 # flags
 add_missing_feats = False
@@ -43,41 +44,6 @@ def compute_classifier_scores_from_probs(featprob):
     # ground truth
     feattruth = DataFrame([feat_ref.loc[seg] for seg in featscore.index])
     return featscore, feattruth
-
-
-def find_EER_thresholds(featscore, feattruth):
-    steps = np.linspace(0, 1, 11)
-    thresh_mat = np.tile(steps, (featscore.shape[1], 1))
-    false_pos = Panel(np.zeros((steps.size,) + featscore.shape), dtype=bool,
-                      major_axis=featscore.index, minor_axis=featscore.columns)
-    false_neg = Panel(np.zeros((steps.size,) + featscore.shape), dtype=bool,
-                      major_axis=featscore.index, minor_axis=featscore.columns)
-    converged = False
-    iteration = 0
-    print('Finding EER thresholds ({}): iteration'.format(lang), end=' ')
-    while not converged:
-        iteration += 1
-        print(str(iteration), end=' ')
-        for thresh, feat in zip(thresh_mat, featscore):
-            for ix, thr in enumerate(thresh):
-                false_pos.loc[ix, :, feat] = (negate(feattruth[feat]) &
-                                              (featscore[feat] >= thr))
-                false_neg.loc[ix, :, feat] = (feattruth[feat].astype(bool) &
-                                              (featscore[feat] < thr))
-        ratios = (false_pos.sum() / false_neg.sum()).T.iloc[::-1]
-        lowbound_ix = ratios.apply(np.searchsorted, raw=True, v=1)
-        lowvalue = np.array([ratios.loc[b, i] for b, i in
-                             zip(ratios.index[lowbound_ix],
-                                 lowbound_ix.index)])
-        converged = np.allclose(lowvalue[negate(np.isnan(lowvalue))], 1)
-        thresholds = thresh_mat[range(thresh_mat.shape[0]),
-                                ratios.index[lowbound_ix]]
-        steps = steps / 10.
-        thresh_mat = np.atleast_2d(thresholds).T + steps
-    nans = np.isnan(lowvalue)
-    print(' NaNs: {0} ({1})'.format(nans.sum(),
-                                    ' '.join(featscore.columns[nans])))
-    return thresholds
 
 
 def add_missing_feat_EERs(featscore, equal_error_rate):
@@ -169,7 +135,14 @@ for lang in langs:
     featscore, feattruth = compute_classifier_scores_from_probs(featprob)
     featscores[lang] = featscore
     # find threshold for each feat to equalize error rate
-    thresholds = find_EER_thresholds(featscore, feattruth)
+    thresholds = np.zeros_like(featscore.columns, dtype=float)
+    equal_error_rate = np.zeros_like(featscore.columns, dtype=float)
+    for ix, feat in enumerate(featscore.columns):
+        label = ' ({}: {})'.format(lang, feat)
+        (thresholds[ix],
+         equal_error_rate[ix]) = find_EER_threshold(featscore[feat],
+                                                    feattruth[feat], label)
+    """
     # check thresholds are actually yielding equal error rates
     predictions = (featscore >= thresholds).astype(int)
     false_pos = (predictions.values & negate(feattruth.values)).sum(axis=0)
@@ -177,6 +150,7 @@ for lang in langs:
     assert np.array_equal(false_pos, false_neg)
     # calculate equal error rates for each feature
     equal_error_rate = false_pos / predictions.shape[0]
+    """
     if add_missing_feats:
         (missing_feats,
          equal_error_rate) = add_missing_feat_EERs(featscore, equal_error_rate)
@@ -220,16 +194,25 @@ if process_individual_subjs:
                     compute_classifier_scores_from_probs(featprob)
                 featscores[lang] = featscore
                 # find threshold for each feat to equalize error rate
-                thresholds = find_EER_thresholds(featscore, feattruth)
+                thresholds = np.zeros_like(featscore.columns, dtype=float)
+                equal_error_rate = np.zeros_like(featscore.columns, dtype=float)
+                for ix, feat in enumerate(featscore.columns):
+                    label = ' ({}: {})'.format(lang, feat)
+                    (thresholds[ix],
+                     equal_error_rate[ix]) = find_EER_threshold(featscore[feat],
+                                                                feattruth[feat],
+                                                                label)
+                """
                 # check thresholds are actually yielding equal error rates
                 predictions = (featscore >= thresholds).astype(int)
-                false_pos = (predictions.values &
-                             negate(feattruth.values)).sum(axis=0)
-                false_neg = (negate(predictions.values) &
-                             feattruth.values).sum(axis=0)
+                false_pos = (predictions.values & negate(feattruth.values)
+                             ).sum(axis=0)
+                false_neg = (negate(predictions.values) & feattruth.values
+                             ).sum(axis=0)
                 assert np.array_equal(false_pos, false_neg)
                 # calculate equal error rates for each feature
                 equal_error_rate = false_pos / predictions.shape[0]
+                """
                 if add_missing_feats:
                     missing_feats, equal_error_rate = \
                         add_missing_feat_EERs(featscore, equal_error_rate)

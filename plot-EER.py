@@ -57,7 +57,7 @@ ax, bar = barplot(bars, groups=groups, ax=ax, group_names=gn, bar_names=' ',
                   ylim=(0, 0.55), gap_size=0.6, bar_kwargs=dict(color=colors))
 ax.axhline(0.5, color='k', linestyle=(0, (5, 7)), linewidth=1)
 ax.set_ylabel('Equal error rate')
-ax.legend(bar.get_children()[:5], (eer.columns), loc='upper right')
+ax.legend(bar.get_children()[:5], (eer.columns), loc='lower right')
 plt.tight_layout()
 if savefig:
     plt.savefig(op.join(figdir, 'eer-barplot.pdf'))

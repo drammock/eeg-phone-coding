@@ -29,11 +29,11 @@ rand = np.random.RandomState(seed=0)
 
 # flags
 use_dss = True
-n_dss_channels_to_use = 8
+n_dss_channels_to_use = 4
 classify_individ_subjs = True
 pca_time_domain = True
 # chosen by visual inspection of plot_erp_dss.py (`None` uses all timepts):
-truncate_pca_to_timepts = 20
+truncate_pca_to_timepts = 20  # 20 is reasonable
 
 # file i/o
 paramdir = 'params'

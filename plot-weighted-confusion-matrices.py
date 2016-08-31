@@ -129,7 +129,7 @@ for ix, lang in enumerate(langs):
 if savefig:
     plt.savefig(op.join(figdir, 'weighted-confusion-matrices.pdf'))
 
-# consonants = mat.index[np.in1d(mat.index.values, vowels, invert=True)]
+
 if plot_individual_subjs:
     # plot params
     labelsize = 8

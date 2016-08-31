@@ -15,18 +15,12 @@ This script tries to learn optimal phonological features based on EEG data.
 from __future__ import division, print_function
 import numpy as np
 import pandas as pd
-import networkx as nx
 import matplotlib.pyplot as plt
 import os.path as op
 from time import time
 from numpy import logical_not as negate
-from scipy.sparse import linalg, csr_matrix
-from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.manifold import TSNE
-from sklearn.metrics import adjusted_rand_score, pairwise_distances
-from sklearn.neighbors import NearestNeighbors
-from sklearn.utils.graph import graph_laplacian
-from aux_functions import time_domain_pca
+# from sklearn.metrics import adjusted_rand_score
+from aux_functions import time_domain_pca, print_elapsed, split_and_resid
 
 np.set_printoptions(precision=6, linewidth=160)
 pd.set_option('display.width', 160)
@@ -38,9 +32,8 @@ pca_time_domain = True
 # chosen by visual inspection of plot_erp_dss.py (`None` uses all timepts):
 truncate_pca_to_timepts = 20
 conserve_memory = True
-single_subject = False
-# kmeans, spectral, precomputed, tsne, sparse_graph, dense_graph, sparse_ncut
-# dense_ncut
+# valid values for cluster_method: kmeans, spectral, precomputed, sparse_graph,
+# dense_graph, sparse_ncut, dense_ncut, tsne
 cluster_method = 'sparse_ncut'
 use_n_dss_channels = 32
 n_iterations = 3  # num. times to subtract centers and re-cluster on residuals
@@ -48,124 +41,12 @@ n_clusters = 2    # num. clusters to split into at each iteration
 n_neighbors = 20  # used to make dist_mat in sparse_graph and spectral methods
 n_jobs = 6        # sparse_ncut: 6
 gamma = 100
+which_subjs = 'all'  # 'all' or list of integers
 
 # file i/o
 paramdir = 'params'
 outdir = 'processed-data'
 infile = 'merged-dss-data.npz' if use_dss else 'merged-eeg-data.npz'
-
-
-def print_elapsed(start_time, end=' sec.\n'):
-    print(np.round(time() - start_time, 1), end=end)
-
-
-def compute_medioids(data, cluster_ids, n_jobs=1):
-    # pairwise_distances fast w/ 1 CPU; don't pass n_jobs > 1 (memory issues)
-    print('    computing medioids:', end=' ')
-    _st = time()
-    _ids = np.sort(np.unique(cluster_ids))
-    medioids = np.zeros((len(_ids), data.shape[1]))
-    for _id in _ids:
-        this_data = data[cluster_ids == _id]
-        dists = pairwise_distances(this_data, n_jobs=n_jobs)
-        rowsums = dists.sum(axis=1)
-        medioids[_id] = this_data[rowsums.argmin()]
-    print_elapsed(_st)
-    return medioids
-
-
-def split_and_resid(data, n_clusters=n_clusters, n_jobs=-2, random_state=rand,
-                    method='kmeans', gamma=100, n_neighbors=10):
-    print('    clustering:', end=' ')
-    _st = time()
-    if method == 'kmeans':
-        km = KMeans(n_clusters=n_clusters, n_jobs=n_jobs,
-                    random_state=random_state)
-        predictions = km.fit_predict(data)
-        centers = km.cluster_centers_
-        print_elapsed(_st)
-        residuals = data - centers[predictions]
-        return predictions, residuals, centers
-    elif method in ('tsne', 'spectral', 'precomputed'):
-        if method == 'tsne':
-            clust = TSNE(n_components=n_clusters, random_state=random_state)
-            predictions = clust.fit_transform(data)
-        elif method == 'spectral':
-            clust = SpectralClustering(n_clusters=n_clusters, n_init=10,
-                                       affinity='nearest_neighbors',
-                                       n_neighbors=n_neighbors,
-                                       eigen_solver='amg',
-                                       random_state=random_state)
-            predictions = clust.fit_predict(data)
-        else:  # spectral clustering with precomputed adjacency mat
-            dist_mat = pairwise_distances(data)  # don't pass n_jobs here
-            adjacency_mat = np.exp(-gamma * dist_mat)
-            clust = SpectralClustering(adjacency_mat, n_clusters=n_clusters,
-                                       n_init=10, affinity='precomputed')
-            predictions = clust.fit_predict(data)
-        print_elapsed(_st)
-        centers = compute_medioids(data, predictions)  # don't pass n_jobs here
-        residuals = data - centers[predictions]
-        return predictions, residuals, centers
-    elif method.startswith('sparse') or method.startswith('dense'):
-        print('\n      adjacency matrix:', end=' ')
-        if method.startswith('dense'):
-            # dist_mat = pairwise_distances(data)  # don't pass n_jobs here
-            # adjacency_mat = np.exp(-gamma * dist_mat)
-            # # do above 2 lines in-place, for memory reasons
-            adjacency_mat = pairwise_distances(data)
-            adjacency_mat *= -gamma
-            adjacency_mat = np.exp(adjacency_mat, out=adjacency_mat)
-            n_components = 1
-        else:  # sparse_graph or sparse_ncut
-            knn = NearestNeighbors(n_neighbors=n_neighbors, algorithm='auto',
-                                   n_jobs=n_jobs).fit(data)
-            dist_mat = knn.kneighbors_graph(data, mode='distance')
-            dist_mat.eliminate_zeros()
-            rows, cols = dist_mat.nonzero()
-            # make (symmetric) adjacency matrix
-            adjacencies = np.exp(-gamma * dist_mat.sqrt().data)
-            adjacency_mat = csr_matrix((np.r_[adjacencies, adjacencies],
-                                        (np.r_[rows, cols],
-                                         np.r_[cols, rows])),
-                                       shape=dist_mat.shape)
-            # find number of connected graph components and
-            # set number of eigenvectors as connected components + 1
-            adjacency_graph = nx.Graph(adjacency_mat)
-            n_components = nx.number_connected_components(adjacency_graph)
-            del adjacency_graph
-        # eigendecomposition of graph laplacian
-        print_elapsed(_st)
-        _st = time()
-        print('      graph laplacian:', end=' ')
-        laplacian = graph_laplacian(adjacency_mat, normed=True).tocsc()
-        del adjacency_mat
-        print_elapsed(_st)
-        _st = time()
-        print('      eigendecomposition:', end=' ')
-        solver = np.linalg.eigh if method.startswith('dense') else linalg.eigsh
-        solver_kwargs = (dict() if method.startswith('dense') else
-                         dict(k=n_components + 1, which='LM', sigma=0,
-                              mode='normal'))
-        eigvals, eigvecs = solver(laplacian, **solver_kwargs)
-        # compute clusters
-        print_elapsed(_st)
-        _st = time()
-        print('      cluster predictions:', end=' ')
-        if method.endswith('ncut'):
-            predictions = (eigvecs[:, n_components] > 0).astype(int)
-        else:
-            km = KMeans(n_clusters=n_clusters, n_jobs=n_jobs,
-                        random_state=random_state)
-            last_column = n_components + n_clusters
-            predictions = km.fit_predict(eigvecs[:, n_components:last_column])
-        print_elapsed(_st)
-        centers = compute_medioids(data, predictions)
-        residuals = data - centers[predictions]
-        return (predictions, residuals, centers, eigvals, eigvecs)
-    else:
-        raise ValueError('unknown clustering method "{}"'.format(method))
-
 
 _st = time()
 print('loading data:', end=' ')
@@ -205,12 +86,14 @@ if pca_time_domain:
 epochs_cat = epochs[:, :use_n_dss_channels, :].reshape(epochs.shape[0], -1)
 training_data = epochs_cat[train_mask]
 df = full_df.loc[train_mask].copy()
-if single_subject:
-    subj_one = df['subj'] == 1
-    data = training_data[subj_one].copy()
-    df = df[subj_one]
-else:
-    data = training_data.copy()
+
+# which subjects to cluster on?
+subj_dict = np.load(op.join(paramdir, 'subjects.npz'))
+which_subjs = dict(subj_dict).values() if which_subjs == 'all' else which_subjs
+subset = np.in1d(df['subj'], which_subjs)
+data = training_data[subset].copy()
+df = df[subset]
+
 if conserve_memory:
     del (epochs, epochs_cat, training_data, train_mask, test_mask,
          validation_mask, full_df)
@@ -227,15 +110,19 @@ for _iter in range(n_iterations):
     print('  iteration {}:'.format(_iter))
     colnum = 'split_{}'.format(_iter)
     split_kwargs = dict(n_jobs=n_jobs, n_clusters=n_clusters,
-                        method=cluster_method, gamma=gamma)
+                        method=cluster_method, gamma=gamma, random_state=rand)
     if (cluster_method.startswith('sparse') or
             cluster_method.startswith('dense')):
         (predictions, residuals, centers, evals,
          evecs) = split_and_resid(data, **split_kwargs)
         eigvals[colnum] = evals
         eigvecs[colnum] = evecs
+    elif cluster_method == 'tsne':
+        embedding = split_and_resid(data, **split_kwargs)
+        # TODO: store embedding
     else:
         predictions, residuals, centers = split_and_resid(data, **split_kwargs)
+    # TODO: skip these lines if TSNE
     df[colnum] = predictions
     cluster_centers[_iter, :, :] = centers
     data = residuals
