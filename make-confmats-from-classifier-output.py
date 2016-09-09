@@ -15,6 +15,7 @@ classifiers into segment probabilities formatted as a confusion matrix.
 
 
 from __future__ import division, print_function
+import yaml
 import json
 import numpy as np
 import os.path as op
@@ -25,13 +26,23 @@ from aux_functions import find_EER_threshold
 
 # flags
 add_missing_feats = False
-process_individual_subjs = True
 
 # file i/o
 paramdir = 'params'
 outdir = 'processed-data'
+analysis_params = 'current-analysis-settings.yaml'
 if not op.isdir(outdir):
     mkdir(outdir)
+
+# load analysis params
+with open(op.join(paramdir, analysis_params), 'r') as paramfile:
+    params = yaml.safe_load(paramfile)
+clf_type = params['clf_type']
+use_dss = params['dss']['use']
+n_dss_channels_to_use = params['dss']['use_n_channels']
+process_individual_subjs = params['process_individual_subjs']
+fname_suffix = '-dss-{}'.format(n_dss_channels_to_use) if use_dss else ''
+fname_id = '{}{}'.format(clf_type, fname_suffix)
 
 
 def compute_classifier_scores_from_probs(featprob):
@@ -129,8 +140,9 @@ equal_error_rates = DataFrame()
 # iterate over languages
 for lang in langs:
     # load classification results
-    fname = op.join(outdir, 'classifier-probabilities-{}.tsv'.format(lang))
-    featprob = read_csv(fname, sep='\t', index_col=0)
+    fname = 'classifier-probabilities-{}-{}.tsv'.format(lang, fname_id)
+    fpath = op.join(outdir, fname)
+    featprob = read_csv(fpath, sep='\t', index_col=0)
     # use probabilities as scores
     featscore, feattruth = compute_classifier_scores_from_probs(featprob)
     featscores[lang] = featscore
@@ -169,10 +181,11 @@ for lang in langs:
     weights_mats[lang] = DataFrame(weights_matrix, index=phonesets[lang],
                                    columns=phonesets['eng'])
 # save results
-equal_error_rates.to_csv(op.join(outdir, 'equal-error-rates.tsv'), sep='\t')
+eer_fname = 'equal-error-rates-{}.tsv'.format(fname_id)
+equal_error_rates.to_csv(op.join(outdir, eer_fname), sep='\t')
 for lang, wmat in weights_mats.items():
-    wmat.to_csv(op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang)),
-                sep='\t', encoding='utf-8')
+    confmat_fname = 'eeg-confusion-matrix-{}-{}.tsv'.format(lang, fname_id)
+    wmat.to_csv(op.join(outdir, confmat_fname), sep='\t', encoding='utf-8')
 
 # process individual subjects
 if process_individual_subjs:
@@ -184,8 +197,9 @@ if process_individual_subjs:
         equal_error_rates = DataFrame()
         print('processing subject {}'.format(subj_id))
         for lang in langs:
+            fid = '{}-{}'.format(lang, fname_id)
             # load classification results
-            fname = 'classifier-probabilities-{}-{}.tsv'.format(lang, subj_id)
+            fname = ('classifier-probabilities-{}-{}.tsv'.format(fid, subj_id))
             if op.exists(op.join(subj_outdir, fname)):
                 featprob = read_csv(op.join(subj_outdir, fname), sep='\t',
                                     index_col=0)
@@ -234,9 +248,10 @@ if process_individual_subjs:
                                                index=phonesets[lang],
                                                columns=phonesets['eng'])
         # save results
-        eer_fname = 'equal-error-rates-{}.tsv'.format(subj_id)
+        eer_fname = 'equal-error-rates-{}-{}.tsv'.format(fname_id, subj_id)
         equal_error_rates.to_csv(op.join(subj_outdir, eer_fname), sep='\t')
         for lang, wmat in weights_mats.items():
-            wmat_fname = 'eeg-confusion-matrix-{}-{}.tsv'.format(lang, subj_id)
+            fid = '{}-{}'.format(lang, fname_id)
+            wmat_fname = 'eeg-confusion-matrix-{}-{}.tsv'.format(fid, subj_id)
             wmat.to_csv(op.join(subj_outdir, wmat_fname), sep='\t',
                         encoding='utf-8')

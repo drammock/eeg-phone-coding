@@ -14,6 +14,7 @@ EEG-trained classifiers.
 # License: BSD (3-clause)
 
 from __future__ import division, print_function
+import yaml
 import numpy as np
 import os.path as op
 from pandas import read_csv
@@ -21,6 +22,17 @@ from pandas import read_csv
 # file I/O
 paramdir = 'params'
 outdir = 'processed-data'
+analysis_params = 'current-analysis-settings.yaml'
+
+# load analysis params
+with open(op.join(paramdir, analysis_params), 'r') as paramfile:
+    params = yaml.safe_load(paramfile)
+clf_type = params['clf_type']
+use_dss = params['dss']['use']
+n_dss_channels_to_use = params['dss']['use_n_channels']
+process_individual_subjs = params['process_individual_subjs']
+fname_suffix = '-dss-{}'.format(n_dss_channels_to_use) if use_dss else ''
+fname_id = '{}{}'.format(clf_type, fname_suffix)
 
 # load phonesets (used to standardize row/column order)
 phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
@@ -33,11 +45,12 @@ confmats = dict()
 weightmats = dict()
 weightedmats = dict()
 for lang in langs:
+    fid = '{}-{}'.format(lang, fname_id)
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
     # load eeg confusion matrices
-    fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang))
+    fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(fid))
     weightmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
     # make sure entries match
     assert set(confmat.index) == set(weightmat.index)
@@ -59,7 +72,7 @@ for lang in langs:
     # save
     outfile = 'features-confusion-matrix-{}.tsv'.format(lang)
     confmat.to_csv(op.join(outdir, outfile), sep='\t', encoding='utf-8')
-    outfile = 'eeg-confusion-matrix-{}.tsv'.format(lang)
+    outfile = 'eeg-confusion-matrix-{}.tsv'.format(fid)
     weightmat.to_csv(op.join(outdir, outfile), sep='\t', encoding='utf-8')
-    outfile = 'weighted-confusion-matrix-{}.tsv'.format(lang)
+    outfile = 'weighted-confusion-matrix-{}.tsv'.format(fid)
     weightedmat.to_csv(op.join(outdir, outfile), sep='\t', encoding='utf-8')

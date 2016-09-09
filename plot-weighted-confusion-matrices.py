@@ -14,15 +14,15 @@ EEG-trained classifiers, and the linear combination of the two.
 # License: BSD (3-clause)
 
 from __future__ import division, print_function
-from pandas import read_csv
+import yaml
 import numpy as np
 import os.path as op
 import matplotlib.pyplot as plt
+from pandas import read_csv
 from mpl_toolkits.axes_grid1 import ImageGrid
 plt.ioff()
 
 # flags
-plot_individual_subjs = True
 savefig = True
 plot_feats = True
 plot_weights = True
@@ -41,6 +41,17 @@ figwidth = 4 * ncol
 figdir = 'figures'
 paramdir = 'params'
 outdir = 'processed-data'
+analysis_params = 'current-analysis-settings.yaml'
+
+# load analysis params
+with open(op.join(paramdir, analysis_params), 'r') as paramfile:
+    params = yaml.load(paramfile)
+clf_type = params['clf_type']
+use_dss = params['dss']['use']
+n_dss_channels_to_use = params['dss']['use_n_channels']
+process_individual_subjs = params['process_individual_subjs']
+fname_suffix = '-dss-{}'.format(n_dss_channels_to_use) if use_dss else ''
+fname_id = '{}{}'.format(clf_type, fname_suffix)
 
 # style setup
 labelsize = 8
@@ -56,7 +67,9 @@ plt.rc('xtick', top=False)
 
 # load list of languages, put English last
 langs = np.load(op.join(paramdir, 'langs.npy'))
-langs = np.append(langs[langs != 'eng'], 'eng')
+# langs = np.append(langs[langs != 'eng'], 'eng')
+langs.sort()
+langs = langs[::-1]
 # pretty names for axis labels
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
@@ -70,14 +83,15 @@ weightedmats = dict()
 consonantmats = dict()
 # load data
 for lang in langs:
+    fid = '{}-{}'.format(lang, fname_id)
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
     # load eeg confusion matrices
-    fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(lang))
+    fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(fid))
     weightmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
     # load weighted confusion matrices
-    fpath = op.join(outdir, 'weighted-confusion-matrix-{}.tsv'.format(lang))
+    fpath = op.join(outdir, 'weighted-confusion-matrix-{}.tsv'.format(fid))
     weightedmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
     # ignore vowels
     consonant_cols = weightmat.columns[np.in1d(weightmat.columns, vowels,
@@ -127,10 +141,11 @@ for ix, lang in enumerate(langs):
         if ix == len(langs) - 1:
             ax.set_xlabel('English')
 if savefig:
-    plt.savefig(op.join(figdir, 'weighted-confusion-matrices.pdf'))
+    figname = 'weighted-confusion-matrices-{}.pdf'.format(fname_id)
+    plt.savefig(op.join(figdir, figname))
 
 
-if plot_individual_subjs:
+if process_individual_subjs:
     # plot params
     labelsize = 8
     plt.rc('font', serif='Charis SIL', family='serif', size=10)
@@ -153,8 +168,9 @@ if plot_individual_subjs:
         for l_ix, lang in enumerate(langs):
             ax = axs[l_ix * ncol + s_ix]
             # load eeg confusion matrices
-            fpath = op.join(subj_outdir, 'eeg-confusion-matrix-{}-{}.tsv'
-                            ''.format(lang, subj_id))
+            fid = '{}-{}-{}'.format(lang, fname_id, subj_id)
+            fpath = op.join(subj_outdir,
+                            'eeg-confusion-matrix-{}.tsv'.format(fid))
             if op.exists(fpath):
                 data = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
                 # ignore vowels
@@ -185,11 +201,16 @@ if plot_individual_subjs:
                 ax.yaxis.set_tick_params(which='both', left=False,
                                          labelleft=False)
             if not s_ix:
-                ax.set_ylabel(lang_names[lang], size=labelsize * 2)
+                ax.set_ylabel(lang_names[lang], size=labelsize * 3)
             if not l_ix:
-                ax.set_title(subj_id, size=labelsize * 2)
+                ax.set_title(subj_id, size=labelsize * 3)
+    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.02, top=0.96)
+    fig.suptitle('Confusion matrix between actually heard sounds (y) and '
+                 'predicted perceived sounds (x), grouped by language (rows) '
+                 'and by listener (columns)', size=labelsize * 5)
     if savefig:
-        plt.savefig(op.join(figdir, 'eeg-confusion-matrices-by-subj.pdf'))
+        figname = 'eeg-confusion-matrices-by-subj-{}.pdf'.format(fname_id)
+        plt.savefig(op.join(figdir, figname))
 # finish
 if not savefig:
     plt.ion()
