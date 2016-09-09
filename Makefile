@@ -41,3 +41,8 @@ confmats: params/reference-feature-table-all.tsv \
 plot: params/langs.npy params/phonesets.npz \
 	  processed-data/*-confusion-matrix-*.tsv
 	python plot-weighted-confusion-matrices.py
+	python plot-EER.py
+
+# shorthand
+reanalyze: classify confmats plot
+	echo "make classify; make confmats; make plot"
