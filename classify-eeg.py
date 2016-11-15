@@ -143,21 +143,22 @@ classifier_dict = dict()
 validation = list()
 language_dict = {lang: list() for lang in foreign_langs}
 
+# hyperparameter grid search setup
+param_grid = [dict(C=[0.1, 1, 10, 100, 1000],
+                   gamma=[10, 1, 1e-1, 1e-2, 1e-3, 1e-4])]
+clf_kwargs = dict(probability=True, kernel='rbf',
+                  decision_function_shape='ovr', random_state=rand)
+gridsearch_kwargs = dict(scoring=score_EER, n_jobs=6, pre_dispatch=9, cv=5,
+                         refit=True, verbose=3)
+
 # across-subject classification
 print('starting cross-validation')
 print('training classifiers across all subjects')
 for featname in feat_ref.columns:
     train_data = epochs_cat[train_mask]
     train_labels = feats[featname][train_mask]
-    # grid search for hyperparameters
-    param_grid = [dict(C=[10, 30, 100, 300, 1000, 3000],
-                       gamma=[1e-2, 1e-3, 1e-4])]
-    clf_kwargs = dict(probability=True, kernel='rbf',
-                      decision_function_shape='ovr', random_state=rand)
     clf = GridSearchCV(new_classifier(clf_type, **clf_kwargs),
-                       param_grid=param_grid,
-                       scoring=score_EER, n_jobs=6, pre_dispatch=9,
-                       cv=5, refit=True, verbose=3)
+                       param_grid=param_grid, **gridsearch_kwargs)
     trained_model, model_dtypes = train_classifier(classifier=clf,
                                                    data=train_data,
                                                    labels=train_labels,
@@ -207,15 +208,8 @@ if process_individual_subjs:
         for featname in feat_ref.columns:
             train_data = epochs_cat[(subj_mask & train_mask)]
             train_labels = feats[featname][(subj_mask & train_mask)]
-            # grid search for hyperparameters
-            param_grid = [dict(C=[10, 30, 100, 300, 1000, 3000],
-                               gamma=[1e-2, 1e-3, 1e-4])]
-            clf_kwargs = dict(probability=True, kernel='rbf',
-                              decision_function_shape='ovr', random_state=rand)
             clf = GridSearchCV(new_classifier(clf_type, **clf_kwargs),
-                               param_grid=param_grid,
-                               scoring=score_EER, n_jobs=6, pre_dispatch=9,
-                               cv=5, refit=True, verbose=3)
+                               param_grid=param_grid, **gridsearch_kwargs)
             trained_model, model_dtypes = train_classifier(classifier=clf,
                                                            data=train_data,
                                                            labels=train_labels,
