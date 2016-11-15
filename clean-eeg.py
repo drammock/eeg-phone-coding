@@ -14,22 +14,17 @@ boundary of each stimulus syllable.
 # License: BSD (3-clause)
 
 from __future__ import division, print_function
+import yaml
 import mne
 import numpy as np
 from mne_sandbox.preprocessing import dss
-from os import mkdir
+from autoreject import LocalAutoRejectCV, compute_thresholds
+from os import mkdir, getcwd
 from os import path as op
 from expyfun import binary_to_decimals
 from pandas import read_csv
 from ast import literal_eval
-
-# manually-set params
-subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9, IV=10,
-                IQ=11, IT=12)
-do_baseline = True
-save_dss_data = True
-save_dss_mat = True
-save_epochs = True
+from functools import partial
 
 # file i/o
 paramdir = 'params'
@@ -37,8 +32,22 @@ paramfile = 'global-params.npz'
 eegdir = 'eeg-data-raw'
 outdir = 'eeg-data-clean'
 cvfile = 'cv-boundary-times.tsv'
+analysis_param_file = 'current-analysis-settings.yaml'
 if not op.isdir(outdir):
     mkdir(outdir)
+with open(op.join(paramdir, analysis_param_file), 'r') as f:
+    analysis_params = yaml.load(f)
+
+# manually-set params
+subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9, IV=10,
+                IQ=11, IT=12)
+do_baseline = analysis_params['eeg']['baseline']
+do_autorej = analysis_params['eeg']['autoreject']
+do_reject = None if do_autorej else dict(eeg=40e-6)
+save_dss_data = analysis_params['eeg']['save_dss_data']
+save_dss_mat = analysis_params['eeg']['save_dss_mat']
+save_epochs = analysis_params['eeg']['save_epochs']
+n_jobs = analysis_params['n_jobs']
 
 # load global params
 params = np.load(op.join(paramdir, paramfile))
@@ -46,7 +55,7 @@ isi_range = params['isi_range']
 wav_names = params['wav_names']
 wav_nsamps = params['wav_nsamps']
 stim_fs = params['fs'].astype(float)
-del params
+del params, analysis_params
 
 # load C-V transition times
 df = read_csv(op.join(paramdir, cvfile), sep='\t')
@@ -87,6 +96,21 @@ master_ev_id = dict()
 for _id, name in enumerate(wav_names):
     master_ev_id[name] = _id
 
+# set up autoreject
+rs = mne.utils.check_random_state(12345)
+# what percentage of bad sensors should trigger dropping an epoch?
+consensus_percents = np.linspace(0, 1.0, 11)
+# for retained epochs, how many of worst channels should we interpolate?
+n_interpolates = np.arange(1, 10, 2)
+thresh_func = partial(compute_thresholds, method='random_search',
+                      random_state=rs)
+autorej = LocalAutoRejectCV(n_interpolates, consensus_percents,
+                            thresh_func=thresh_func)
+
+# montage
+montage = mne.channels.read_montage(op.join(getcwd(), 'montage',
+                                            'easycap-M1-LABSN.txt'))
+
 # iterate over subjects
 for subj_code, subj in subjects.items():
     # read raws
@@ -95,6 +119,7 @@ for subj_code, subj in subjects.items():
     raw = mne.io.read_raw_brainvision(op.join(eegdir, header),
                                       preload=True, response_trig_shift=None)
     raw_events = mne.find_events(raw)
+    raw.set_montage(montage)
     # deal with subjects who had hardware failure and had to restart a block
     try:
         h = 'jsalt_binaural_cortical_{0}_{1:03}-2.vhdr'.format(subj_code, subj)
@@ -160,18 +185,24 @@ for subj_code, subj in subjects.items():
     events_cv = events.copy()
     events_cv[:, 0] = raw.time_as_index(orig_secs + consonant_dur_by_trial)
     mne.write_events(basename + 'v-aligned-eve.txt', events_cv)
-    # baseline, reference, and filter
+    # baseline, set reference, and filter
     baseline = baseline_times if do_baseline else None
     mne.io.set_eeg_reference(raw, ref_channels=['Ch17'], copy=False)
-    raw.filter(l_freq=1, h_freq=40., n_jobs='cuda')
+    raw.filter(l_freq=1, h_freq=40., n_jobs=n_jobs)
     # generate epochs aligned on C onset
     epochs = mne.Epochs(raw, events, event_id, tmin, tmax, picks=picks,
-                        add_eeg_ref=True, baseline=baseline, preload=True)
-    epochs = epochs.resample(100, npad=0, n_jobs='cuda')
+                        reject=do_reject, add_eeg_ref=True, baseline=baseline,
+                        preload=True)
     # generate epochs aligned on C-V transition
     epochs_cv = mne.Epochs(raw, events_cv, event_id, tmin_cv, tmax_cv,
                            picks=picks, baseline=None, preload=True)
-    epochs_cv = epochs_cv.resample(100, npad=0, n_jobs='cuda')
+    # resample epochs
+    epochs = epochs.resample(100, npad=0, n_jobs=n_jobs)
+    epochs_cv = epochs_cv.resample(100, npad=0, n_jobs=n_jobs)
+    # autoreject
+    if do_autorej:
+        epochs = autorej.fit_transform(epochs)
+        epochs_cv = autorej.fit_transform(epochs_cv)
     # zero-out EEG responses irrelevant to the current stimulus (ideally
     # not necessary, but maybe helpful due to short ISIs)
     for e_ix, e in enumerate((epochs_cv, epochs)):

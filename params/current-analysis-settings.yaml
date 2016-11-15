@@ -1,3 +1,9 @@
+eeg:
+  baseline: true
+  save_dss_data: true
+  save_dss_mat: true
+  save_epochs: true
+  autoreject: true
 clf_type: svm
 process_individual_subjs: true
 dss:
@@ -6,3 +12,17 @@ dss:
 pca:
   time_domain: true
   truncate_to_n_timepts: 20  # 20 is reasonable, None to disable
+n_jobs: 6  # 'cuda' is also an option
+subjects:
+  IJ: 1
+  IL: 2
+  FA: 3
+  IM: 4
+  ID: 5
+  CQ: 6
+  IP: 7
+  FV: 8
+  IA: 9
+  IV: 10
+  IQ: 11
+  IT: 12
