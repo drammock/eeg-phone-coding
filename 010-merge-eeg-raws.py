@@ -23,10 +23,11 @@ from pandas import read_csv
 from ast import literal_eval
 
 # BASIC FILE I/O
-eegdir = 'eeg-data-raw'
+indir = 'eeg-data-raw'
 outdir = 'eeg-data-clean'
-if not op.isdir(outdir):
-    mkdir(outdir)
+for _dir in ['', 'events', 'raws']:
+    if not op.isdir(op.join(outdir, _dir)):
+        mkdir(op.join(outdir, _dir))
 
 # LOAD PARAMS...
 paramdir = 'params'
@@ -50,17 +51,12 @@ for col in ('subj', 'block', 'onset', 'offset', 'wav_idx', 'wav_nsamp'):
     master_df[col] = master_df[col].apply(int)
 master_df['ttl_id'] = master_df['ttl_id'].apply(literal_eval)
 
-# create event dict
-master_ev_id = dict()
-for _id, name in enumerate(wav_names):
-    master_ev_id[name] = _id
-
 # iterate over subjects
 for subj_code, subj in subjects.items():
     # read raws
     header = 'jsalt_binaural_cortical_{0}_{1:03}.vhdr'.format(subj_code, subj)
-    basename = op.join(outdir, '{0:03}-{1}-'.format(subj, subj_code))
-    raw = mne.io.read_raw_brainvision(op.join(eegdir, header),
+    basename = '{0:03}-{1}-'.format(subj, subj_code)
+    raw = mne.io.read_raw_brainvision(op.join(indir, header),
                                       preload=True, response_trig_shift=None)
     # deal with subjects who had hardware failure and had to restart a block.
     # this is a bit convoluted due to (foolishly) stamping the start of each
@@ -68,7 +64,7 @@ for subj_code, subj in subjects.items():
     # stim start and trialID 1/0 bits)
     try:
         h = 'jsalt_binaural_cortical_{0}_{1:03}-2.vhdr'.format(subj_code, subj)
-        raw2 = mne.io.read_raw_brainvision(op.join(eegdir, h), preload=True,
+        raw2 = mne.io.read_raw_brainvision(op.join(indir, h), preload=True,
                                            response_trig_shift=None)
         two_runs = True
     except IOError:
@@ -119,13 +115,13 @@ for subj_code, subj in subjects.items():
     # keep only the 1-triggers, but replace with trial IDs (converted to ints)
     events = raw_events[stim_start_indices]
     for ix, (st, nd) in enumerate(id_lims):
-        # convert 4 & 8 to 0 & 1, 9 is # of bits:
+        # convert 4 & 8 to 0 & 1; 9 is the number of bits:
         events[ix, -1] = binary_to_decimals(raw_events[st:nd, -1] // 4 - 1, 9)
     # save events to file. Don't use raw.add_events to write them back into the
     # Raw file stim channel, because stimulus IDs 4 and 8 will become
     # confounded with the 4 & 8 bits in the binary trial IDs (actually,
     # stimulus IDs 3 and 7 would be the problem because raw.add_events will
     # **sum** them with the existing 1-triggers).
-    mne.write_events(basename + 'eve.txt', events)
+    mne.write_events(op.join(outdir, 'events', basename + 'eve.txt'), events)
     # save Raw object as FIF
-    raw.save(basename + 'raw.fif.gz')
+    raw.save(op.join(outdir, 'raws', basename + 'raw.fif.gz'), overwrite=True)
