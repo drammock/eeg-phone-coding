@@ -26,6 +26,7 @@ from aux_functions import find_EER_threshold
 
 # flags
 add_missing_feats = False
+use_eng_superset = False
 
 # file i/o
 paramdir = 'params'
@@ -42,6 +43,7 @@ use_dss = params['dss']['use']
 n_dss_channels_to_use = params['dss']['use_n_channels']
 process_individual_subjs = params['process_individual_subjs']
 fname_suffix = '-dss-{}'.format(n_dss_channels_to_use) if use_dss else ''
+squaremat = '' if use_eng_superset else '-square'
 fname_id = '{}{}'.format(clf_type, fname_suffix)
 
 
@@ -74,13 +76,12 @@ def add_missing_feats_to_ref(feat_ref, missing_feats):
     return concat((feat_ref, missing_df), axis=1)
 
 
-def make_weights_matrix(equal_error_rate):
+def make_weights_matrix(equal_error_rate, foreign, english):
     # make binary mask of feature matches: shape=(foreign_cons, eng_cons, feat)
     # 1. add 1 to remap binary feature values as 1 (absence) or 2 (presence)
     # 2. multiply each English phone's feature value with each foreign one
     # 3. if product is 1 or 4 then feats. match, if product is 2 then mismatch
-    mask = np.einsum('ik,jk->ijk', 1 + feat_ref_foreign,
-                     1 + feat_ref_eng_expanded) != 2
+    mask = np.einsum('ik,jk->ijk', 1 + foreign, 1 + english) != 2
     # convert equal_error_rate to (1 - equal_error_rate) when features match
     # (this yields probability of "correct" classification for each feature
     # when considering feature values of each English phone as a prior)
@@ -91,9 +92,10 @@ def make_weights_matrix(equal_error_rate):
 
 
 # load ancillary data
+langs = np.load(op.join(paramdir, 'langs.npy'))
 subj_dict = np.load(op.join(paramdir, 'subjects.npz'))
-with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
-    ipa = json.load(ipafile)
+with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as f:
+    ipa = json.load(f)
 feat_path_eng = op.join(paramdir, 'reference-feature-table-english.tsv')
 feat_ref_eng = read_csv(feat_path_eng, sep='\t', index_col=0, encoding='utf-8')
 feat_ref_all = read_csv(op.join(paramdir, 'reference-feature-table-all.tsv'),
@@ -110,11 +112,16 @@ feat_ref = feat_ref_all
 # convert to binary if needed
 if isinstance(feat_ref.iloc[0, 0], (str, unicode)):
     feat_ref = feat_ref.apply(lambda x: x == '+').astype(int)
-
 # load each language's phone sets
-phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
-all_phones = np.load(op.join(paramdir, 'allphones.npy')).tolist()
-langs = np.load(op.join(paramdir, 'langs.npy'))
+with open(op.join(paramdir, 'phonesets.json'), 'r') as f, \
+        open(op.join(paramdir, 'allphones.json'), 'r') as g:
+    phonesets = json.load(f)
+    all_phones = json.load(g)
+if use_eng_superset:
+    with open(op.join(paramdir, 'eng-phones-superset.json'), 'r') as f:
+        eng_phones = json.load(f)
+else:
+    eng_phones = phonesets['eng']
 
 # read in PHOIBLE feature data
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
@@ -129,7 +136,6 @@ privative = feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
 feat_tab = feat_tab.iloc[:, negate(vacuous | privative)]
 
 # add 'syllabic' to beginning of sort order to group vowels together
-sort_by = ['syllabic'] + sort_by
 feat_tab = feat_tab.sort_values(by=sort_by, ascending=False)
 
 # init some containers
@@ -171,20 +177,23 @@ for lang in langs:
         equal_error_rate = Series(equal_error_rate, index=featscore.columns)
         feat_ref_expanded = feat_ref
     # propogate add'l features to english feature table
-    feat_ref_eng_expanded = feat_ref_expanded.loc[phonesets['eng']]
+    feat_ref_eng_expanded = feat_ref_expanded.loc[eng_phones]
     # create confusion matrix
     feat_ref_foreign = feat_ref_expanded.loc[phonesets[lang]]
     # aggregate feature classif. probs. into phone classif. probs.
-    weights_matrix = make_weights_matrix(equal_error_rate)
+    weights_matrix = make_weights_matrix(equal_error_rate, feat_ref_foreign,
+                                         feat_ref_eng_expanded)
+    raise RuntimeError
     # save to global variables
     equal_error_rates[lang] = equal_error_rate
     weights_mats[lang] = DataFrame(weights_matrix, index=phonesets[lang],
-                                   columns=phonesets['eng'])
+                                   columns=eng_phones)
 # save results
-eer_fname = 'equal-error-rates-{}.tsv'.format(fname_id)
+eer_fname = 'equal-error-rates-{}{}.tsv'.format(fname_id, squaremat)
 equal_error_rates.to_csv(op.join(outdir, eer_fname), sep='\t')
 for lang, wmat in weights_mats.items():
-    confmat_fname = 'eeg-confusion-matrix-{}-{}.tsv'.format(lang, fname_id)
+    confmat_fname = 'eeg-confusion-matrix-{}-{}{}.tsv'.format(lang, fname_id,
+                                                              squaremat)
     wmat.to_csv(op.join(outdir, confmat_fname), sep='\t', encoding='utf-8')
 
 # process individual subjects
@@ -209,13 +218,13 @@ if process_individual_subjs:
                 featscores[lang] = featscore
                 # find threshold for each feat to equalize error rate
                 thresholds = np.zeros_like(featscore.columns, dtype=float)
-                equal_error_rate = np.zeros_like(featscore.columns, dtype=float)
+                equal_error_rate = np.zeros_like(featscore.columns,
+                                                 dtype=float)
                 for ix, feat in enumerate(featscore.columns):
                     label = ' ({}: {})'.format(lang, feat)
-                    (thresholds[ix],
-                     equal_error_rate[ix]) = find_EER_threshold(featscore[feat],
-                                                                feattruth[feat],
-                                                                label)
+                    (thresholds[ix], equal_error_rate[ix]) = \
+                        find_EER_threshold(featscore[feat], feattruth[feat],
+                                           label)
                 """
                 # check thresholds are actually yielding equal error rates
                 predictions = (featscore >= thresholds).astype(int)
@@ -237,21 +246,24 @@ if process_individual_subjs:
                                               index=featscore.columns)
                     feat_ref_expanded = feat_ref
                 # propogate add'l features to english feature table
-                feat_ref_eng_expanded = feat_ref_expanded.loc[phonesets['eng']]
+                feat_ref_eng_expanded = feat_ref_expanded.loc[eng_phones]
                 # create confusion matrix
                 feat_ref_foreign = feat_ref_expanded.loc[phonesets[lang]]
                 # aggregate feature classif. probs. into phone classif. probs.
-                weights_matrix = make_weights_matrix(equal_error_rate)
+                weights_matrix = make_weights_matrix(equal_error_rate,
+                                                     feat_ref_foreign,
+                                                     feat_ref_eng_expanded)
                 # save to global variables
                 equal_error_rates[lang] = equal_error_rate
                 weights_mats[lang] = DataFrame(weights_matrix,
                                                index=phonesets[lang],
-                                               columns=phonesets['eng'])
+                                               columns=eng_phones)
         # save results
-        eer_fname = 'equal-error-rates-{}-{}.tsv'.format(fname_id, subj_id)
+        eer_fname = 'equal-error-rates-{}{}-{}.tsv'.format(fname_id, squaremat,
+                                                           subj_id)
         equal_error_rates.to_csv(op.join(subj_outdir, eer_fname), sep='\t')
         for lang, wmat in weights_mats.items():
-            fid = '{}-{}'.format(lang, fname_id)
+            fid = '{}-{}{}'.format(lang, fname_id, squaremat)
             wmat_fname = 'eeg-confusion-matrix-{}-{}.tsv'.format(fid, subj_id)
             wmat.to_csv(op.join(subj_outdir, wmat_fname), sep='\t',
                         encoding='utf-8')

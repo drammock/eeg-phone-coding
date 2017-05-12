@@ -47,6 +47,7 @@ pca_truncate = params['pca']['truncate_to_n_timepts']
 process_individual_subjs = params['process_individual_subjs']
 fname_suffix = '-dss-{}'.format(dss_n_channels) if use_dss else ''
 infile = 'merged-dss-data.npz' if use_dss else 'merged-eeg-data.npz'
+process_group_data = False
 
 
 # functions
@@ -144,53 +145,57 @@ validation = list()
 language_dict = {lang: list() for lang in foreign_langs}
 
 # hyperparameter grid search setup
-param_grid = [dict(C=[0.1, 1, 10, 100, 1000],
-                   gamma=[10, 1, 1e-1, 1e-2, 1e-3, 1e-4])]
-clf_kwargs = dict(probability=True, kernel='rbf',
-                  decision_function_shape='ovr', random_state=rand)
-gridsearch_kwargs = dict(scoring=score_EER, n_jobs=6, pre_dispatch=9, cv=5,
+param_grid = [dict(tol=[1e-4])]
+clf_kwargs = dict()
+if clf_type == 'svm':
+	param_grid = [dict(C=[0.1, 1, 10, 100, 1000],
+	                   gamma=[10, 1, 1e-1, 1e-2, 1e-3, 1e-4])]
+	clf_kwargs.update(dict(probability=True, kernel='rbf', random_state=rand,
+						   decision_function_shape='ovr'))
+gridsearch_kwargs = dict(scoring=score_EER, n_jobs=5, pre_dispatch=10, cv=5,
                          refit=True, verbose=3)
 
 # across-subject classification
 print('starting cross-validation')
-print('training classifiers across all subjects')
-for featname in feat_ref.columns:
-    train_data = epochs_cat[train_mask]
-    train_labels = feats[featname][train_mask]
-    clf = GridSearchCV(new_classifier(clf_type, **clf_kwargs),
-                       param_grid=param_grid, **gridsearch_kwargs)
-    trained_model, model_dtypes = train_classifier(classifier=clf,
-                                                   data=train_data,
-                                                   labels=train_labels,
-                                                   msg=featname)
-    # test on new English talkers
-    print('    testing: eng', end=' ')
-    eng_prob = test_classifier(clf, epochs_cat[validation_mask], model_dtypes)
-    validation.append(eng_prob)
-    # test on foreign sounds
+if process_group_data:
+    print('training classifiers across all subjects')
+    for featname in feat_ref.columns:
+        train_data = epochs_cat[train_mask]
+        train_labels = feats[featname][train_mask]
+        clf = GridSearchCV(new_classifier(clf_type, **clf_kwargs),
+                           param_grid=param_grid, **gridsearch_kwargs)
+        trained_model, model_dtypes = train_classifier(classifier=clf,
+                                                       data=train_data,
+                                                       labels=train_labels,
+                                                       msg=featname)
+        # test on new English talkers
+        print('    testing: eng', end=' ')
+        eng_prob = test_classifier(clf, epochs_cat[validation_mask], model_dtypes)
+        validation.append(eng_prob)
+        # test on foreign sounds
+        for lang in foreign_langs:
+            print(lang, end=' ')
+            lang_mask = langs == lang
+            prob = test_classifier(clf, data=epochs_cat[(test_mask & lang_mask)],
+                                   dtypes=model_dtypes)
+            language_dict[lang].append(prob)
+        print()
+        # save classifier objects
+        classifier_dict[featname] = trained_model
+    np.savez(op.join(outdir, 'classifiers.npz'), **classifier_dict)
+    # convert predictions to DataFrames and save
+    validation_df = pd.DataFrame(merge_arrays(validation, flatten=True),
+                                 index=cons[validation_mask])
+    validation_fname = 'classifier-probabilities-eng-{}{}.tsv'.format(clf_type,
+                                                                      fname_suffix)
+    validation_df.to_csv(op.join(outdir, validation_fname), sep='\t')
     for lang in foreign_langs:
-        print(lang, end=' ')
         lang_mask = langs == lang
-        prob = test_classifier(clf, data=epochs_cat[(test_mask & lang_mask)],
-                               dtypes=model_dtypes)
-        language_dict[lang].append(prob)
-    print()
-    # save classifier objects
-    classifier_dict[featname] = trained_model
-np.savez(op.join(outdir, 'classifiers.npz'), **classifier_dict)
-# convert predictions to DataFrames and save
-validation_df = pd.DataFrame(merge_arrays(validation, flatten=True),
-                             index=cons[validation_mask])
-validation_fname = 'classifier-probabilities-eng-{}{}.tsv'.format(clf_type,
-                                                                  fname_suffix)
-validation_df.to_csv(op.join(outdir, validation_fname), sep='\t')
-for lang in foreign_langs:
-    lang_mask = langs == lang
-    test_probs = pd.DataFrame(merge_arrays(language_dict[lang], flatten=True),
-                              index=cons[(test_mask & lang_mask)])
-    test_fname = 'classifier-probabilities-{}-{}{}.tsv'.format(lang, clf_type,
-                                                               fname_suffix)
-    test_probs.to_csv(op.join(outdir, test_fname), sep='\t')
+        test_probs = pd.DataFrame(merge_arrays(language_dict[lang], flatten=True),
+                                  index=cons[(test_mask & lang_mask)])
+        test_fname = 'classifier-probabilities-{}-{}{}.tsv'.format(lang, clf_type,
+                                                                   fname_suffix)
+        test_probs.to_csv(op.join(outdir, test_fname), sep='\t')
 
 # classify individual subjects
 if process_individual_subjs:

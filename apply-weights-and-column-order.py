@@ -35,8 +35,11 @@ fname_suffix = '-dss-{}'.format(n_dss_channels_to_use) if use_dss else ''
 fname_id = '{}{}'.format(clf_type, fname_suffix)
 
 # load phonesets (used to standardize row/column order)
-phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
-eng = phonesets['eng']
+phonesets = dict(np.load(op.join(paramdir, 'phonesets.npz')))
+eng = read_csv(op.join(paramdir, 'eng-phones-superset.tsv'),
+               encoding='utf-8', header=None)
+eng = np.squeeze(eng.values).astype(unicode).tolist()
+phonesets['eng'] = eng
 # load list of languages, put English last
 langs = np.load(op.join(paramdir, 'langs.npy'))
 
@@ -57,7 +60,7 @@ for lang in langs:
     assert set(confmat.columns) == set(weightmat.columns)
     # make sure orders match
     if not np.array_equal(confmat.index, weightmat.index):
-        weightmat = weightmat.iloc[confmat.index, :]
+        weightmat = weightmat.loc[confmat.index, :]
         assert np.array_equal(confmat.index, weightmat.index)
     if not np.array_equal(confmat.columns, weightmat.columns):
         weightmat = weightmat[confmat.columns]

@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 # flags
-savefig = True
+savefig = False
 
 # style setup
 labelsize = 8

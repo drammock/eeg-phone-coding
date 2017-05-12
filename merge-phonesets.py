@@ -14,26 +14,28 @@ phones.
 # License: BSD (3-clause)
 
 from __future__ import division, print_function
+import json
 import numpy as np
 from os import path as op
-from glob import glob
 from pandas import read_csv
 
 # file i/o
 paramdir = 'params'
 
-# these phone sets are determined by the output of the probabilistic
-# transcription system; may not correspond to the languages' phonemes
-fnames = glob(op.join(paramdir, '*-phones.tsv'))
-langs = [op.split(x)[1][:3] for x in fnames]
+# load list of languages
+langs = np.load(op.join(paramdir, 'langs.npy'))
+# load ASCII to IPA dictionary
+with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
+    ipa = json.load(ipafile)
+# compute which phones were heard
+tokens = read_csv(op.join(paramdir, 'cv-boundary-times.tsv'), sep='\t')
+tokens['lang'] = tokens['talker'].apply(lambda x: x[:3])
+tokens['cons'] = tokens['consonant'].apply(lambda x: x[:-2] if x[-1] in
+                                           ['0', '1', '2', '3'] else x)
+tokens['ipa'] = tokens['cons'].apply(lambda x: ipa[x.replace('-', '_')])
 phonesets = dict()
 for lang in langs:
-    # TODO: need to get updated phone list (for Hindi) from MHJ / PJ
-    this_phones = read_csv(op.join(paramdir, '{}-phones.tsv'.format(lang)),
-                           encoding='utf-8', header=None)
-    this_phones = np.squeeze(this_phones.values).astype(unicode).tolist()
-    phonesets[lang] = this_phones
-
+    phonesets[lang] = list(set(tokens.loc[tokens['lang'] == lang, 'ipa']))
 # make unique set of all phones in these languages
 all_phones = [phone for inventory in phonesets.values() for phone in inventory]
 all_phones = list(set(all_phones))
@@ -61,16 +63,14 @@ assert np.all(np.in1d(all_phones, feat_tab.index))
 # subset feature table to all_phones, sort table, sort all_phones
 feat_tab = feat_tab.loc[all_phones]
 feat_tab = feat_tab.sort_values(by=sort_by, ascending=False)
-all_phones = feat_tab.index
+all_phones = feat_tab.index.tolist()
 # apply sort order to phonesets
 for lang in langs:
     indices = [np.where(feat_tab.index.values.astype(unicode) == x)[0][0]
                for x in phonesets[lang]]
     phonesets[lang] = np.array(phonesets[lang])[np.argsort(indices)].tolist()
-# create separate list of just the vowels
-vowels = feat_tab[(feat_tab['consonantal'] == '-') &
-                  (feat_tab['syllabic'] == '+')].index.values.astype(unicode)
 # save
-np.savez(op.join(paramdir, 'phonesets.npz'), **phonesets)
-np.save(op.join(paramdir, 'allphones.npy'), all_phones)
-np.save(op.join(paramdir, 'vowels.npy'), vowels)
+with open(op.join(paramdir, 'phonesets.json'), 'w') as f, \
+         open(op.join(paramdir, 'allphones.json'), 'w') as g:
+    json.dump(phonesets, f)
+    json.dump(all_phones, g)

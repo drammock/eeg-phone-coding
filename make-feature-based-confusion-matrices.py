@@ -24,35 +24,24 @@ from numpy import logical_not as negate
 paramdir = 'params'
 outdir = 'processed-data'
 
-# load ASCII to IPA dictionary
-with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as ipafile:
-    ipa = json.load(ipafile)
-
-# these phone sets are determined by the output of the probabilistic
-# transcription system; may not correspond to the languages' phonemes
-eng_phones = read_csv(op.join(paramdir, 'eng-phones.tsv'), encoding='utf-8',
-                      header=None)
-eng_phones = np.squeeze(eng_phones.values).astype(unicode).tolist()
-
+# load lists of languages and phones
+langs = np.load(op.join(paramdir, 'langs.npy'))
+lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
+                  eng='English')
+with open(op.join(paramdir, 'phonesets.json'), 'r') as f:
+    phonesets = json.load(f)
 # load master features table
 feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
                     sep='\t', encoding='utf-8', index_col=0)
-# sort order
 sort_order = ['syllabic', 'consonantal', 'labial', 'coronal', 'dorsal',
               'continuant', 'sonorant', 'periodicGlottalSource', 'distributed',
               'strident']
 
-# load list of languages
-langs = np.load(op.join(paramdir, 'langs.npy'))
-lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
-                  eng='English')
-phonesets = np.load(op.join(paramdir, 'phonesets.npz'))
-
 # iterate over languages
 for ix, lang in enumerate(langs):
-    this_phones = phonesets[lang].tolist()
+    this_phones = phonesets[lang]
     # find which features are contrastive
-    all_phones = list(set(this_phones + eng_phones))
+    all_phones = list(set(this_phones + phonesets['eng']))
     all_feat_tab = feat_tab.loc[all_phones]
     vacuous = all_feat_tab.apply(lambda x: len(np.unique(x)) == 1).values
     privative = all_feat_tab.apply(lambda x: len(np.unique(x)) == 2 and
@@ -61,15 +50,17 @@ for ix, lang in enumerate(langs):
     this_feat_tab = feat_tab.loc[this_phones]
     this_feat_tab.index.name = lang
     assert this_feat_tab.shape[0] == len(this_phones)
-    eng_feat_tab = feat_tab.loc[eng_phones]
+    eng_feat_tab = feat_tab.loc[phonesets['eng']]
     eng_feat_tab.index.name = 'eng'
-    assert eng_feat_tab.shape[0] == len(eng_phones)
+    assert eng_feat_tab.shape[0] == len(phonesets['eng'])
     # remove non-contrastive features
     this_feat_tab = this_feat_tab.iloc[:, negate(vacuous | privative)]
     eng_feat_tab = eng_feat_tab.iloc[:, negate(vacuous | privative)]
     # sort to group natural classes (makes confusion mattix look nicer)
-    this_feat_tab = this_feat_tab.sort_values(by=sort_order, ascending=False)
-    eng_feat_tab = eng_feat_tab.sort_values(by=sort_order, ascending=False)
+    this_sort = [feat for feat in sort_order if feat in this_feat_tab.columns]
+    eng_sort = [feat for feat in sort_order if feat in eng_feat_tab.columns]
+    this_feat_tab = this_feat_tab.sort_values(by=this_sort, ascending=False)
+    eng_feat_tab = eng_feat_tab.sort_values(by=eng_sort, ascending=False)
     """
     # make features binary (bad idea due to diphthong contour features)
     this_feat_tab = this_feat_tab.apply(lambda x: x == '+').astype(int)

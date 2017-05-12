@@ -18,13 +18,11 @@ import yaml
 import mne
 import numpy as np
 from mne_sandbox.preprocessing import dss
-from autoreject import LocalAutoRejectCV, compute_thresholds
 from os import mkdir, getcwd
 from os import path as op
 from expyfun import binary_to_decimals
 from pandas import read_csv
 from ast import literal_eval
-from functools import partial
 
 # file i/o
 paramdir = 'params'
@@ -42,11 +40,9 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
 subjects = dict(IJ=1, IL=2, FA=3, IM=4, ID=5, CQ=6, IP=7, FV=8, IA=9, IV=10,
                 IQ=11, IT=12)
 do_baseline = analysis_params['eeg']['baseline']
-do_autorej = analysis_params['eeg']['autoreject']
-do_reject = None if do_autorej else dict(eeg=40e-6)
+do_reject = None  # dict(eeg=40e-6)
 save_dss_data = analysis_params['eeg']['save_dss_data']
 save_dss_mat = analysis_params['eeg']['save_dss_mat']
-save_epochs = analysis_params['eeg']['save_epochs']
 n_jobs = analysis_params['n_jobs']
 
 # load global params
@@ -95,17 +91,6 @@ tmax_cv = vowel_durs.max() + 0.2
 master_ev_id = dict()
 for _id, name in enumerate(wav_names):
     master_ev_id[name] = _id
-
-# set up autoreject
-rs = mne.utils.check_random_state(12345)
-# what percentage of bad sensors should trigger dropping an epoch?
-consensus_percents = np.linspace(0, 1.0, 11)
-# for retained epochs, how many of worst channels should we interpolate?
-n_interpolates = np.arange(1, 10, 2)
-thresh_func = partial(compute_thresholds, method='random_search',
-                      random_state=rs)
-autorej = LocalAutoRejectCV(n_interpolates, consensus_percents,
-                            thresh_func=thresh_func)
 
 # montage
 montage = mne.channels.read_montage(op.join(getcwd(), 'montage',
@@ -199,10 +184,6 @@ for subj_code, subj in subjects.items():
     # resample epochs
     epochs = epochs.resample(100, npad=0, n_jobs=n_jobs)
     epochs_cv = epochs_cv.resample(100, npad=0, n_jobs=n_jobs)
-    # autoreject
-    if do_autorej:
-        epochs = autorej.fit_transform(epochs)
-        epochs_cv = autorej.fit_transform(epochs_cv)
     # zero-out EEG responses irrelevant to the current stimulus (ideally
     # not necessary, but maybe helpful due to short ISIs)
     for e_ix, e in enumerate((epochs_cv, epochs)):
@@ -236,9 +217,8 @@ for subj_code, subj in subjects.items():
             np.save(basename + '{}-aligned-dssdata.npy'.format(align),
                     dss_data, allow_pickle=False)
     # save epochs
-    if save_epochs:
-        epochs.save(basename + 'c-aligned-epo.fif.gz')
-        epochs_cv.save(basename + 'v-aligned-epo.fif.gz')
+    epochs.save(basename + 'c-aligned-epo.fif.gz')
+    epochs_cv.save(basename + 'v-aligned-epo.fif.gz')
 
 # finish
 np.savez(op.join(paramdir, 'subjects.npz'), **subjects)

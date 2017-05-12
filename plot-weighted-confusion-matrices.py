@@ -46,7 +46,7 @@ analysis_params = 'current-analysis-settings.yaml'
 # load analysis params
 with open(op.join(paramdir, analysis_params), 'r') as paramfile:
     params = yaml.load(paramfile)
-clf_type = params['clf_type']
+clf_type = 'svm'  # params['clf_type']
 use_dss = params['dss']['use']
 n_dss_channels_to_use = params['dss']['use_n_channels']
 process_individual_subjs = params['process_individual_subjs']
@@ -74,36 +74,60 @@ langs = langs[::-1]
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
 subj_dict = np.load(op.join(paramdir, 'subjects.npz'))
+"""
 vowels = np.load(op.join(paramdir, 'vowels.npy'))
+"""
+
+# compute sort order for rows
+feat_tab = read_csv(op.join(paramdir, 'phoible-segments-features.tsv'),
+                    sep='\t', encoding='utf-8', index_col=0)
+sort_order = ['syllabic', 'consonantal', 'approximant', 'sonorant',
+              'nasal', 'continuant', 'dorsal', 'coronal', 'labial',
+              'distributed', 'strident', 'anterior', 'delayedRelease',
+              'periodicGlottalSource', 'spreadGlottis', 'constrictedGlottis']
+feat_tab = feat_tab.sort_values(by=sort_order, kind='mergesort',
+                                ascending=False)
 
 # init some containers
 confmats = dict()
 weightmats = dict()
 weightedmats = dict()
-consonantmats = dict()
 # load data
 for lang in langs:
     fid = '{}-{}'.format(lang, fname_id)
     # load feature-based confusion matrices
     fpath = op.join(outdir, 'features-confusion-matrix-{}.tsv').format(lang)
     confmat = read_csv(fpath, sep='\t', encoding='utf-8', index_col=0)
+    row_order = feat_tab.index[np.in1d(feat_tab.index, confmat.index)]
+    col_order = feat_tab.index[np.in1d(feat_tab.index, confmat.columns)]
+    confmat = confmat.loc[row_order, col_order]
     # load eeg confusion matrices
     fpath = op.join(outdir, 'eeg-confusion-matrix-{}.tsv'.format(fid))
     weightmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
+    row_order = feat_tab.index[np.in1d(feat_tab.index, weightmat.index)]
+    col_order = feat_tab.index[np.in1d(feat_tab.index, weightmat.columns)]
+    weightmat = weightmat.loc[row_order, col_order]
     # load weighted confusion matrices
     fpath = op.join(outdir, 'weighted-confusion-matrix-{}.tsv'.format(fid))
     weightedmat = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
+    row_order = feat_tab.index[np.in1d(feat_tab.index, weightedmat.index)]
+    col_order = feat_tab.index[np.in1d(feat_tab.index, weightedmat.columns)]
+    weightedmat = weightedmat.loc[row_order, col_order]
+    """
     # ignore vowels
     consonant_cols = weightmat.columns[np.in1d(weightmat.columns, vowels,
                                                invert=True)]
     consonant_rows = weightmat.index[np.in1d(weightmat.index, vowels,
                                              invert=True)]
     consonantmat = weightmat.loc[consonant_rows, consonant_cols]
+    """
     # save to global dict
     confmats[lang] = confmat
     weightmats[lang] = weightmat
     weightedmats[lang] = weightedmat
+    """
     consonantmats[lang] = consonantmat
+    """
 
 # calculate figure size
 matrix_width = 3 * confmat.shape[1]
@@ -156,8 +180,8 @@ if process_individual_subjs:
     # calculate figure size
     ncol = len(subj_dict.keys())
     figwidth = 4 * ncol  # make each matrix 4 inches wide, more or less
-    matrix_width = ncol * consonantmat.shape[1]
-    heights = np.array([consonantmats[lg].shape[0] for lg in langs])
+    matrix_width = ncol * weightmat.shape[1]
+    heights = np.array([weightmats[lg].shape[0] for lg in langs])
     figsize = np.array([matrix_width, heights.sum()]) * figwidth / matrix_width
     # initialize figure
     fig = plt.figure(figsize=figsize)
@@ -173,12 +197,17 @@ if process_individual_subjs:
                             'eeg-confusion-matrix-{}.tsv'.format(fid))
             if op.exists(fpath):
                 data = read_csv(fpath, sep='\t', index_col=0, encoding='utf-8')
+                row_order = feat_tab.index[np.in1d(feat_tab.index, data.index)]
+                col_order = feat_tab.index[np.in1d(feat_tab.index, data.columns)]
+                data = data.loc[row_order, col_order]
+                """
                 # ignore vowels
                 consonant_cols = data.columns[np.in1d(data.columns, vowels,
                                                       invert=True)]
                 consonant_rows = data.index[np.in1d(data.index, vowels,
                                                     invert=True)]
                 data = data.loc[consonant_rows, consonant_cols]
+                """
                 ax.imshow(data, cmap=plt.get_cmap(colormap))
                 ax.set_xticks(np.arange(data.shape[1])[1::2], minor=False)
                 ax.set_xticks(np.arange(data.shape[1])[::2], minor=True)
@@ -204,7 +233,7 @@ if process_individual_subjs:
                 ax.set_ylabel(lang_names[lang], size=labelsize * 3)
             if not l_ix:
                 ax.set_title(subj_id, size=labelsize * 3)
-    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.02, top=0.96)
+    fig.subplots_adjust(left=0.0, right=1., bottom=0.05, top=0.9)
     fig.suptitle('Confusion matrix between actually heard sounds (y) and '
                  'predicted perceived sounds (x), grouped by language (rows) '
                  'and by listener (columns)', size=labelsize * 5)
