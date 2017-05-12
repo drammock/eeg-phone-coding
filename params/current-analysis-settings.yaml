@@ -1,18 +1,20 @@
 eeg:
   baseline: true
-  save_dss_data: true
-  save_dss_mat: true
-  save_epochs: true
-  autoreject: true
+  autoreject: false
+  interpolate: false
 clf_type: svm
 process_individual_subjs: true
 dss:
   use: true
+  save_mat: true
+  save_data: true
   use_n_channels: 4
 pca:
   time_domain: true
-  truncate_to_n_timepts: 20  # 20 is reasonable, None to disable
+  truncate_to_n_timepts: None  # 20 is reasonable, None to disable
 n_jobs: 6  # 'cuda' is also an option
+align_on_cv: false  # epoch t0 = stimulus onset (false) or cv transition (true)
+brain_resp_dur: 0.2
 subjects:
   IJ: 1
   IL: 2
@@ -26,3 +28,37 @@ subjects:
   IV: 10
   IQ: 11
   IT: 12
+# skip ['FV', 'IQ', 'IP', 'IT', 'IV', 'FA', 'IJ', 'IM', 'IL', 'IA', 'CQ', 'ID']
+skip: []
+blink_channel:
+  FV: Ch1
+  IQ: Ch1
+  IP: Ch1
+  IT: Ch1
+  IV: Ch1
+  FA: Ch2  # Ch1 noisy
+  IJ: Ch1
+  IM: Ch1
+  IL: Ch1
+  IA: Ch1
+  CQ: Ch1
+  ID: Ch1
+# below is just a record of the interactive annotation session, showing how
+# many blinks were detected after all annotations were in place, and some
+# minimal commentary about whether the number and location of detected blinks
+# is reasonable for each subject.  Actual number of blink epochs used for SSP
+# will be slightly lower, as some epochs will get discarded for being too
+# close to the spans of data annotated as "BAD".
+n_blinks_detected:
+  FV: 1628  # good
+  IQ: 326   # good (seldom blinks)
+  IP: 1871  # good
+  IT: 884   # good
+  IV: 755   # good (Ch2)
+  FA: 2750  # good (blinks a LOT)
+  IJ: 943   # good
+  IM: 352   # good (seldom blinks)
+  IL: 2979  # good (blinks a LOT)
+  IA: 352   # good
+  CQ: 2012  # good
+  ID: 933   # good

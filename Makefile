@@ -9,7 +9,7 @@ backup:
 params/ascii-to-ipa.json:
 	python make-ascii-to-ipa-dict.py
 
-params/phonesets.npz: params/*-phones.tsv
+params/phonesets.json: params/langs.npy params/ascii-to-ipa.json
 	python merge-phonesets.py
 
 # TODO: params/classifier-probabilities-*.tsv are needed for this one
@@ -32,13 +32,13 @@ classify: params/ascii-to-ipa.json params/reference-feature-table-cons.tsv
 confmats: params/reference-feature-table-all.tsv \
 		  params/reference-feature-table-cons.tsv \
 		  params/reference-feature-table-english.tsv \
-		  params/langs.npy params/phonesets.npz params/ascii-to-ipa.json
+		  params/langs.npy params/phonesets.json params/ascii-to-ipa.json
 	python make-feature-based-confusion-matrices.py
 	python make-confmats-from-classifier-output.py
 	python apply-weights-and-column-order.py
 
 # plots
-plot: params/langs.npy params/phonesets.npz \
+plot: params/langs.npy params/phonesets.json \
 	  processed-data/*-confusion-matrix-*.tsv
 	python plot-weighted-confusion-matrices.py
 	python plot-EER.py

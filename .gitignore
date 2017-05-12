@@ -6,8 +6,11 @@ expyfun-data-raw
 expyfun-data-clean
 admin/flyers
 old-stuff
+eeg-data-raw
 
 # files
 admin/runsheet-jsalt-followup.pdf
 
 # file types
+*.pyc
+params/*.xlsx

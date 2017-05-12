@@ -4,7 +4,13 @@ Experiment to test performance of EEG signal classifiers trained on responses to
 ## Pipeline:
 - `slide-prompts` folder: Generate textual prompts for recording foreign-language stimuli
 - `stimulus-generation` folder: Process audio recordings to generate stimuli
-- `run-experiment.py`: Run experiment and collect EEG data (done on a separate acquisition computer using BrainVision pyCorder software; no associated scripts)
+- `run-experiment.py`: Run experiment and collect EEG data (done on a separate acquisition computer using BrainVision pyCorder software; no additional scripts associated with the recording process)
+- `010-merge-eeg-raws.py`: convert BrainVision data format to `mne.io.Raw` objects; deal with subjects who have two separate recordings (due to equipment malfunction / restarting blocks); auto-add annotations to ignore between-block periods.
+- `015-reannotate.py`: interactive annotation of `Raw` files, to mark movement artifacts, bad channels, or other undesirable noise in the data. Also bandpass-filters the `Raw` files.
+- `020-make-epochs.py`: epoching, baseline correction, and downsampling.
+- `030-dss.py`: run denoising source separation on epoched data.
+- `035-validate-epochs-and-dss.py`: interactive script for ensuring nothing has gone horribly wrong so far in the pipeline.
+
 - `clean-eeg.py`: Preprocess EEG data
 - `apply-dss-and-merge-subjects.py`: combine cleaned EEG data across subjects
 - `classify-eeg.py`: Train classifiers on EEG data (responses to English syllables) and classify remaining EEG data (responses to foreign syllables, held-out English syllables)
