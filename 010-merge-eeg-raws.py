@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 merge-eeg-raws.py
@@ -12,7 +13,6 @@ This script preprocesses raw EEG data files to:
 # Created on Mon Nov 14 17:18:25 2016
 # License: BSD (3-clause)
 
-from __future__ import division, print_function
 import yaml
 import mne
 import numpy as np
@@ -30,10 +30,6 @@ def find_block_start_indices(events):
     last_stim_of_block_ix = stim_starts[last_stim_of_block]
     return last_stim_of_block_ix + 1
 
-
-# FLAGS
-annotate = False
-save_raw = False
 
 # BASIC FILE I/O
 indir = 'eeg-data-raw'
@@ -54,7 +50,6 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
 subjects = analysis_params['subjects']
 brain_resp_dur = analysis_params['brain_resp_dur']
-seed = analysis_params['seed']
 skip = analysis_params['skip']
 del global_params, analysis_params
 # load montage
@@ -150,29 +145,23 @@ for subj_code, subj in subjects.items():
     # **sum** them with the existing 1-triggers).
     mne.write_events(op.join(outdir, 'events', basename + 'eve.txt'), events)
     # clean Raw object: annotate breaks between blocks
-    if annotate:
-        sfreq = raw.info['sfreq']
-        pad_samp = int((isi_range[1] + brain_resp_dur + 1) * sfreq)
-        indices = np.where(np.diff(events[:, 0]) > pad_samp)[0]
-        onsets = (events[indices, 0] + pad_samp) / sfreq
-        durs = ((events[(indices + 1), 0] - pad_samp) / sfreq) - onsets
-        indices = indices[np.where(durs > 0)]
-        onsets = onsets[np.where(durs > 0)]
-        durs = durs[np.where(durs > 0)]
-        assert len(indices) in [12, 13]
-        # add in beginning and end of run
-        first_onset = raw.first_samp / sfreq  # should be zero
-        first_dur = (events[0, 0] - pad_samp) / sfreq
-        last_onset = (events[-1, 0] + pad_samp) / sfreq
-        last_dur = (raw.n_times / sfreq) - last_onset
-        onsets = np.r_[first_onset, onsets, last_onset]
-        durs = np.r_[first_dur, durs, last_dur]
-        descrs = ['bad-between-blocks'] * len(durs)
-        raw.annotations = mne.Annotations(onsets, durs, descrs)
-        # interactive annotation: bad channels; transient noise during blocks
-        raw.plot(n_channels=33, scalings=dict(eeg=50e-6), block=True,
-                 duration=30)
+    sfreq = raw.info['sfreq']
+    pad_samp = int((isi_range[1] + brain_resp_dur + 1) * sfreq)
+    indices = np.where(np.diff(events[:, 0]) > pad_samp)[0]
+    onsets = (events[indices, 0] + pad_samp) / sfreq
+    durs = ((events[(indices + 1), 0] - pad_samp) / sfreq) - onsets
+    indices = indices[np.where(durs > 0)]
+    onsets = onsets[np.where(durs > 0)]
+    durs = durs[np.where(durs > 0)]
+    assert len(indices) in [12, 13]
+    # add in beginning and end of run
+    first_onset = raw.first_samp / sfreq  # should be zero
+    first_dur = (events[0, 0] - pad_samp) / sfreq
+    last_onset = (events[-1, 0] + pad_samp) / sfreq
+    last_dur = (raw.n_times / sfreq) - last_onset
+    onsets = np.r_[first_onset, onsets, last_onset]
+    durs = np.r_[first_dur, durs, last_dur]
+    descrs = ['BAD_INTERBLOCK'] * len(durs)
+    raw.annotations = mne.Annotations(onsets, durs, descrs)
     # save Raw object as FIF
-    if save_raw:
-        raw.save(op.join(outdir, 'raws', basename + 'raw.fif.gz'),
-                 overwrite=True)
+    raw.save(op.join(outdir, 'raws', basename + 'raw.fif.gz'), overwrite=False)

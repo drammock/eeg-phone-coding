@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug  9 10:58:22 2016
@@ -6,13 +6,15 @@ Created on Tue Aug  9 10:58:22 2016
 @author: drmccloy
 """
 
-from __future__ import division, print_function
+import warnings
 import numpy as np
 import networkx as nx
 from time import time
 from scipy.sparse import linalg, csr_matrix
-from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.svm import SVC
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.metrics import pairwise_distances
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils.graph import graph_laplacian
@@ -30,36 +32,6 @@ def time_domain_pca(epochs):
 
 def print_elapsed(start_time, end=' sec.\n'):
     print(np.round(time() - start_time, 1), end=end)
-
-
-def find_EER_threshold(pred_class_one_prob, labels, string=''):
-    steps = np.linspace(0, 1, 11)
-    converged = False
-    iteration = 0
-    threshold = -1
-    print('Finding EER thresholds{}: iteration'.format(string), end=' ')
-    while not converged:
-        old_threshold = threshold
-        iteration += 1
-        print(str(iteration), end=' ')
-        preds = np.array([pred_class_one_prob >= thresh for thresh in steps])
-        trues = np.tile(labels.astype(bool), (steps.size, 1))
-        false_pos_rate = ((np.logical_not(trues) & preds).sum(axis=1) /
-                          np.logical_not(trues).sum(axis=1))
-        false_neg_rate = ((trues & np.logical_not(preds)).sum(axis=1) /
-                          trues.sum(axis=1))
-        ratios = (false_pos_rate / false_neg_rate)
-        if np.isinf(ratios[0]) or ratios[0] > ratios[1]:
-            ratios = ratios[::-1]
-            steps = steps[::-1]
-        ix = np.searchsorted(ratios, v=1)
-        threshold = steps[ix]
-        converged = (np.isclose(ratios[ix], 1.) or
-                     np.isclose(threshold, old_threshold))
-        steps = np.linspace(steps[ix - 1], steps[ix], 11)
-    print()
-    eer = false_pos_rate[ix]
-    return threshold, eer
 
 
 def compute_medioids(data, cluster_ids, n_jobs=1):
@@ -170,3 +142,117 @@ def split_and_resid(data, n_clusters=2, n_jobs=-2, random_state=0,
         return (predictions, residuals, centers, eigvals, eigvecs)
     else:
         raise ValueError('unknown clustering method "{}"'.format(method))
+
+
+def new_classifier(clf_type, **kwargs):
+    if clf_type == 'lda':
+        clf = LDA(solver='svd', **kwargs)
+    elif clf_type == 'svm':
+        clf = SVC(**kwargs)
+    else:
+        raise ValueError('unrecognized value for classifier type (clf_type)')
+    return clf
+
+
+def train_classifier(classifier, data, labels, msg):
+    # train classifier
+    print('  {}'.format(msg), end=': ')
+    _st = time()
+    classifier.fit(X=data, y=labels)
+    # handle class names and dtypes for structured array
+    dtype_names = ['{}{}'.format(['-', '+'][val], msg)
+                   for val in np.unique(labels)]
+    dtype_formats = [float] * np.unique(labels).size
+    model_dtype_dict = dict(names=dtype_names, formats=dtype_formats)
+    print_elapsed(_st)
+    return classifier, model_dtype_dict
+
+
+def test_classifier(classifier, data, dtypes):
+    prob = classifier.predict_proba(data)
+    return np.array([tuple(x) for x in prob], dtype=dtypes)
+
+
+def _eer(steps, threshold, converged, iteration, probs, truth):
+    from numpy import logical_and as bool_and
+    from numpy import logical_not as bool_not
+    old_threshold = threshold
+    iteration += 1
+    preds = np.array([probs >= thresh for thresh in steps])
+    trues = np.tile(truth.astype(bool), (steps.size, 1))
+    falses = bool_not(trues)
+    # false pos / false neg rates
+    fpr = bool_and(falses, preds).sum(axis=1) / falses.sum(axis=1)
+    fnr = bool_and(trues, bool_not(preds)).sum(axis=1) / trues.sum(axis=1)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")  # suppress divide by zero warnings
+        ratios = fpr / fnr
+        if np.any(np.diff(ratios) < 0):  # also suppress inf-minus-inf warnings
+            ratios = ratios[::-1]
+            steps = steps[::-1]
+    ix = np.searchsorted(ratios, v=1.)
+    threshold = steps[ix]
+    converged = (np.isclose(ratios[ix], 1.) or
+                 np.isclose(threshold, old_threshold))
+    steps = np.linspace(steps[ix - 1], steps[ix], 11)
+    return steps, threshold, converged, iteration, fpr[ix]
+
+def score_EER(estimator, X, y):
+    probs = estimator.predict_proba(X)[:, 1]
+    steps = np.linspace(0, 1, 11)
+    converged = False
+    iteration = 0
+    threshold = -1
+    while not converged:
+        (steps, threshold, converged, iteration,
+         eer) = _eer(steps, threshold, converged, iteration, probs, y)
+    return 1 - eer
+
+
+def find_EER_threshold(probs, truth):
+    steps = np.linspace(0, 1, 11)
+    converged = False
+    iteration = 0
+    threshold = -1
+    while not converged:
+        (steps, threshold, converged, iteration,
+         eer) = _eer(steps, threshold, converged, iteration, probs, truth)
+    return threshold, eer
+
+
+def merge_features_into_df(df, paramdir, features_file):
+    import json
+    import os.path as op
+    import pandas as pd
+    # separate language from talker ID
+    df['lang'] = df['talker'].map(lambda x: x[:3])
+    eng_talkers = df['lang'] == 'eng'
+    # LOAD FEATURES
+    feats = pd.read_csv(op.join(paramdir, features_file), sep='\t',
+                        index_col=0, comment='#')
+    feats = feats.astype(float)  # passing dtype=float in reader doesn't work
+    feats.columns = [cn.split('-')[0] for cn in feats.columns]  # flat-plain -> flat
+    # abstract away from individual tokens
+    df['ascii'] = df['syll'].transform(lambda x: x[:-2].replace('-', '_')
+                                       if x.split('-')[-1] in ('0', '1', '2')
+                                       else x.replace('-', '_'))
+    # add IPA column
+    with open(op.join(paramdir, 'ascii-to-ipa.json'), 'r') as _file:
+        ipadict = json.load(_file)
+    df['ipa'] = df['ascii'].map(ipadict)
+    # revise IPA column for English (undo the strict phonetic coding of English
+    # phones created during recording). The undoing is built into the mapping
+    # in english-ascii-to-ipa.json
+    with open(op.join(paramdir, 'english-ascii-to-ipa.json'), 'r') as _file:
+        ipadict = json.load(_file)
+    df.loc[eng_talkers, 'ipa'] = df.loc[eng_talkers, 'ascii'].map(ipadict)
+    # ensure we have feature values for all the phonemes (at least for English)
+    assert np.all(np.in1d(df.loc[eng_talkers, 'ipa'].unique(), feats.index))
+    # merge feature columns. depending on feature set, this may yield some rows
+    # that are all NaN (e.g., foreign phonemes with English-only feature sets)
+    # or some feature values that are NaN (in cases of sparse feature matrices)
+    feat_cols = feats.loc[df['ipa']].copy()
+    feat_cols.reset_index(inplace=True, drop=True)
+    assert np.allclose(df.index, feat_cols.index)
+    df = pd.concat([df, feat_cols], axis=1)
+    return df
