@@ -7,6 +7,7 @@ expyfun-data-clean
 admin/flyers
 old-stuff
 eeg-data-raw
+__pycache__
 
 # files
 admin/runsheet-jsalt-followup.pdf
