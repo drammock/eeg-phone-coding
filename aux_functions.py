@@ -369,8 +369,8 @@ def merge_features_into_df(df, paramdir, features_file):
         ipadict = json.load(_file)
     df['ipa'] = df['ascii'].map(ipadict)
     # revise IPA column for English (undo the strict phonetic coding of English
-    # phones created during recording). The undoing is built into the mapping
-    # in english-ascii-to-ipa.json
+    # phones created during stimulus recording). The undoing is built into the
+    # mapping in english-ascii-to-ipa.json
     with open(op.join(paramdir, 'english-ascii-to-ipa.json'), 'r') as _file:
         ipadict = json.load(_file)
     df.loc[eng_talkers, 'ipa'] = df.loc[eng_talkers, 'ascii'].map(ipadict)
