@@ -64,9 +64,11 @@ def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
         bias_max_components=None, bias_thresh=0, norm=False,
         return_data=False, return_power=False):
     if isinstance(data, BaseEpochs):
+        """
         if trial_types is None:
             trial_types = data.events[:, -1]
             trial_dict = {v: k for k, v in data.event_id.items()}
+        """
         data = data.get_data()
     # norm each channel's time series
     if norm:
@@ -149,12 +151,17 @@ def _power(cov, dss):
     return np.sqrt(((cov @ dss) ** 2).sum(axis=0))
 
 
-def time_domain_pca(epochs):
-    time_cov = np.sum([np.dot(trial.T, trial) for trial in epochs], axis=0)
-    eigval, eigvec = pca(time_cov, max_components=None, thresh=1e-6)
+def time_domain_pca(epochs, max_components=None):
+    """ NORMAL WAY
+    time_cov = np.sum([trial.T @ trial for trial in epochs], axis=0)
+    eigval, eigvec = pca(time_cov, max_components=max_components, thresh=1e-6)
     W = np.sqrt(1 / eigval)  # whitening diagonal
-    epochs = np.array([np.dot(trial, eigvec) * W[np.newaxis, :]
-                       for trial in epochs])
+    epochs = np.array([trial @ eigvec * W[np.newaxis, :] for trial in epochs])
+    """
+    time_cov = np.einsum('hij,hik->jk', epochs, epochs)
+    eigval, eigvec = pca(time_cov, max_components=max_components, thresh=1e-6)
+    W = np.diag(np.sqrt(1 / eigval))  # diagonal time-PCA whitening matrix
+    epochs = np.einsum('hij,jk,kk->hik', epochs, eigvec, W)
     return epochs
 
 
