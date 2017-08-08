@@ -72,7 +72,7 @@ for subj_code, subj in subjects.items():
                               baseline=None, picks=picks, preload=True,
                               reject_by_annotation=True)
     ssp_blink_proj = mne.compute_proj_epochs(blink_epochs, n_grad=0, n_mag=0,
-                                             n_eeg=2, n_jobs=n_jobs,
+                                             n_eeg=4, n_jobs=n_jobs,
                                              desc_prefix=None, verbose=None)
     raw = raw.add_proj(ssp_blink_proj)
 
