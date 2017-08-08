@@ -18,12 +18,140 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.metrics import pairwise_distances
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils.graph import graph_laplacian
-from mne_sandbox.preprocessing._dss import _pca
+from mne import BaseEpochs
+
+def pca(cov, max_components=None, thresh=0):
+    """Perform PCA decomposition from a covariance matrix
+
+    Parameters
+    ----------
+    cov : array-like
+        Covariance matrix
+    max_components : int | None
+        Maximum number of components to retain after decomposition. ``None``
+        (the default) keeps all suprathreshold components (see ``thresh``).
+    thresh : float | None
+        Threshold (relative to the largest component) above which components
+        will be kept. The default keeps all non-zero values; to keep all
+        values, specify ``thresh=None`` and ``max_components=None``.
+
+    Returns
+    -------
+    eigval : array
+        1-dimensional array of eigenvalues.
+    eigvec : array
+        2-dimensional array of eigenvectors.
+    """
+
+    if thresh is not None and (thresh > 1 or thresh < 0):
+        raise ValueError('Threshold must be between 0 and 1 (or None).')
+    eigval, eigvec = np.linalg.eigh(cov)
+    eigval = np.abs(eigval)
+    sort_ix = np.argsort(eigval)[::-1]
+    eigvec = eigvec[:, sort_ix]
+    eigval = eigval[sort_ix]
+    if max_components is not None:
+        eigval = eigval[:max_components]
+        eigvec = eigvec[:, :max_components]
+    if thresh is not None:
+        suprathresh = np.where(eigval / eigval.max() > thresh)[0]
+        eigval = eigval[suprathresh]
+        eigvec = eigvec[:, suprathresh]
+    return eigval, eigvec
+
+
+def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
+        bias_max_components=None, bias_thresh=0, norm=False,
+        return_data=False, return_power=False):
+    if isinstance(data, BaseEpochs):
+        if trial_types is None:
+            trial_types = data.events[:, -1]
+            trial_dict = {v: k for k, v in data.event_id.items()}
+        data = data.get_data()
+    # norm each channel's time series
+    if norm:
+        channel_norms = np.linalg.norm(data, ord=2, axis=-1)
+        data = data / channel_norms[:, :, np.newaxis]
+    # PCA across channels
+    data_cov = np.einsum('hij,hkj->ik', data, data)
+    data_eigval, data_eigvec = pca(data_cov, max_components=pca_max_components,
+                                   thresh=pca_thresh)
+    # diagonal data-PCA whitening matrix:
+    W = np.diag(np.sqrt(1 / data_eigval))
+    """
+    # make sure whitening works
+    white_data = W @ data_eigvec.T @ data
+    white_data_cov = np.einsum('hij,hkj->ik', white_data, white_data)
+    assert np.allclose(white_data_cov, np.eye(white_data_cov.shape[0]))
+    """
+    # code path for computing separate bias for each condition
+    if trial_types is not None:
+        raise NotImplementedError
+        bias_cov_dict = dict()
+        for tt in trial_dict.keys():
+            indices = np.where(trial_types == tt)
+            evoked = data[indices].mean(axis=0)
+            bias_cov_dict[tt] = np.einsum('hj,ij->hi', evoked, evoked)
+        # compute bias rotation matrix
+        bias_cov = np.array([bias_cov_dict[tt] for tt in trial_types])
+        biased_white_eigvec = np.einsum('ii,hi,jhk,km,mm->jim', W,
+                                        data_eigvec, bias_cov, data_eigvec, W)
+        eigs = [pca(bwe, max_components=bias_max_components,
+                    thresh=bias_thresh) for bwe in biased_white_eigvec]
+        bias_eigval = np.array([x[0] for x in eigs])
+        bias_eigvec = np.array([x[1] for x in eigs])
+        # compute DSS operator
+        """ THE NORMAL WAY
+        dss_mat = np.array([data_eigvec @ W @ bias for bias in bias_eigvec])
+        dss_normalizer = 1 / np.sqrt([np.diag(dss.T @ data_cov @ dss)
+                                      for dss in dss_mat])
+        dss_operator = np.array([dss @ np.diag(norm) for dss, norm
+                                 in zip(dss_mat, dss_normalizer)])
+        """
+        dss_mat = np.einsum('ij,jj,hjk->hik', data_eigvec, W, bias_eigvec)
+        dss_normalizer = 1 / np.sqrt(np.einsum('hij,ik,hkj->hj',
+                                               dss_mat, data_cov, dss_mat))
+        dss_operator = np.einsum('hij,hj->hij', dss_mat, dss_normalizer)
+        results = [dss_operator]
+        # apply DSS to data
+        if return_data:
+            data_dss = np.einsum('hij,hik->hkj', data, dss_operator)
+            results.append(data_dss)
+        if return_power:
+            unbiased_power = np.array([_power(data_cov, dss) for dss in dss_operator])
+            biased_power = np.array([_power(bias, dss) for bias, dss in zip(bias_cov, dss_operator)])
+            results.extend([unbiased_power, biased_power])
+    else:
+        # compute bias rotation matrix
+        evoked = data.mean(axis=0)
+        bias_cov = np.einsum('hj,ij->hi', evoked, evoked)
+        biased_white_eigvec = W @ data_eigvec.T @ bias_cov @ data_eigvec @ W
+        bias_eigval, bias_eigvec = pca(biased_white_eigvec,
+                                       max_components=bias_max_components,
+                                       thresh=bias_thresh)
+        # compute DSS operator
+        dss_mat = data_eigvec @ W @ bias_eigvec
+        dss_normalizer = 1 / np.sqrt(np.diag(dss_mat.T @ data_cov @ dss_mat))
+        dss_operator = dss_mat @ np.diag(dss_normalizer)
+        results = [dss_operator]
+        # apply DSS to data
+        if return_data:
+            data_dss = np.einsum('hij,ik->hkj', data, dss_operator)
+            results.append(data_dss)
+        if return_power:
+            unbiased_power = _power(data_cov, dss_operator)
+            biased_power = _power(bias_cov, dss_operator)
+            results.extend([unbiased_power, biased_power])
+    return tuple(results)
+
+
+def _power(cov, dss):
+    return np.sqrt(((cov @ dss) ** 2).sum(axis=0))
 
 
 def time_domain_pca(epochs):
     time_cov = np.sum([np.dot(trial.T, trial) for trial in epochs], axis=0)
-    eigval, eigvec = _pca(time_cov, max_components=None, thresh=1e-6)
+    eigval, eigvec = pca(time_cov, max_components=None, thresh=1e-6)
     W = np.sqrt(1 / eigval)  # whitening diagonal
     epochs = np.array([np.dot(trial, eigvec) * W[np.newaxis, :]
                        for trial in epochs])
