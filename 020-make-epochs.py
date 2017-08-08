@@ -41,8 +41,8 @@ stim_fs = global_params['stim_fs']
 with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
 subjects = analysis_params['subjects']
-ref_chan = analysis_params['eeg']['ref_channel']
 reject = analysis_params['eeg']['reject']
+bad_channels = analysis_params['bad_channels']
 # align_on_cv = analysis_params['align_on_cv']  # always generate both
 n_jobs = analysis_params['n_jobs']
 skip = analysis_params['skip']
@@ -86,8 +86,8 @@ for subj_code, subj in subjects.items():
     basename = '{0:03}-{1}-'.format(subj, subj_code)
     raw_fname = op.join(indir, 'raws-with-projs', basename + 'raw.fif.gz')
     raw = mne.io.read_raw_fif(raw_fname, preload=True)
-    #raw.set_eeg_reference([])  # EEG ref. already set & dropped in prev. script
-    sfreq = raw.info['sfreq']
+    #raw.set_eeg_reference([])  # EEG ref. chan. set & dropped in prev. script
+    raw.info['bads'] = bad_channels[subj_code]
 
     # make event dicts
     events = mne.read_events(op.join(indir, 'events', basename + 'eve.txt'),
@@ -95,12 +95,15 @@ for subj_code, subj in subjects.items():
     ev = events[:, -1]
 
     # generate epochs aligned on stimulus onset (baselining needs to be done on
-    # onset-aligned epochs, even if we want to end up with CV-aligned epochs)
+    # onset-aligned epochs, even if we want to end up with CV-aligned epochs).
+    # we ignore annotations here, and instead reject epochs based on channel
+    # amplitude thresholds (set in the param file)
     picks = mne.pick_types(raw.info, meg=False, eeg=True)
     ev_dict = df.loc[np.in1d(df['event_id'], ev), ['key', 'event_id']]
     ev_dict = ev_dict.set_index('key').to_dict()['event_id']
     epochs_baseline = mne.Epochs(raw, events, ev_dict, tmin_onset, tmax_onset,
-                                 baseline, picks, reject=reject, preload=True)
+                                 baseline, picks, reject=reject, preload=True,
+                                 reject_by_annotation=False, proj=True)
     drops = np.where(epochs_baseline.drop_log)[0]
 
     # generate events file aligned on consonant-vowel transition time.
@@ -113,7 +116,7 @@ for subj_code, subj in subjects.items():
 
     # generate epochs aligned on CV-transition
     epochs = mne.Epochs(raw, events, ev_dict, tmin_cv, tmax_cv,
-                        baseline=None, picks=picks, reject=reject,
+                        baseline=None, picks=picks, reject=None,
                         preload=True, reject_by_annotation=False)
     # dropped epochs are determined by the baselined epochs object
     epochs.drop(drops)
