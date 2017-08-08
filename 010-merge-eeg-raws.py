@@ -44,13 +44,12 @@ global_paramfile = 'global-params.yaml'
 analysis_paramfile = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, global_paramfile), 'r') as f:
     global_params = yaml.load(f)
-isi_range = np.array(global_params['isi_range'])
-wav_names = global_params['wav_names']
+    isi_range = np.array(global_params['isi_range'])
 with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
-subjects = analysis_params['subjects']
-brain_resp_dur = analysis_params['brain_resp_dur']
-skip = analysis_params['skip']
+    subjects = analysis_params['subjects']
+    brain_resp_dur = analysis_params['brain_resp_dur']
+    skip = analysis_params['skip']
 del global_params, analysis_params
 # load montage
 montage = mne.channels.read_montage('easycap-M1-LABSN-with-POOh',
@@ -137,7 +136,7 @@ for subj_code, subj in subjects.items():
                 raise
     # delete events where we couldn't determine the stimulus (e.g., if EEG
     # recording glitches messed up the TTL stamps)
-    events = events[np.where(events[:, -1] > 0)]
+    events = events[np.where(events[:, -1] >= 0)]
     # save events to file. Don't use raw.add_events to write them back into the
     # Raw file stim channel, because stimulus IDs 4 and 8 will become
     # confounded with the 4 & 8 bits in the binary trial IDs (actually,
