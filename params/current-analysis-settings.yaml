@@ -1,5 +1,6 @@
 eeg:
-  reject: # high threshold in volts (e.g. 0.00004); blank (None) to keep all epochs
+  reject:  # high threshold in volts; dict or blank (None) to keep all epochs
+    eeg: 0.000075
   interpolate: false
   ref_channel: ['Ch17']
 clf_type: svm
@@ -8,14 +9,19 @@ dss:
   use: true
   save_mat: true
   save_data: true
-  use_n_channels: 4
+  n_components: 5
 pca:
   time_domain: true
   truncate_to_n_timepts:  # 20 is reasonable, leave unset (=None) to disable
-n_jobs: 6  # 'cuda' is also an option
+n_jobs: 6  # 'cuda' is hard-coded on some lines (for filtering, resampling)
 align_on_cv: true  # epoch t0 = stimulus onset (false) or cv transition (true)
 brain_resp_dur: 0.2
-features_file: consonant-features-transposed-sparse-jfh.tsv
+feature_systems:
+  jfh_dense: consonant-features-transposed-dense-jfh.tsv
+  jfh_sparse: consonant-features-transposed-sparse-jfh.tsv
+  spe_dense: consonant-features-transposed-dense-spe.tsv
+  spe_sparse: consonant-features-transposed-sparse-spe.tsv
+  phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
 subjects:
   IJ: 1
   IL: 2
@@ -44,8 +50,21 @@ blink_channel:
   IA: Ch1
   CQ: Ch1
   ID: Ch1
+bad_channels:
+  IJ: ['Ch3', 'Ch7']  # 32
+  IL: []
+  FA: ['Ch7']  # 2, 8, 20
+  IM: ['Ch3']  # 7, 22
+  ID: ['Ch16', 'Ch12', 'Ch7']
+  CQ: ['Ch3']
+  IP: []  # 7, 11, 15, 3
+  FV: ['Ch2', 'Ch7', 'Ch1']
+  IA: ['Ch3']  # 22
+  IV: ['Ch1', 'Ch16', 'Ch7']
+  IQ: ['Ch7', 'Ch3']
+  IT: ['Ch3']
 
-
+# these are just notes, not read in by any scripts:
 n_components_needed_for_blink_eradication:
   IJ: 4  # 5 gets rid of correlated DC shifts
   IL: 4
@@ -57,5 +76,5 @@ n_components_needed_for_blink_eradication:
   FV: 5  # component 4 seems unnecessary
   IA: 5  # component 2 seems unnecessary
   IV: 5 or more  # not sure how many needed.. comp. 4's utility unclear
-  IQ: 4  # component 3 seems unnecessary; 5 does not handle DC
+  IQ: 4  # component 3 seems unnecessary
   IT: 5  # 4 does a pretty good job
