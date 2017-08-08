@@ -50,7 +50,7 @@ for ix, (subj_code, subj_num) in enumerate(subjects.items()):
     dss_mat = np.load(op.join(indir, 'dss', basename + 'dss-mat.npy'))
     dss_mat = dss_mat[:, :n_comp]  # only retain desired number of components
     for n, component in enumerate(dss_mat.T):
-        desc = 'dss-{}'.format(n)
+        desc = 'dss-{}'.format(n + 1)
         data = dict(data=component, nrow=1, ncol=len(component),
                     row_names=desc, col_names=epochs.ch_names)
         dss_proj = mne.io.Projection(data=data, active=False, kind=1,
@@ -60,4 +60,5 @@ for ix, (subj_code, subj_num) in enumerate(subjects.items()):
     fig = mne.viz.plot_projs_topomap(epochs.info['projs'], layout=lout,
                                      show=False)
     fig.canvas.set_window_title(subj_code)
-    fig.savefig(op.join(outdir, '{}dss-topomap.pdf'.format(basename)))
+    fig.savefig(op.join(outdir, '{}dss{}-topomap.pdf'.format(basename,
+                                                             n_comp)))
