@@ -1,0 +1,28 @@
+"# Chomsky, N., & Halle, M. (1968). The sound pattern of English. Cambridge, MA: MIT Press."
+"# Based on tables 1 and 2, pp. 176 & 177."
+
+	vocalic	consonantal	high	back	low	anterior	coronal	voiced	continuant	nasal	strident
+ɹ	1	1	0	0	0	0	1	1	1	0	0
+l	1	1	0	0	0	1	1	1	1	0	0
+p	0	1	0	0	0	1	0	0	0	0	0
+b	0	1	0	0	0	1	0	1	0	0	0
+f	0	1	0	0	0	1	0	0	1	0	1
+v	0	1	0	0	0	1	0	1	1	0	1
+m	0	1	0	0	0	1	0	1	0	1	0
+t	0	1	0	0	0	1	1	0	0	0	0
+d	0	1	0	0	0	1	1	1	0	0	0
+θ	0	1	0	0	0	1	1	0	1	0	0
+ð	0	1	0	0	0	1	1	1	1	0	0
+n	0	1	0	0	0	1	1	1	0	1	0
+s	0	1	0	0	0	1	1	0	1	0	1
+z	0	1	0	0	0	1	1	1	1	0	1
+tʃ	0	1	1	0	0	0	1	0	0	0	1
+dʒ	0	1	1	0	0	0	1	1	0	0	1
+ʃ	0	1	1	0	0	0	1	0	1	0	1
+ʒ	0	1	1	0	0	0	1	1	1	0	1
+k	0	1	1	1	0	0	0	0	0	0	0
+ɡ	0	1	1	1	0	0	0	1	0	0	0
+ŋ	0	1	1	1	0	0	0	1	0	1	0
+h	0	0	0	0	1	0	0	0	1	0	0
+j	0	0	1	0	0	0	0	1	1	0	0
+w	0	0	1	1	0	0	0	1	1	0	0

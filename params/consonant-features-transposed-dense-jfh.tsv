@@ -1,0 +1,35 @@
+# R. Jakobson, C. G. M. Fant, & M. Halle (1952). Preliminaries to speech analysis: The distinctive features and their correlates. Cambridge: MIT Press, p. 43
+# [ɹ] is an unstressed allophone of /ə/ (p. 22)
+# features for [j] and [w] not given in source; these merely duplicate /i/ and /u/
+# voicing features are considered redundant for English and are not given in the appendix table
+# in each case, the feature names are paired terms; a feature value of 1 corresponds to the first element of the pair
+# on /h/ and /∅/ being grave: acuteness is due to smaller and more compartmented oral cavities (p. 30)
+# on nasals being lax: rationale is that tense/lax is coxtensive with voicing in consonants in English
+# features for /l/ were assumed to be the same as /ɹ/ whenever it was unclear how the definitions applied
+
+	vocalic-nonvocalic	consonantal-nonconsonantal	compact-diffuse	grave-acute	flat-plain	nasal-oral	tense-lax	continuant-interrupted	strident-mellow
+l	1 	1 	0 	1 	0 	0 	1 	1 	0
+w	1 	0 	0 	1 	1 	0 	1 	1 	0
+ɹ	1 	0 	0 	1 	0 	0 	1 	1 	0
+j	1 	0 	0 	0 	0 	0 	1 	1 	0
+ŋ	0 	1 	1 	1 	0 	1 	0 	1 	0
+k	0 	1 	1 	1 	0 	0 	1 	0 	0
+ʃ	0 	1 	1 	0 	0 	0 	1 	1 	0
+tʃ	0 	1 	1 	0 	0 	0 	1 	0 	1
+ʒ	0 	1 	1 	0 	0 	0 	0 	1 	0
+dʒ	0 	1 	1 	0 	0 	0 	0 	0 	1
+ɡ	0 	1 	1 	1 	0 	0 	0 	0 	0
+m	0 	1 	0 	1 	1 	1 	0 	1 	0
+p	0 	1 	0 	1 	1 	0 	1 	0 	0
+f	0 	1 	0 	1 	1 	0 	1 	1 	1
+v	0 	1 	0 	1 	1 	0 	0 	1 	1
+b	0 	1 	0 	1 	1 	0 	0 	0 	0
+n	0 	1 	0 	0 	0 	1 	0 	1 	0
+t	0 	1 	0 	0 	0 	0 	1 	0 	0
+s	0 	1 	0 	0 	0 	0 	1 	1 	1
+θ	0 	1 	0 	0 	0 	0 	1 	1 	0
+z	0 	1 	0 	0 	0 	0 	0 	1 	1
+ð	0 	1 	0 	0 	0 	0 	0 	1 	0
+d	0 	1 	0 	0 	0 	0 	0 	0 	0
+h	0 	0 	0 	1 	0 	0 	1 	1 	0
+∅	0 	0 	0 	1 	0 	0 	0 	1 	0
