@@ -57,7 +57,7 @@ for subj_code, subj in subjects.items():
                              verbose=False)
     if do_dss:
         data = np.load(op.join(indir, 'dss', basename + 'dss-data.npy'))
-        data = data[:n_comp]
+        data = data[:, :n_comp, :]
     else:
         data = epochs.get_data()
     print_elapsed(_st)
