@@ -89,6 +89,7 @@ def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
     # code path for computing separate bias for each condition
     if trial_types is not None:
         raise NotImplementedError
+        '''
         bias_cov_dict = dict()
         for tt in trial_dict.keys():
             indices = np.where(trial_types == tt)
@@ -123,6 +124,7 @@ def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
             unbiased_power = np.array([_power(data_cov, dss) for dss in dss_operator])
             biased_power = np.array([_power(bias, dss) for bias, dss in zip(bias_cov, dss_operator)])
             results.extend([unbiased_power, biased_power])
+        '''
     else:
         # compute bias rotation matrix
         evoked = data.mean(axis=0)
@@ -168,7 +170,7 @@ def time_domain_pca(epochs, max_components=None):
 def print_elapsed(start_time, end=' sec.\n'):
     print(np.round(time() - start_time, 1), end=end)
 
-
+"""
 def compute_medioids(data, cluster_ids, n_jobs=1):
     # pairwise_distances fast w/ 1 CPU; don't pass n_jobs > 1 (memory issues)
     print('    computing medioids:', end=' ')
@@ -277,82 +279,89 @@ def split_and_resid(data, n_clusters=2, n_jobs=-2, random_state=0,
         return (predictions, residuals, centers, eigvals, eigvecs)
     else:
         raise ValueError('unknown clustering method "{}"'.format(method))
+"""
 
 
-def new_classifier(clf_type, **kwargs):
-    if clf_type == 'lda':
-        clf = LDA(solver='svd', **kwargs)
-    elif clf_type == 'svm':
-        clf = SVC(**kwargs)
-    else:
-        raise ValueError('unrecognized value for classifier type (clf_type)')
-    return clf
+def _eer(probs, thresholds, pos, neg):
+    # predictions
+    guess_pos = probs[np.newaxis, :] >= thresholds[:, np.newaxis]
+    guess_neg = np.logical_not(guess_pos)
+    # false pos / false neg
+    false_pos = np.logical_and(guess_pos, neg)
+    false_neg = np.logical_and(guess_neg, pos)
+    # false pos/neg rates for each threshold step (ignore div-by-zero warnings)
+    err_state = np.seterr(divide='ignore')
+    false_pos_rate = false_pos.sum(axis=1) / neg.sum()
+    false_neg_rate = false_neg.sum(axis=1) / pos.sum()
+    _ = np.seterr(**err_state)
+    # get rid of infs and zeros
+    false_pos_rate[false_pos_rate == np.inf] = 1e9
+    false_neg_rate[false_neg_rate == np.inf] = 1e9
+    false_pos_rate[false_pos_rate == -np.inf] = -1e9
+    false_neg_rate[false_neg_rate == -np.inf] = -1e9
+    false_pos_rate[false_pos_rate == 0.] = 1e-9
+    false_neg_rate[false_neg_rate == 0.] = 1e-9
+    # FPR / FNR ratio
+    ratios = false_pos_rate / false_neg_rate
+    reverser = -1 if np.any(np.diff(ratios) < 0) else 1
+    # find crossover point
+    ix = np.searchsorted(ratios[::reverser], v=1.)
+    closest_threshold_index = len(ratios) - ix if reverser < 0 else ix
+    # check for convergence
+    converged = np.isclose(ratios[closest_threshold_index], 1.)
+    # return EER estimate
+    eer = np.max([false_pos_rate[closest_threshold_index],
+                  false_neg_rate[closest_threshold_index]])
+    return closest_threshold_index, converged, eer
 
 
-def train_classifier(classifier, data, labels, msg):
-    # train classifier
-    print('  {}'.format(msg), end=': ')
-    _st = time()
-    classifier.fit(X=data, y=labels)
-    # handle class names and dtypes for structured array
-    dtype_names = ['{}{}'.format(['-', '+'][val], msg)
-                   for val in np.unique(labels)]
-    dtype_formats = [float] * np.unique(labels).size
-    model_dtype_dict = dict(names=dtype_names, formats=dtype_formats)
-    print_elapsed(_st)
-    return classifier, model_dtype_dict
-
-
-def test_classifier(classifier, data, dtypes):
-    prob = classifier.predict_proba(data)
-    return np.array([tuple(x) for x in prob], dtype=dtypes)
-
-
-def _eer(steps, threshold, converged, iteration, probs, truth):
-    from numpy import logical_and as bool_and
-    from numpy import logical_not as bool_not
-    old_threshold = threshold
-    iteration += 1
-    preds = np.array([probs >= thresh for thresh in steps])
-    trues = np.tile(truth.astype(bool), (steps.size, 1))
-    falses = bool_not(trues)
-    # false pos / false neg rates
-    fpr = bool_and(falses, preds).sum(axis=1) / falses.sum(axis=1)
-    fnr = bool_and(trues, bool_not(preds)).sum(axis=1) / trues.sum(axis=1)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")  # suppress divide by zero warnings
-        ratios = fpr / fnr
-        if np.any(np.diff(ratios) < 0):  # also suppress inf-minus-inf warnings
-            ratios = ratios[::-1]
-            steps = steps[::-1]
-    ix = np.searchsorted(ratios, v=1.)
-    threshold = steps[ix]
-    converged = (np.isclose(ratios[ix], 1.) or
-                 np.isclose(threshold, old_threshold))
-    steps = np.linspace(steps[ix - 1], steps[ix], 11)
-    return steps, threshold, converged, iteration, fpr[ix]
-
-def score_EER(estimator, X, y):
+def _EER_score_threshold(estimator, X, y):
+    # higher return values are better than lower return values
     probs = estimator.predict_proba(X)[:, 1]
-    steps = np.linspace(0, 1, 11)
+    thresholds = np.linspace(0, 1, 101)
     converged = False
-    iteration = 0
     threshold = -1
+    # ground truth
+    pos = np.array(y, dtype=bool)
+    neg = np.logical_not(pos)
     while not converged:
-        (steps, threshold, converged, iteration,
-         eer) = _eer(steps, threshold, converged, iteration, probs, y)
-    return 1 - eer
+        ix, converged, eer = _eer(probs, thresholds, pos, neg)
+        old_threshold = threshold
+        threshold = thresholds[ix]
+        converged = converged or np.isclose(threshold, old_threshold)
+        low = (ix - 1) if ix > 0 else ix
+        high = low + 1
+        thresholds = np.linspace(thresholds[low], thresholds[high], 101)
+    return (1 - eer), threshold
 
 
-def find_EER_threshold(probs, truth):
-    steps = np.linspace(0, 1, 11)
-    converged = False
-    iteration = 0
-    threshold = -1
-    while not converged:
-        (steps, threshold, converged, iteration,
-         eer) = _eer(steps, threshold, converged, iteration, probs, truth)
-    return threshold, eer
+def EER_score(estimator, X, y):
+    """EER scoring function
+    estimator: sklearn.SVC
+        sklearn estimator
+    X: np.ndarray
+        training data
+    y: np.ndarray
+        training labels
+    """
+    return _EER_score_threshold(estimator, X, y)[0]
+
+
+def EER_threshold(clf, X, y):
+    """Get EER threshold
+
+    clf: sklearn.GridSearchCV
+        the fitted crossval object
+    X: np.ndarray
+        training data
+    y: np.ndarray
+        training labels
+    """
+    estimator = clf.estimator
+    estimator.C = clf.best_params_['C']
+    estimator.gamma = clf.best_params_['gamma']
+    estimator.fit(X, y)
+    return _EER_score_threshold(estimator, X, y)[1]
 
 
 def merge_features_into_df(df, paramdir, features_file):
