@@ -1,6 +1,8 @@
 # From the PHOIBLE database (https://github.com/phoible/dev/blob/master/raw-data/FEATURES/phoible-segments-features.tsv)
+# feature name "periodicGlottalSource" changed to "voiced"
+# feature name "delayedRelease" changed to "delayedrelease"
 
-	consonantal	labial	coronal	dorsal	continuant	periodicGlottalSource	sonorant	strident	anterior	distributed	delayedRelease	approximant	nasal	lateral
+	consonantal	labial	coronal	dorsal	continuant	voiced	sonorant	strident	anterior	distributed	delayedrelease	approximant	nasal	lateral
 p	1	1	0	0	0	0	0				0	0	0	0
 b	1	1	0	0	0	1	0				0	0	0	0
 f	1	1	0	0	1	0	0				1	0	0	0

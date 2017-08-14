@@ -37,11 +37,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     align_on_cv = analysis_params['align_on_cv']
-    feature_systems = analysis_params['feature_systems']
+    feature_fnames = analysis_params['feature_fnames']
     skip = analysis_params['skip']
 
 # choice doesn't matter here; just need something to pass to the merge function
-feature_sys_fname = feature_systems['jfh_dense']
+feature_sys_fname = feature_fnames['jfh_dense']
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''

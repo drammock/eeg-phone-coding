@@ -16,12 +16,16 @@ pca:
 n_jobs: 6  # 'cuda' is hard-coded on some lines (for filtering, resampling)
 align_on_cv: true  # epoch t0 = stimulus onset (false) or cv transition (true)
 brain_resp_dur: 0.2
-feature_systems:
+feature_fnames:
   jfh_dense: consonant-features-transposed-dense-jfh.tsv
   jfh_sparse: consonant-features-transposed-sparse-jfh.tsv
   spe_dense: consonant-features-transposed-dense-spe.tsv
   spe_sparse: consonant-features-transposed-sparse-spe.tsv
   phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
+feature_systems:
+  jfh: ['vocalic', 'consonantal', 'compact', 'grave', 'flat', 'nasal', 'tense', 'continuant', 'strident']
+  spe: ['vocalic', 'consonantal', 'high', 'back', 'low', 'anterior', 'coronal', 'voiced', 'continuant', 'nasal', 'strident']
+  phoible: ['consonantal', 'labial', 'coronal', 'dorsal', 'continuant', 'voiced', 'sonorant', 'strident', 'anterior', 'distributed', 'delayedrelease', 'approximant', 'nasal', 'lateral']
 subjects:
   IJ: 1
   IL: 2
@@ -78,3 +82,5 @@ n_components_needed_for_blink_eradication:
   IV: 5 or more  # not sure how many needed.. comp. 4's utility unclear
   IQ: 4  # component 3 seems unnecessary
   IT: 5  # 4 does a pretty good job
+
+memory_per_classifier_thread: 255M
