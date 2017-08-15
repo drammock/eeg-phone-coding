@@ -1,24 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug  9 10:58:22 2016
-
-@author: drmccloy
+Auxiliary functions.
 """
+# @author: drmccloy
+# Created on Tue Aug  9 10:58:22 2016
+# License: BSD (3-clause)
 
-import warnings
 import numpy as np
-import networkx as nx
-from time import time
-from scipy.sparse import linalg, csr_matrix
-from sklearn.svm import SVC
-from sklearn.manifold import TSNE
-from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.metrics import pairwise_distances
-from sklearn.neighbors import NearestNeighbors
-from sklearn.utils.graph import graph_laplacian
-from mne import BaseEpochs
+
 
 def pca(cov, max_components=None, thresh=0):
     """Perform PCA decomposition from a covariance matrix
@@ -42,7 +32,6 @@ def pca(cov, max_components=None, thresh=0):
     eigvec : array
         2-dimensional array of eigenvectors.
     """
-
     if thresh is not None and (thresh > 1 or thresh < 0):
         raise ValueError('Threshold must be between 0 and 1 (or None).')
     eigval, eigvec = np.linalg.eigh(cov)
@@ -63,6 +52,7 @@ def pca(cov, max_components=None, thresh=0):
 def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
         bias_max_components=None, bias_thresh=0, norm=False,
         return_data=False, return_power=False):
+    from mne import BaseEpochs
     if isinstance(data, BaseEpochs):
         """
         if trial_types is None:
@@ -168,118 +158,8 @@ def time_domain_pca(epochs, max_components=None):
 
 
 def print_elapsed(start_time, end=' sec.\n'):
+    from time import time
     print(np.round(time() - start_time, 1), end=end)
-
-"""
-def compute_medioids(data, cluster_ids, n_jobs=1):
-    # pairwise_distances fast w/ 1 CPU; don't pass n_jobs > 1 (memory issues)
-    print('    computing medioids:', end=' ')
-    _st = time()
-    _ids = np.sort(np.unique(cluster_ids))
-    medioids = np.zeros((len(_ids), data.shape[1]))
-    for _id in _ids:
-        this_data = data[cluster_ids == _id]
-        dists = pairwise_distances(this_data, n_jobs=n_jobs)
-        rowsums = dists.sum(axis=1)
-        medioids[_id] = this_data[rowsums.argmin()]
-    print_elapsed(_st)
-    return medioids
-
-
-def split_and_resid(data, n_clusters=2, n_jobs=-2, random_state=0,
-                    method='kmeans', gamma=100, n_neighbors=10):
-    print('    clustering:', end=' ')
-    _st = time()
-    if method == 'kmeans':
-        km = KMeans(n_clusters=n_clusters, n_jobs=n_jobs,
-                    random_state=random_state)
-        predictions = km.fit_predict(data)
-        centers = km.cluster_centers_
-        print_elapsed(_st)
-        residuals = data - centers[predictions]
-        return predictions, residuals, centers
-    elif method == 'tsne':
-        clust = TSNE(n_components=n_clusters, random_state=random_state,
-                     perplexity=n_neighbors)
-        embedding = clust.fit_transform(data)
-        return embedding
-    elif method in ('spectral', 'precomputed'):
-        if method == 'spectral':
-            clust = SpectralClustering(n_clusters=n_clusters, n_init=10,
-                                       affinity='nearest_neighbors',
-                                       n_neighbors=n_neighbors,
-                                       eigen_solver='amg',
-                                       random_state=random_state)
-            predictions = clust.fit_predict(data)
-        else:  # spectral clustering with precomputed adjacency mat
-            dist_mat = pairwise_distances(data)  # don't pass n_jobs here
-            adjacency_mat = np.exp(-gamma * dist_mat)
-            clust = SpectralClustering(adjacency_mat, n_clusters=n_clusters,
-                                       n_init=10, affinity='precomputed')
-            predictions = clust.fit_predict(data)
-        print_elapsed(_st)
-        centers = compute_medioids(data, predictions)  # don't pass n_jobs here
-        residuals = data - centers[predictions]
-        return predictions, residuals, centers
-    elif method.startswith('sparse') or method.startswith('dense'):
-        print('\n      adjacency matrix:', end=' ')
-        if method.startswith('dense'):
-            # dist_mat = pairwise_distances(data)  # don't pass n_jobs here
-            # adjacency_mat = np.exp(-gamma * dist_mat)
-            # # do above 2 lines in-place, for memory reasons
-            adjacency_mat = pairwise_distances(data)
-            adjacency_mat *= -gamma
-            adjacency_mat = np.exp(adjacency_mat, out=adjacency_mat)
-            n_components = 1
-        else:  # sparse_graph or sparse_ncut
-            knn = NearestNeighbors(n_neighbors=n_neighbors, algorithm='auto',
-                                   n_jobs=n_jobs).fit(data)
-            dist_mat = knn.kneighbors_graph(data, mode='distance')
-            dist_mat.eliminate_zeros()
-            rows, cols = dist_mat.nonzero()
-            # make (symmetric) adjacency matrix
-            adjacencies = np.exp(-gamma * dist_mat.sqrt().data)
-            adjacency_mat = csr_matrix((np.r_[adjacencies, adjacencies],
-                                        (np.r_[rows, cols],
-                                         np.r_[cols, rows])),
-                                       shape=dist_mat.shape)
-            # find number of connected graph components and
-            # set number of eigenvectors as connected components + 1
-            adjacency_graph = nx.Graph(adjacency_mat)
-            n_components = nx.number_connected_components(adjacency_graph)
-            del adjacency_graph
-        # eigendecomposition of graph laplacian
-        print_elapsed(_st)
-        _st = time()
-        print('      graph laplacian:', end=' ')
-        laplacian = graph_laplacian(adjacency_mat, normed=True).tocsc()
-        del adjacency_mat
-        print_elapsed(_st)
-        _st = time()
-        print('      eigendecomposition:', end=' ')
-        solver = np.linalg.eigh if method.startswith('dense') else linalg.eigsh
-        solver_kwargs = (dict() if method.startswith('dense') else
-                         dict(k=n_components + 1, which='LM', sigma=0,
-                              mode='normal'))
-        eigvals, eigvecs = solver(laplacian, **solver_kwargs)
-        # compute clusters
-        print_elapsed(_st)
-        _st = time()
-        print('      cluster predictions:', end=' ')
-        if method.endswith('ncut'):
-            predictions = (eigvecs[:, n_components] > 0).astype(int)
-        else:
-            km = KMeans(n_clusters=n_clusters, n_jobs=n_jobs,
-                        random_state=random_state)
-            last_column = n_components + n_clusters
-            predictions = km.fit_predict(eigvecs[:, n_components:last_column])
-        print_elapsed(_st)
-        centers = compute_medioids(data, predictions)
-        residuals = data - centers[predictions]
-        return (predictions, residuals, centers, eigvals, eigvecs)
-    else:
-        raise ValueError('unknown clustering method "{}"'.format(method))
-"""
 
 
 def _eer(probs, thresholds, pos, neg):
