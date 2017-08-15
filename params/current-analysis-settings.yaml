@@ -3,29 +3,23 @@ eeg:
     eeg: 0.000075
   interpolate: false
   ref_channel: ['Ch17']
-clf_type: svm
-process_individual_subjs: true
+
 dss:
   use: true
   save_mat: true
   save_data: true
   n_components: 5
+
 pca:
   time_domain: true
   truncate_to_n_timepts:  # 20 is reasonable, leave unset (=None) to disable
+
 n_jobs: 6  # 'cuda' is hard-coded on some lines (for filtering, resampling)
+
 align_on_cv: true  # epoch t0 = stimulus onset (false) or cv transition (true)
+
 brain_resp_dur: 0.2
-feature_fnames:
-  jfh_dense: consonant-features-transposed-dense-jfh.tsv
-  jfh_sparse: consonant-features-transposed-sparse-jfh.tsv
-  spe_dense: consonant-features-transposed-dense-spe.tsv
-  spe_sparse: consonant-features-transposed-sparse-spe.tsv
-  phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
-feature_systems:
-  jfh: ['vocalic', 'consonantal', 'compact', 'grave', 'flat', 'nasal', 'tense', 'continuant', 'strident']
-  spe: ['vocalic', 'consonantal', 'high', 'back', 'low', 'anterior', 'coronal', 'voiced', 'continuant', 'nasal', 'strident']
-  phoible: ['consonantal', 'labial', 'coronal', 'dorsal', 'continuant', 'voiced', 'sonorant', 'strident', 'anterior', 'distributed', 'delayedrelease', 'approximant', 'nasal', 'lateral']
+
 subjects:
   IJ: 1
   IL: 2
@@ -39,8 +33,10 @@ subjects:
   IV: 10
   IQ: 11
   IT: 12
+
 # skip: ['IJ', 'IL', 'FA', 'IM', 'ID', 'CQ', 'IP', 'FV', 'IA', 'IV', 'IQ', 'IT']
 skip: []
+
 blink_channel:
   FV: Ch1
   IQ: Ch1
@@ -54,6 +50,7 @@ blink_channel:
   IA: Ch1
   CQ: Ch1
   ID: Ch1
+
 bad_channels:
   IJ: ['Ch3', 'Ch7']  # 32
   IL: []
@@ -67,6 +64,130 @@ bad_channels:
   IV: ['Ch1', 'Ch16', 'Ch7']
   IQ: ['Ch7', 'Ch3']
   IT: ['Ch3']
+
+# features
+features: ['vocalic',
+           'consonantal',
+           'nasal',
+           'flat',
+           'continuant',
+           'strident',
+           'compact',
+           'grave',
+           'tense',
+           'nasal_sparse',
+           'flat_sparse',
+           'continuant_sparse',
+           'strident_sparse',
+           'compact_sparse',
+           'grave_sparse',
+           'tense_sparse',
+           'vocalic_spe',
+           'consonantal_spe',
+           'continuant_spe',
+           'voiced',
+           'coronal',
+           'anterior',
+           'high',
+           'back',
+           'low',
+           'strident_spe',
+           'nasal_spe_sparse',
+           'continuant_spe_sparse',
+           'voiced_spe_sparse',
+           'strident_spe_sparse',
+           'dorsal',
+           'lateral',
+           'anterior_sparse',
+           'sonorant',
+           'strident_phoible',
+           'distributed',
+           'delayedrelease']
+
+feature_systems:
+  jfh_dense: ['vocalic', 'consonantal', 'nasal', 'flat', 'continuant',
+              'strident', 'compact', 'grave', 'tense']
+  jfh_sparse: ['vocalic', 'consonantal', 'nasal_sparse', 'flat_sparse',
+               'continuant_sparse', 'strident_sparse', 'compact_sparse',
+               'grave_sparse', 'tense_sparse']
+  spe_dense: ['vocalic_spe', 'consonantal_spe', 'nasal', 'continuant_spe',
+              'voiced', 'coronal', 'anterior', 'high', 'back', 'low',
+              'strident_spe']
+  spe_sparse: ['vocalic_spe', 'consonantal_spe', 'nasal_spe_sparse', 
+               'continuant_spe_sparse', 'voiced_spe_sparse', 'coronal',
+               'anterior', 'high', 'back', 'low', 'strident_spe_sparse']
+  phoible_sparse: ['vocalic', 'consonantal', 'nasal', 'flat', 'continuant_spe',
+                   'voiced', 'coronal', 'dorsal', 'lateral', 'anterior_sparse',
+                   'sonorant', 'distributed', 'delayedrelease',
+                   'strident_phoible']
+
+feature_mappings:
+  jfh_dense:
+    vocalic: vocalic
+    consonantal: consonantal
+    nasal: nasal
+    flat: flat
+    continuant: continuant
+    strident: strident
+    compact: compact
+    grave: grave
+    tense: tense
+  jfh_sparse:
+    vocalic: vocalic
+    consonantal: consonantal
+    nasal_sparse: nasal
+    flat_sparse: flat
+    continuant_sparse: continuant
+    strident_sparse: strident
+    compact_sparse: compact
+    grave_sparse: grave
+    tense_sparse: tense
+  spe_dense:
+    vocalic_spe: vocalic
+    consonantal_spe: consonantal
+    nasal: nasal
+    continuant_spe: continuant
+    voiced: voiced
+    coronal: coronal
+    anterior: anterior
+    high: high
+    back: back
+    low: low
+    strident_spe: strident
+  spe_sparse:
+    vocalic_spe: vocalic
+    consonantal_spe: consonantal
+    nasal_spe_sparse: nasal
+    continuant_spe_sparse: continuant
+    voiced_spe_sparse: voiced
+    coronal: coronal
+    anterior: anterior
+    high: high
+    back: back
+    low: low
+    strident_spe_sparse: strident
+  phoible_sparse:
+    vocalic: approximant
+    consonantal: consonantal
+    nasal: nasal
+    flat: labial
+    continuant_spe: continuant
+    voiced: voiced
+    coronal: coronal
+    dorsal: dorsal
+    lateral: lateral
+    anterior_sparse: anterior
+    sonorant: sonorant
+    distributed: distributed
+    delayedrelease: delayedrelease
+    strident_phoible: strident
+
+feature_fnames:
+  jfh_dense: consonant-features-transposed-dense-jfh.tsv
+  jfh_sparse: consonant-features-transposed-sparse-jfh.tsv
+  spe_dense: consonant-features-transposed-dense-spe.tsv
+  spe_sparse: consonant-features-transposed-sparse-spe.tsv
+  phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
 
 # these are just notes, not read in by any scripts:
 n_components_needed_for_blink_eradication:

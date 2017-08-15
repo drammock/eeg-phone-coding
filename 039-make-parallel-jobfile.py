@@ -26,14 +26,10 @@ analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
 with open(analysis_param_file, 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
-    feature_fnames = analysis_params['feature_fnames']
-    feature_systems = analysis_params['feature_systems']
+    features = analysis_params['features']
 
 with open(outfile, 'w') as f:
     for subj_code in subjects:
-        for feat_sys in feature_fnames:
-            feat_list = feature_systems[feat_sys.split('_')[0]]
-            for feat in feat_list:
-                args = [subj_code, feat_sys, feat]
-                line = 'python 040-classify.py {} {} {}\n'.format(*args)
-                f.write(line)
+        for feat in features:
+            line = 'python 040-classify.py {} {}\n'.format(subj_code, feat)
+            f.write(line)

@@ -23,20 +23,17 @@ from sklearn.model_selection import GridSearchCV
 import mne
 from aux_functions import EER_score, EER_threshold, merge_features_into_df
 
-
-np.set_printoptions(precision=6, linewidth=160)
-pd.set_option('display.width', 160)
 rand = np.random.RandomState(seed=15485863)  # the one millionth prime
 
 # command line args
 subj_code = sys.argv[1]     # IJ, IQ, etc
-feature_sys = sys.argv[2]   # jfh_sparse, jfh_dense, spe_sparse, spe_dense
-this_feature = sys.argv[3]  # vocalic, consonantal, etc
+this_feature = sys.argv[2]  # vocalic, consonantal, etc
 
 # basic file I/O
 indir = 'eeg-data-clean'
 outdir = 'processed-data'
 paramdir = 'params'
+feature_sys_fname = 'consonant-features-transposed-all-reduced.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
 
@@ -56,18 +53,14 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     align_on_cv = analysis_params['align_on_cv']
-    feature_fnames = analysis_params['feature_fnames']
     n_jobs = analysis_params['n_jobs']
-
-feature_sys_fname = feature_fnames[feature_sys]
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
-ft = '-'.join(feature_sys_fname.split('.')[0].split('-')[-2:])
 basename = '{0:03}-{1}-{2}'.format(subjects[subj_code], subj_code, cv)
 datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')
-fname_suffix = cv + nc + ft
+fname_suffix = cv + nc + this_feature
 
 # load the data
 epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
@@ -93,7 +86,7 @@ assert np.array_equal(df['wav_idx'].values, event_ids)
 # make the data classifier-friendly
 train_mask = df['train']
 train_data = data[train_mask]
-train_labels = df.loc[train_mask, this_feature].astype(int).values
+train_labels = df.loc[train_mask, this_feature].values
 
 # handle sparse feature sets (that have NaN cells)
 valued = np.isfinite(train_labels)
