@@ -3,7 +3,8 @@ all:
 
 # admin
 backup:
-	rsync --progress -re 'ssh -p2222' ./ butchie.ilabs.uw.edu:/data/backup/drmccloy/
+	echo "backup disabled"
+	# rsync --progress -re 'ssh -p2222' ./ butchie.ilabs.uw.edu:/data/backup/drmccloy/
 
 # intermediate files
 params/ascii-to-ipa.json:
