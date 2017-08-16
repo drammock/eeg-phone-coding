@@ -1,12 +1,15 @@
 # directories
 videos
 recordings
+montage
 expyfun
 expyfun-data-raw
 expyfun-data-clean
 admin/flyers
 old-stuff
 eeg-data-raw
+params/master-feature-tables
+params/old-stuff
 __pycache__
 
 # files
