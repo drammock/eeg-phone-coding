@@ -1,0 +1,14 @@
+name: eeg_phone_coding
+channels:
+- defaults
+dependencies:
+- mkl=2017.0.3=0
+- numpy=1.13.1=py36_0
+- pandas=0.20.2=np113py36_0
+- pip=9.0.1=py36_1
+- python=3.6.1=2
+- scikit-learn=0.18.2=np113py36_0
+- scipy=0.19.1=np113py36_0
+- pip:
+  - mne==0.14.1
+  - pyyaml==3.12

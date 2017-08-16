@@ -1,0 +1,9 @@
+ec2-setup.sh
+aux_functions.py
+040-classify.py
+params/conda-env.yaml
+params/parallel-jobfile.txt
+params/current-analysis-settings.yaml
+params/consonant-features-transposed-all-reduced.tsv
+eeg-data-clean/time-domain-redux/
+eeg-data-clean/epochs/
