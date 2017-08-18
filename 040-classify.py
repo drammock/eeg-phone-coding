@@ -53,7 +53,9 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     align_on_cv = analysis_params['align_on_cv']
-    n_jobs = analysis_params['n_jobs']
+    # n_jobs = analysis_params['n_jobs']
+n_jobs = -1
+pre_dispatch = '2*n_jobs'
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
@@ -94,12 +96,12 @@ train_labels = train_labels[valued].astype(int)
 train_data = train_data[valued]
 
 # hyperparameter grid search setup
-param_grid = [dict(C = (2. ** np.arange(-5, 16)),
-                   gamma = (2. ** np.arange(-15, 4)))]
+param_grid = [dict(C=(2. ** np.arange(-5, 16)),
+                   gamma=(2. ** np.arange(-15, 4)))]
 clf_kwargs = dict(probability=True, kernel='rbf',
                   decision_function_shape='ovr', random_state=rand)
 gridsearch_kwargs = dict(scoring=EER_score, n_jobs=n_jobs, refit=True,
-                         pre_dispatch='2*n_jobs', cv=5, verbose=3)
+                         pre_dispatch=pre_dispatch, cv=5, verbose=3)
 
 # run gridsearch
 classifier = SVC(**clf_kwargs)
