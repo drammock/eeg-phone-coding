@@ -1,0 +1,9 @@
+{
+  "ImageId": "ami-6e1a0117",
+  "KeyName": "aws_moctezuma_0",
+  "SecurityGroupIds": [ "sg-5fc58325" ],
+  "InstanceType": "c4.8xlarge",
+  "Placement": {
+    "AvailabilityZone": "us-west-2a"
+  }
+}
