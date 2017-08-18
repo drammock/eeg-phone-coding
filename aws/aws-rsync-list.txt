@@ -1,7 +1,7 @@
 040-classify.py
 aux_functions.py
+run-job.sh
 aws/ec2-setup.sh
-aws/run-job.sh
 eeg-data-clean/epochs/001-IJ-cvalign-epo.fif.gz
 eeg-data-clean/epochs/002-IL-cvalign-epo.fif.gz
 eeg-data-clean/epochs/003-FA-cvalign-epo.fif.gz

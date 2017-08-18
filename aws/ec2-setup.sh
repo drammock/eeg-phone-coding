@@ -1,11 +1,10 @@
 #!/bin/sh
 
-#sudo mkfs -t ext4 /dev/xvdf
-#MOUNTPOINT="$HOME/ebsdrive"
-#mkdir "$MOUNTPOINT"
-#sudo mount /dev/xvdf "$MOUNTPOINT"
+sudo mkfs -t ext4 /dev/xvdf
+MOUNTPOINT="$HOME/ebsdrive"
+mkdir "$MOUNTPOINT"
+sudo mount /dev/xvdf "$MOUNTPOINT"
 
-MOUNTPOINT="/shared"
 mkdir "$MOUNTPOINT/eeg_phone_coding"
 
 PREFIX="$MOUNTPOINT/miniconda"
