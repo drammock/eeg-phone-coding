@@ -3,10 +3,11 @@
 
 """
 ===============================================================================
-Script 'prep-data.py'
+Script 'classify.py'
 ===============================================================================
 
-This script prepares epoched EEG data to be passed into a classifier.
+This script runs EEG data through a classifier, and stores the classifier
+object as well as its classifications and (pseudo-)probabilities.
 """
 # @author: drmccloy
 # Created on Thu Aug  3 16:08:47 PDT 2017
@@ -53,8 +54,7 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     align_on_cv = analysis_params['align_on_cv']
-    # n_jobs = analysis_params['n_jobs']
-n_jobs = -1
+    n_jobs = analysis_params['n_jobs']
 pre_dispatch = '2*n_jobs'
 
 # file naming variables
@@ -110,7 +110,11 @@ clf.fit(X=train_data, y=train_labels)
 classifiers['{}-{}'.format(subj_code, this_feature)] = clf
 
 # compute EER threshold (refits using best params from grid search object)
-threshold = EER_threshold(clf, X=train_data, y=train_labels)
+threshold, eer = EER_threshold(clf, X=train_data, y=train_labels,
+                               return_eer=True)
+with open(op.join(subj_outdir, 'eer-threshold.tsv'), 'w') as f:
+    f.write('{}\t{}\t{}\n'.format('subj', 'threshold', 'eer'))
+    f.write('{}\t{}\t{}\n'.format(subj_code, threshold, eer))
 
 # test on new English talkers & foreign talkers
 for lang in set(df['lang']):
