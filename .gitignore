@@ -18,3 +18,6 @@ admin/runsheet-jsalt-followup.pdf
 # file types
 *.pyc
 params/*.xlsx
+aws/*.json
+aws/*.txt
+aws/*.py
