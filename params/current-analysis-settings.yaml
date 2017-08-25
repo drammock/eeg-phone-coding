@@ -20,6 +20,8 @@ align_on_cv: true  # epoch t0 = stimulus onset (false) or cv transition (true)
 
 brain_resp_dur: 0.2
 
+use_eer_in_plots: true
+
 subjects:
   IJ: 1
   IL: 2
@@ -35,7 +37,22 @@ subjects:
   IT: 12
 
 # skip: ['IJ', 'IL', 'FA', 'IM', 'ID', 'CQ', 'IP', 'FV', 'IA', 'IV', 'IQ', 'IT']
-skip: []
+skip: ['IA']
+
+subj_langs:
+  IJ: ['eng', 'hin', 'hun']
+  IL: ['eng', 'hin', 'swh']
+  FA: ['eng', 'hin', 'nld']
+  IM: ['eng', 'hun', 'swh']
+  ID: ['eng', 'hun', 'nld']
+  CQ: ['eng', 'nld', 'swh']
+  IP: ['eng', 'hin', 'hun']
+  FV: ['eng', 'hin', 'swh']
+  IA: ['eng', 'hin', 'nld']
+  IV: ['eng', 'hun', 'swh']
+  IQ: ['eng', 'hun', 'nld']
+  IT: ['eng', 'nld', 'swh']
+  theory: ['eng', 'hin', 'hun', 'nld', 'swh']
 
 blink_channel:
   FV: Ch1
@@ -189,7 +206,22 @@ feature_fnames:
   spe_sparse: consonant-features-transposed-sparse-spe.tsv
   phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
 
-# these are just notes, not read in by any scripts:
+canonical_phone_order:
+  eng: ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ', 'f', 'v', 'θ', 'ð', 's', 'z',
+        'ʃ', 'ʒ', 'm', 'n', 'h', 'l', 'ɹ', 'j', 'w']
+  hin: ['p', 'b', 'bʱ', 't̪ʰ', 't̪', 'd̪', 'd̪̤', 'ʈʰ', 'ʈ', 'ɖ', 'ɖ̤', 'k', 'kʰ',
+        'ɡ', 'ɡ̤', 't̠ʃʰ', 't̠ʃ', 'd̠ʒ', 'd̠ʒ̤', 'f', 's', 'ʃ', 'ʂ', 'm', 'n', 'h',
+        'l', 'r', 'j', 'ʋ']
+  hun: ['pʰ', 'b', 't̪ʰ', 'd̪', 'cʰ', 'ɟ', 'kʰ', 'ɡ', 'tsʰ', 'dz', 't̠ʃʰ', 'd̠ʒ',
+        'f', 'v', 's', 'z', 'ʃ', 'ʒ', 'm', 'n̪', 'ɲ', 'h', 'l̪', 'r̪', 'j']
+  nld: ['p', 'b', 'tʰ', 'd', 'kʰ', 'f', 'v', 's', 'z', 'ʃ', 'x', 'ʀ', 'm', 'n',
+        'h', 'l', 'j', 'ʋ']
+  swh: ['pʰ', 'b', 'tʰ', 'ɗ', 'ɟ', 'kʰ', 't̠ʃʰ', 'f', 'v', 'θ', 'ð', 's', 'z',
+        'ʃ', 'ɣ', 'm', 'n', 'ɲ', 'ŋ', 'mb', 'nd', 'ɲɟ', 'ŋɡ', 'ɱv', 'nz', 'h',
+        'l', 'r', 'j', 'w']
+
+# below are just notes, not read in by any scripts:
+
 n_components_needed_for_blink_eradication:
   IJ: 4  # 5 gets rid of correlated DC shifts
   IL: 4
