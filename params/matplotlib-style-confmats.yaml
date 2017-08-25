@@ -1,0 +1,33 @@
+image.cmap : viridis
+image.aspect : equal
+
+font.family : serif
+font.serif : Charis SIL
+font.size : 10
+
+axes.spines.top : false
+axes.spines.left : false
+axes.spines.right : false
+axes.spines.bottom : false
+
+xtick.top : false
+ytick.right : false
+
+xtick.major.size : 10
+ytick.major.size : 12
+xtick.minor.size : 0
+ytick.minor.size : 0
+
+xtick.major.width : 0.2
+ytick.major.width : 0.2
+
+xtick.major.pad : 2
+ytick.major.pad : 2
+xtick.minor.pad : 2
+ytick.minor.pad : 2
+
+xtick.color : 0.8
+ytick.color : 0.8
+
+xtick.labelsize : 8
+ytick.labelsize : 8
