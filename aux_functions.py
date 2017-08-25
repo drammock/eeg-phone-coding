@@ -227,7 +227,7 @@ def EER_score(estimator, X, y):
     return _EER_score_threshold(estimator, X, y)[0]
 
 
-def EER_threshold(clf, X, y):
+def EER_threshold(clf, X, y, return_eer=False):
     """Get EER threshold
 
     clf: sklearn.GridSearchCV
@@ -241,7 +241,9 @@ def EER_threshold(clf, X, y):
     estimator.C = clf.best_params_['C']
     estimator.gamma = clf.best_params_['gamma']
     estimator.fit(X, y)
-    return _EER_score_threshold(estimator, X, y)[1]
+    score, threshold = _EER_score_threshold(estimator, X, y)
+    result = (threshold, (1 - score)) if return_eer else threshold
+    return result
 
 
 def merge_features_into_df(df, paramdir, features_file):
