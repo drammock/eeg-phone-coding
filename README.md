@@ -5,7 +5,7 @@ Experiment to test performance of EEG signal classifiers trained on brain respon
 - `slide-prompts` folder: Generate textual prompts for recording foreign-language stimuli
 - `stimulus-generation` folder: Process audio recordings to generate stimuli
 
-# Data Collection
+## Data Collection
 - `run-experiment.py`: Run experiment and collect EEG data (done on a separate acquisition computer using BrainVision pyCorder software; no additional scripts associated with the recording process)
 
 ## Analysis Pipeline
