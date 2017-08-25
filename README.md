@@ -1,39 +1,30 @@
 # Exploring speech sound coding using EEG
-Experiment to test performance of EEG signal classifiers trained on responses to CV-syllables using only English consonant contrasts, when tested on foreign consonant contrasts.
+Experiment to test performance of EEG signal classifiers trained on brain responses to CV-syllables using only English consonants, when tested on brain responses to held-out English and foreign consonant CV-syllables.
 
-## Pipeline:
+## Preparation
 - `slide-prompts` folder: Generate textual prompts for recording foreign-language stimuli
 - `stimulus-generation` folder: Process audio recordings to generate stimuli
+
+# Data Collection
 - `run-experiment.py`: Run experiment and collect EEG data (done on a separate acquisition computer using BrainVision pyCorder software; no additional scripts associated with the recording process)
+
+## Analysis Pipeline
+Scripts that are ancillary (not precursors to the next step in the pipeline) are indented.
+
 - `010-merge-eeg-raws.py`: convert BrainVision data format to `mne.io.Raw` objects; deal with subjects who have two separate recordings (due to equipment malfunction / restarting blocks); auto-add annotations to ignore between-block periods.
-- `015-reannotate.py`: interactive annotation of `Raw` files, to mark movement artifacts, bad channels, or other undesirable noise in the data. Also bandpass-filters the `Raw` files.
+- `015-reannotate.py`: interactive annotation of `Raw` files: to mark movement artifacts, bad channels, or other undesirable noise in the data.
+- `018-add-projectors.py`: detect blinks and add SSP projectors to remove blink artifacts. Also bandpass-filters the data.
 - `020-make-epochs.py`: epoching, baseline correction, and downsampling.
+    - `022-check-snr.py`: compares baseline power to evoked power, to assess how good a job the preprocessing did at data cleaning.
+    - `025-plot-erps.py`: sanity check that the ERPs look reasonable.
 - `030-dss.py`: run denoising source separation on epoched data.
-- `035-validate-epochs-and-dss.py`: interactive script for ensuring nothing has gone horribly wrong so far in the pipeline.
-
-- `clean-eeg.py`: Preprocess EEG data
-- `apply-dss-and-merge-subjects.py`: combine cleaned EEG data across subjects
-- `classify-eeg.py`: Train classifiers on EEG data (responses to English syllables) and classify remaining EEG data (responses to foreign syllables, held-out English syllables)
-- analyze: `make-feature-based-confusion-matrices.py`, `make-confmats-from-classifier-output.py`, `apply-weights-and-column-order.py`
-- plot: `plot-weighted-confusion-matrices.py`
-
-## TODOs
-
-### clustering
-- [ ] determine optimal number of DSS channels to use (penalized logistic regression?)
-- [x] compute “mediod” (cluster center analogue) for spectral clustering approach (point corresponding to row of within-cluster pairwise distance matrix that has lowest sum)
-- [ ] cluster one subject at a time (spectral, TSNE)
-
-### classification
-- variance analysis across listeners:
-    - [x] classify individual subject data
-    - [ ] investigate cross-subject generalizability (train on 1/2/4/8 subjects instead of all 12). If true, justifies using pre-computed EEG-based confusion matrices to weight the G2P for transcriptions of any (native English-speaking) crowd worker.
-- [ ] switch from PHOIBLE phoneme sets to the phone sets determined by the PT system's G2P output
-- [ ] find coefficients for a linear combination of the two confusion matrices (as was done last summer) by testing their performance in the mismatched transcript system and using cross-validation to optimize (JHU CLSP server)
-- [ ] use EEG responses to the 2 held-out English talkers as a cross-validation set to optimize classifier thresholds using F1 score instead of equal error rate (not sure if this will be particularly useful).
-- [ ] try other classifiers?
-
-### experimental
-- [ ] repeat experiment focusing on vowels instead of consonants
-- [ ] explore efficacy of ESR for different types of foreign contrasts (register tone, contour tone, clicks, ejectives, voice quality distinctions...)
-- [ ] explore differences in EEG-based confusion matrices from listeners with different native languages (Spanish, Mandarin, others?), esp. w/r/t certain contrasts.
+    - `032-plot-dss-topomap.py`: plot scalp topography of the DSS components.
+    - `035-validate-dss.py`: plot relative signal power per DSS component.
+    - `036-find-redundant-features.py`: determine which phonological features are equivalent across different feature systems, so we don’t unnecessarily run redundant classifiers.
+- `037-time-domain-redux.py`: reduce correlation of time samples via PCA, and unroll channels (or DSS components) to make classifier-friendly unidimensional vector for each trial.
+    - `038-check-trial-counts.py`: sanity check that dropping noisy epochs did not cause too great an imbalance across phone types.
+- `039-make-parallel-jobfile.py`: generates the Bash lines that call the classification script with command line args for each subject and feature.
+- `040-classify.py`: The machine learning workhorse that runs the grid search / cross validation.
+- `050-make-confusion-matrices.py`: Make confusion matrices based on the phone-level error rates from classifying the held-out data.
+- `051-make-eer-confusion-matrices.py`: Make confusion matrices based on a fixed error rate for each feature, determined by that feature’s classifier’s “equal error rate” (EER).
+- `060-plot-confusion-matrices.py`: Plots grids of confusion matrices for comparing performance of the different feature systems, or performance on different languages for a given feature system.

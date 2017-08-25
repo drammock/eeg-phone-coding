@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-Script 'prep-data.py'
+Script 'check-trial-counts.py'
 ===============================================================================
 
 This script tabulates retained epochs by stimulus type, to assess imbalance in

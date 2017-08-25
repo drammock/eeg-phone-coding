@@ -3,10 +3,11 @@
 
 """
 ===============================================================================
-Script 'prep-data.py'
+Script 'find-redundant-features.py'
 ===============================================================================
 
-This script prepares epoched EEG data to be passed into a classifier.
+This script finds features from different feature systems that have equivalent
+definitions.
 """
 # @author: drmccloy
 # Created on Tue Aug 15 09:31:37 PDT 2017
