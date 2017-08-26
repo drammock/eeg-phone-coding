@@ -68,6 +68,7 @@ eers = pd.read_csv(op.join(indir, 'eers.tsv'), sep='\t', index_col=0)
 # add theoretical "subject" where all features are equipotent
 eers['theory'] = 0.01
 subjects['theory'] = -1  # dummy value
+eng_phones = canonical_phone_order['eng']
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
@@ -86,6 +87,8 @@ for subj_code in subjects:
         for feat_sys, feats in feature_systems.items():
             # ground truth for just the features in this feature system
             this_gr_truth = ground_truth[feats]
+            # get rid of engma
+            this_gr_truth = this_gr_truth.loc[eng_phones]
 
             # make 3d array of EERs. Each feature plane of shape (ipa_in,
             # ipa_out) has a uniform value corresponding to the EER for that
@@ -96,7 +99,6 @@ for subj_code in subjects:
             eer_df.index.name, eer_df.columns.name = 'ipa_out', 'features'
             eer_3d = pd.Panel({p: eer_df for p in this_phones},
                               items=pd.Index(this_phones, name='ipa_in'))
-
             # make 3d arrays of feature values where true feature values are
             # repeated along orthogonal planes (i.e., feats_in.loc['p'] looks
             # like feats_out.loc[:, 'p'].T)

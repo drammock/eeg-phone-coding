@@ -69,18 +69,24 @@ nc = 'dss{}-'.format(n_comp) if do_dss else ''
 
 # add theoretical "subject" where all features are equipotent
 subjects['theory'] = -1  # dummy value
+eng_phones = canonical_phone_order['eng']
 
 # loop over subjects
 for subj_code in subjects:
     if subj_code in skip:
         continue
+
     # loop over languages
     for lang in subj_langs[subj_code]:
         this_phones = canonical_phone_order[lang]
+
         # loop over feature systems
         for feat_sys, feats in feature_systems.items():
             classifications = list()
             this_gr_truth = ground_truth[feats]
+            # get rid of engma
+            this_gr_truth = this_gr_truth.loc[eng_phones]
+
             # theory -> uniform error rates of 0.01
             if subj_code == 'theory':
                 index = pd.Index(this_phones, name='ipa_in')
@@ -115,15 +121,18 @@ for subj_code in subjects:
             assert np.array_equal(prob_by_phone.T, prob_3d.iloc[:, 0])
             assert np.allclose(this_gr_truth, truth_3d.iloc[0],
                                equal_nan=True)
+
             # invert probabilities where feature shouldn't be active. This
             # converts prob_3d from an array of probabilities that the
             # classifier **thought the feature was present** into an array of
             # probabilities that the classifier **was correct**
             mask = np.where(np.logical_not(truth_3d))
             prob_3d.values[mask] = 1. - prob_3d.values[mask]
+
             # ignore feature values that are "sparse" in this feature system
             nan_mask = np.where(np.isnan(truth_3d))
             prob_3d.values[nan_mask] = np.nan
+
             # collapse across features to compute joint probabilities
             axis = [x.name for x in prob_3d.axes].index('features')
             joint_prob = prob_3d.prod(axis=axis, skipna=True).swapaxes(0, 1)
