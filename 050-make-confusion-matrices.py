@@ -108,10 +108,13 @@ for subj_code in subjects:
                 # convert to DF; put cols in same order as in this_gr_truth
                 classifications = pd.concat(classifications, axis='columns')
                 classif_by_phone = classifications.groupby(classifications.index)
-                prob_by_phone = classif_by_phone.sum() / classif_by_phone.count()
+                # taking mean of 0s/1s yields (empirical) probability that a
+                # classifier thought its feature was present for a given phone
+                prob_by_phone = classif_by_phone.mean()
                 prob_by_phone = prob_by_phone.loc[this_phones, feats]  # sort
                 prob_by_phone.index.name = 'ipa_in'
                 prob_by_phone.columns.name = 'features'
+
             # expand to 3D (classif_prob x ground_truth x features)
             prob_3d = pd.Panel({p: prob_by_phone for p in this_gr_truth.index},
                                items=this_gr_truth.index).swapaxes(0, 1)
