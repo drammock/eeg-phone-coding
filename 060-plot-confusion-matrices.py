@@ -44,6 +44,7 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     canonical_phone_order = analysis_params['canonical_phone_order']
     subj_langs = analysis_params['subj_langs']
     use_eer = analysis_params['use_eer_in_plots']
+    accuracies = analysis_params['theoretical_accuracies']
     skip = analysis_params['skip']
 del analysis_params
 
@@ -68,20 +69,24 @@ feat_sys_names = dict(jfh_dense='Jakobson Fant &\nHalle (dense)',
                       spe_sparse='Chomsky & Halle\n(sparse)',
                       phoible_sparse='Moran McCloy &\nWright (sparse)')
 
-# init containers. Must be done as nested dict and converted afterwards;
-# creating as pd.Panel converts embedded DataFrames to ndarrays.
-confmats_dict = {s: dict() for s in list(subjects) if s not in skip}
-
 # loop over methods (phone-level vs. uniform-eer)
-for prefix in ['phone', 'eer']:
+for prefix in ['phone', 'eer', 'theoretical']:
+    simulating = prefix == 'theoretical'
+    if simulating:
+        subjects = {str(acc): acc for acc in accuracies}
+    # init containers. Must be done as nested dict and converted afterwards;
+    # creating as pd.Panel converts embedded DataFrames to ndarrays.
+    confmats_dict = {s: dict() for s in list(subjects) if s not in skip}
     # load the data
     for subj_code in subjects:
         if subj_code in skip:
             continue
-        for lang in subj_langs[subj_code]:
+        key = 'theory' if simulating else subj_code
+        for lang in subj_langs[key]:
             confmats_dict[subj_code][lang] = dict()
             for feat_sys in feature_systems:
-                args = [prefix, lang, cv + nc + feat_sys, subj_code]
+                middle_arg = feat_sys if simulating else cv + nc + feat_sys
+                args = [prefix, lang, middle_arg, subj_code]
                 fname = '{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
                 confmat = pd.read_csv(op.join(indir, fname), sep='\t',
                                       index_col=0)
