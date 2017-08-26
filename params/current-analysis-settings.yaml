@@ -1,5 +1,5 @@
 eeg:
-  reject:  # high threshold in volts; dict or blank (None) to keep all epochs
+  reject:  # high threshold in volts; dict, or blank (None) to keep all epochs
     eeg: 0.000075
   interpolate: false
   ref_channel: ['Ch17']
@@ -130,7 +130,7 @@ feature_systems:
   spe_dense: ['vocalic_spe', 'consonantal_spe', 'nasal', 'continuant_spe',
               'voiced', 'coronal', 'anterior', 'high', 'back', 'low',
               'strident_spe']
-  spe_sparse: ['vocalic_spe', 'consonantal_spe', 'nasal_spe_sparse', 
+  spe_sparse: ['vocalic_spe', 'consonantal_spe', 'nasal_spe_sparse',
                'continuant_spe_sparse', 'voiced_spe_sparse', 'coronal',
                'anterior', 'high', 'back', 'low', 'strident_spe_sparse']
   phoible_sparse: ['vocalic', 'consonantal', 'nasal', 'flat', 'continuant_spe',
@@ -219,6 +219,8 @@ canonical_phone_order:
   swh: ['pʰ', 'b', 'tʰ', 'ɗ', 'ɟ', 'kʰ', 't̠ʃʰ', 'f', 'v', 'θ', 'ð', 's', 'z',
         'ʃ', 'ɣ', 'm', 'n', 'ɲ', 'ŋ', 'mb', 'nd', 'ɲɟ', 'ŋɡ', 'ɱv', 'nz', 'h',
         'l', 'r', 'j', 'w']
+
+theoretical_accuracies: [0.999, 0.99, 0.9, 0.8, 0.7, 0.6, 0.5]
 
 # below are just notes, not read in by any scripts:
 
