@@ -23,9 +23,10 @@ from os import mkdir
 
 # BASIC FILE I/O
 indir = op.join('eeg-data-clean', 'epochs')
-outdir = op.join('figures', 'snr')
-if not op.isdir(outdir):
-    mkdir(outdir)
+outdir = 'processed-data'
+plotdir = op.join('figures', 'snr')
+if not op.isdir(plotdir):
+    mkdir(plotdir)
 
 # LOAD PARAMS
 paramdir = 'params'
@@ -42,6 +43,7 @@ master_df['subj'] = master_df['subj'].apply(int)
 n_trials = master_df.groupby('subj')['trial_id'].count()
 n_trials.index = [{subjects[s] : s for s in subjects}[k + 1] for k in n_trials.index]
 n_trials.index.name = 'subj'
+n_trials.name = 'n_trials'
 
 snr = dict()
 
@@ -59,19 +61,26 @@ for subj_code, subj in subjects.items():
     snr[subj_code] = 10 * np.log10(evoked_power / baseline_power)
 
 snr = pd.DataFrame.from_dict(snr, orient='index')
+snr.columns = ['snr']
+
 # load external data (blinks, retained epochs)
 bl = pd.read_csv(op.join('eeg-data-clean', 'blinks', 'blink-summary.tsv'),
                  sep='\t')
 bl = bl.set_index('subj')
 ep = pd.read_csv(op.join(indir, 'epoch-summary.tsv'), sep='\t')
 ep = ep.set_index('subj')
+
 # combine into one dataframe
 df = pd.concat((bl, ep, snr, n_trials), axis=1)
+df.to_csv(op.join(outdir, 'blinks-epochs-snr.tsv'), sep='\t')
+
+# prettify column names for plotting
 df.columns = ['Number of blinks detected',
               'Number of retained epochs',
               'SNR: 10*log(evoked power / baseline power)',
               'n_trials']
 df.index.name = 'Subject'
+
 # plot
 axs = df.iloc[:, :-1].plot.bar(subplots=True, sharex=True, legend=False)
 xvals = axs[1].xaxis.get_ticklocs()
@@ -86,4 +95,4 @@ for ax, ymax in zip(axs, [2500, 5000, 9]):
     ax.set_ylim([0, ymax])
 plt.tight_layout()
 plt.subplots_adjust(right=0.9)
-plt.savefig(op.join(outdir, 'subject-summary.png'))
+plt.savefig(op.join(plotdir, 'subject-summary.png'))
