@@ -48,8 +48,6 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     skip = analysis_params['skip']
 del analysis_params
 
-subjects['theory'] = -1  # dummy value
-
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
@@ -64,7 +62,7 @@ cmap_copy.set_bad(cmap_copy.colors[0])
 lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
                   eng='English')
 feat_sys_names = dict(jfh_dense='Jakobson Fant &\nHalle (dense)',
-                      jfh_sparse='Jakobson Fant &\nHalle (dense)',
+                      jfh_sparse='Jakobson Fant &\nHalle (sparse)',
                       spe_dense='Chomsky & Halle\n(dense)',
                       spe_sparse='Chomsky & Halle\n(sparse)',
                       phoible_sparse='Moran McCloy &\nWright (sparse)')
@@ -100,9 +98,6 @@ for prefix in ['phone', 'eer', 'theoretical']:
     maxima = confmats.apply(lambda x: x.applymap(lambda y: y.max().max()
                                                  if not np.all(np.isnan(y))
                                                  else -1.), axis=(0, 1))
-    #maximum = maxima.max().max().max()
-    #normalizer = LogNorm(vmax=maximum)
-    #normalizer = Normalize(vmax=maximum)
 
     # English only plot, comparing subjs. and feature systems
     eng_confmats = confmats.loc[:, :, 'eng']
@@ -137,8 +132,8 @@ for prefix in ['phone', 'eer', 'theoretical']:
                         wspace=0.3, hspace=0.4)
     figname = '{}-confusion-matrices-subj-x-featsys-ENG.pdf'.format(prefix)
     fig.savefig(op.join(outdir, figname))
-    #fig.show()
 
+# TODO: plot foreign confmats
 """
 # calculate figure size
 matrix_width = 3 * confmat.shape[1]
