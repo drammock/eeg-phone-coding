@@ -15,14 +15,19 @@ probabilities.
 # License: BSD (3-clause)
 
 import yaml
+from os import mkdir
 import numpy as np
 import pandas as pd
 import os.path as op
-from os import mkdir
+from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.stats import entropy
+from scipy.spatial.distance import pdist
+import matplotlib.pyplot as plt
 from aux_functions import merge_features_into_df
 
 np.set_printoptions(precision=6, linewidth=160)
-pd.set_option('display.width', 140)
+pd.set_option('display.width', 250)
+plt.ion()
 
 # BASIC FILE I/O
 paramdir = 'params'
@@ -133,6 +138,29 @@ for subj_code in subjects:
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
             """
+
+            # save unordered confusion matrix
             args = [lang, cv + nc + feat_sys, subj_code]
             out_fname = 'eer-confusion-matrix-{}-{}-{}.tsv'.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')
+
+            # perform optimal ordering of rows/columns
+            orders = dict()
+            for key, jp in dict(row=joint_prob, col=joint_prob.T).items():
+                # must do pairwise distances manually because the entropy
+                # metric can yield infinite values (which we set to a million
+                # times the largest finite value)
+                dists = pdist(jp, metric=entropy)
+                valid = np.where(np.isfinite(dists))
+                dists[np.where(np.isinf(dists))] = 1e9 * dists[valid].max()
+                dists = np.abs(dists)
+                z = linkage(dists, optimal_ordering=True)
+                dg = dendrogram(z, truncate_mode=None, no_plot=True)
+                #dg = dendrogram(z, truncate_mode=None, leaf_rotation=0,
+                #                leaf_label_func=lambda x: joint_prob.index[x])
+                orders[key] = dg['leaves']
+            ordered_prob = joint_prob.iloc[orders['row'], orders['col']]
+            # save
+            args = [lang, cv + nc + feat_sys, subj_code]
+            out_fname = 'eer-ordered-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+            ordered_prob.to_csv(op.join(outdir, out_fname), sep='\t')
