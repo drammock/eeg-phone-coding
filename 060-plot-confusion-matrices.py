@@ -27,7 +27,7 @@ pd.set_option('display.width', 140)
 
 # BASIC FILE I/O
 paramdir = 'params'
-indir = op.join('processed-data', 'confusion-matrices')
+# indir defined below, after loading YAML parameters
 outdir = op.join('figures', 'confusion-matrices')
 if not op.isdir(outdir):
     mkdir(outdir)
@@ -45,6 +45,8 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     subj_langs = analysis_params['subj_langs']
     use_eer = analysis_params['use_eer_in_plots']
     accuracies = analysis_params['theoretical_accuracies']
+    methods = analysis_params['methods']
+    use_ordered = analysis_params['sort_matrices']
     skip = analysis_params['skip']
 del analysis_params
 
@@ -52,6 +54,8 @@ del analysis_params
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
+ordered = 'ordered-' if use_ordered else ''
+indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
 
 # load plot style; make colormap with NaN data mapped as 0 (to handle log(0))
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -68,8 +72,8 @@ feat_sys_names = dict(jfh_dense='Jakobson Fant &\nHalle (dense)',
                       phoible_sparse='Moran McCloy &\nWright (sparse)')
 
 # loop over methods (phone-level vs. uniform-eer)
-for prefix in ['phone', 'eer', 'theoretical']:
-    simulating = prefix == 'theoretical'
+for method in methods:
+    simulating = (method == 'theoretical')
     if simulating:
         subjects = {str(acc): acc for acc in accuracies}
     # init containers. Must be done as nested dict and converted afterwards;
@@ -79,13 +83,13 @@ for prefix in ['phone', 'eer', 'theoretical']:
     for subj_code in subjects:
         if subj_code in skip:
             continue
-        key = 'theory' if simulating else subj_code
+        key = 'theoretical' if simulating else subj_code
         for lang in subj_langs[key]:
             confmats_dict[subj_code][lang] = dict()
             for feat_sys in feature_systems:
                 middle_arg = feat_sys if simulating else cv + nc + feat_sys
-                args = [prefix, lang, middle_arg, subj_code]
-                fname = '{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+                args = [ordered, method, lang, middle_arg, subj_code]
+                fname = '{}{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
                 confmat = pd.read_csv(op.join(indir, fname), sep='\t',
                                       index_col=0)
                 confmats_dict[subj_code][lang][feat_sys] = confmat
@@ -130,7 +134,8 @@ for prefix in ['phone', 'eer', 'theoretical']:
 
     fig.subplots_adjust(left=0.03, right=0.99, bottom=0.05, top=0.97,
                         wspace=0.3, hspace=0.4)
-    figname = '{}-confusion-matrices-subj-x-featsys-ENG.pdf'.format(prefix)
+    args = [method, ordered]
+    figname = '{}-{}confusion-matrices-subj-x-featsys-ENG.pdf'.format(*args)
     fig.savefig(op.join(outdir, figname))
 
 # TODO: plot foreign confmats

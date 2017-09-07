@@ -67,10 +67,6 @@ ground_truth.columns.name = 'features'
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 
-# add theoretical "subject" where all features are equipotent
-subjects['theory'] = -1  # dummy value
-eng_phones = canonical_phone_order['eng']
-
 # loop over subjects
 for subj_code in subjects:
     if subj_code in skip:
@@ -85,35 +81,28 @@ for subj_code in subjects:
             classifications = list()
             this_gr_truth = ground_truth[feats]
             # get rid of engma
-            this_gr_truth = this_gr_truth.loc[eng_phones]
+            this_gr_truth = this_gr_truth.loc[canonical_phone_order['eng']]
 
-            # theory -> uniform error rates of 0.01
-            if subj_code == 'theory':
-                index = pd.Index(this_phones, name='ipa_in')
-                cols = pd.Index(feats, name='features')
-                prob_by_phone = pd.DataFrame(data=0.99, index=index,
-                                             columns=cols)
-            else:
-                # loop over features
-                for feat in feats:
-                    args = [lang, cv + nc + feat, subj_code]
-                    fname = 'classifier-probabilities-{}-{}-{}.tsv'.format(*args)
-                    # NB: columns are [-feat, +feat, feat, lang], where the first
-                    # two are classifier probabilities, and "feat" is the binary
-                    # classification based on the EER threshold for that feature
-                    fpath = op.join(indir, subj_code, fname)
-                    kwargs = dict(sep='\t', index_col=0, usecols=['ipa', feat],
-                                  dtype={'ipa': str, feat: int})
-                    classifications.append(pd.read_csv(fpath, **kwargs))
-                # convert to DF; put cols in same order as in this_gr_truth
-                classifications = pd.concat(classifications, axis='columns')
-                classif_by_phone = classifications.groupby(classifications.index)
-                # taking mean of 0s/1s yields (empirical) probability that a
-                # classifier thought its feature was present for a given phone
-                prob_by_phone = classif_by_phone.mean()
-                prob_by_phone = prob_by_phone.loc[this_phones, feats]  # sort
-                prob_by_phone.index.name = 'ipa_in'
-                prob_by_phone.columns.name = 'features'
+            # loop over features
+            for feat in feats:
+                args = [lang, cv + nc + feat, subj_code]
+                fname = 'classifier-probabilities-{}-{}-{}.tsv'.format(*args)
+                # NB: columns are [-feat, +feat, feat, lang], where the first
+                # two are classifier probabilities, and "feat" is the binary
+                # classification based on the EER threshold for that feature
+                fpath = op.join(indir, subj_code, fname)
+                kwargs = dict(sep='\t', index_col=0, usecols=['ipa', feat],
+                              dtype={'ipa': str, feat: int})
+                classifications.append(pd.read_csv(fpath, **kwargs))
+            # convert to DF; put cols in same order as in this_gr_truth
+            classifications = pd.concat(classifications, axis='columns')
+            classif_by_phone = classifications.groupby(classifications.index)
+            # taking mean of 0s/1s yields (empirical) probability that a
+            # classifier thought its feature was present for a given phone
+            prob_by_phone = classif_by_phone.mean()
+            prob_by_phone = prob_by_phone.loc[this_phones, feats]  # sort
+            prob_by_phone.index.name = 'ipa_in'
+            prob_by_phone.columns.name = 'features'
 
             # expand to 3D (classif_prob x ground_truth x features)
             prob_3d = pd.Panel({p: prob_by_phone for p in this_gr_truth.index},

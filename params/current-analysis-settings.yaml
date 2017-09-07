@@ -52,7 +52,7 @@ subj_langs:
   IV: ['eng', 'hun', 'swh']
   IQ: ['eng', 'hun', 'nld']
   IT: ['eng', 'nld', 'swh']
-  theory: ['eng', 'hin', 'hun', 'nld', 'swh']
+  theoretical: ['eng', 'hin', 'hun', 'nld', 'swh']
 
 blink_channel:
   FV: Ch1
@@ -222,6 +222,7 @@ canonical_phone_order:
 
 theoretical_accuracies: [0.999, 0.99, 0.9, 0.8, 0.7, 0.6, 0.5]
 methods: ['phone', 'eer', 'theoretical']
+sort_matrices: true
 
 # below are just notes, not read in by any scripts:
 

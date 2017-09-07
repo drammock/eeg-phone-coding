@@ -58,8 +58,8 @@ eng_phones = canonical_phone_order['eng']
 # loop over "subjects"
 for subj_code, acc in subjects.items():
 
-    # loop over languages (key "theory" lists all 5 langs)
-    for lang in subj_langs['theory']:
+    # loop over languages (key "theoretical" lists all 5 langs)
+    for lang in subj_langs['theoretical']:
         this_phones = canonical_phone_order[lang]
 
         # loop over feature systems

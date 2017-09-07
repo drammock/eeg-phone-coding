@@ -37,8 +37,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     feature_systems = analysis_params['feature_systems']
+    use_ordered = analysis_params['sort_matrices']
     methods = analysis_params['methods']
 del analysis_params
+
+# file naming variables
+ordered = 'ordered-' if use_ordered else ''
 
 # load plot style
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
@@ -64,8 +68,8 @@ fig, axs = plt.subplots(3, 1, figsize=(6, 12))
 
 # loop over methods (phone-level, feature-level-eer, uniform-error-simulations)
 for ax, method in zip(axs, methods[::-1]):
-    fname = op.join(indir, 'matrix-diagonality-{}.tsv'.format(method))
-    df = pd.read_csv(fname, sep='\t', index_col=0)
+    fname = '{}matrix-diagonality-{}.tsv'.format(ordered, method)
+    df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
     df.rename(columns=legend_names, inplace=True)
     # sorting
     df = df[plotting_order]
@@ -94,4 +98,4 @@ new_xmax = bbox.xmin + 0.7 * (bbox.xmax - bbox.xmin)
 new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
 axs[0].set_position(new_bbox)
 axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-fig.savefig(op.join(outdir, 'matrix-correlations.pdf'))
+fig.savefig(op.join(outdir, '{}matrix-correlations.pdf'.format(ordered)))

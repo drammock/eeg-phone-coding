@@ -8,7 +8,7 @@ Auxiliary functions.
 # License: BSD (3-clause)
 
 import numpy as np
-
+import scipy.cluster.hierarchy as hy
 
 def pca(cov, max_components=None, thresh=0):
     """Perform PCA decomposition from a covariance matrix
@@ -282,3 +282,78 @@ def merge_features_into_df(df, paramdir, features_file):
     assert np.allclose(df.index, feat_cols.index)
     df = pd.concat([df, feat_cols], axis=1)
     return df
+
+
+def matrix_row_column_correlation(matrix):
+    '''compute correlation between rows and columns of a matrix. Yields a
+    measure of diagonality that ranges from 1 for diagonal matrix, through 0
+    for a uniform matrix, to -1 for a matrix that is non-zero only at the
+    off-diagonal corners. See https://math.stackexchange.com/a/1393907 and
+    https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#For_a_sample
+    '''
+    A = np.asarray(matrix)
+    d = A.shape[0]
+    assert (A.ndim == 2) and (d == A.shape[1])
+    ones = np.ones(d)
+    ix = np.arange(1, d + 1)  # row/column indices
+    mass = A.sum()            # total mass of matrix
+    rw = np.outer(ix, ones)   # row weights
+    cw = np.outer(ones, ix)   # column weights
+    rcw = np.outer(ix, ix)    # row * column weights
+
+    # BROADCASTING METHOD                          # LINALG ALTERNATIVE
+    sum_x = np.sum(rw * A)                         # ix @ A @ ones
+    sum_y = np.sum(cw * A)                         # ones @ A @ ix
+    sum_xy = np.sum(rw * cw * A)                   # ix @ A @ ix
+    sum_xsq = np.sum(np.outer(ix ** 2, ones) * A)  # (ix ** 2) @ A @ ones
+    sum_ysq = np.sum(np.outer(ones, ix ** 2) * A)  # ones @ A @ (ix ** 2)
+    numerator = mass * sum_xy - sum_x * sum_y
+    denominator = (np.sqrt(mass * sum_xsq - (sum_x ** 2)) *
+                   np.sqrt(mass * sum_ysq - (sum_y ** 2)))
+    return numerator / denominator
+
+
+def _symmetric_kl_divergence(u, v, base=np.e):
+    from scipy.stats import entropy
+    return entropy(u, v, base=base) + entropy(v, u, base=base)
+
+
+def _dist(matrix, metric=_symmetric_kl_divergence, fixup=True):
+    '''pdist wrapper'''
+    from scipy.spatial.distance import pdist
+    dists = pdist(matrix, metric=metric)
+    if fixup:
+        valid = np.where(np.isfinite(dists))
+        eps = np.finfo(dists.dtype).eps
+        # make near-0 values actually 0 (or else tiny negatives may sneak in)
+        dists[np.abs(dists) < eps] = 0.
+        # make ∞ finite, but at least 1 order of magnitude bigger than the
+        # largest finite value
+        exponent = np.ceil(np.log10(dists[valid].max() + eps)) + 1
+        dists[np.where(np.isinf(dists))] = 10 ** exponent
+    return dists
+
+
+def optimal_leaf_ordering(matrix, metric=_symmetric_kl_divergence):
+    '''performs optimal leaf ordering on the rows and columns of a matrix'''
+    results = dict(dendrograms=dict(), linkages=dict())
+    for key, mat in dict(row=matrix, col=matrix.T).items():
+        dists = _dist(mat, metric)
+        z = hy.linkage(dists, optimal_ordering=True)
+        dg = hy.dendrogram(z, no_plot=True)
+        results['dendrograms'][key] = dg
+        results['linkages'][key] = z
+    return results
+
+
+def optimal_matrix_diag(matrix, metric=_symmetric_kl_divergence):
+    '''optimizes diagonality of a matrix'''
+    raise NotImplementedError
+    '''
+    from scipy.spatial.distance import pdist, squareform
+    matrix = np.asarray(joint_prob)
+    dists = squareform(_dist(matrix, metric))
+    dists[np.diag_indices_from(dists)] = 1e9
+    ranked = np.argsort(dists, axis=None)
+    neighbors = np.argsort(dists, axis=1)
+    '''

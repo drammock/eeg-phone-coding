@@ -18,43 +18,15 @@ from os import mkdir
 import os.path as op
 import numpy as np
 import pandas as pd
+from aux_functions import matrix_row_column_correlation
 
 np.set_printoptions(precision=6, linewidth=130)
 pd.set_option('display.width', 130)
 
 
-def matrix_row_column_correlation(mat):
-    '''compute correlation between rows and columns of a matrix. Yields a
-    measure of diagonality that ranges from 1 for diagonal matrix, through 0
-    for a uniform matrix, to -1 for a matrix that is non-zero only at the
-    off-diagonal corners. See https://math.stackexchange.com/a/1393907 and
-    https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#For_a_sample
-    '''
-    A = np.asarray(mat)
-    d = A.shape[0]
-    assert (A.ndim == 2) and (d == A.shape[1])
-    ones = np.ones(d)
-    ix = np.arange(1, d + 1)  # row/column indices
-    mass = A.sum()            # total mass of matrix
-    rw = np.outer(ix, ones)   # row weights
-    cw = np.outer(ones, ix)   # column weights
-    rcw = np.outer(ix, ix)    # row * column weights
-
-    # BROADCASTING METHOD                          # LINALG ALTERNATIVE
-    sum_x = np.sum(rw * A)                         # ix @ A @ ones
-    sum_y = np.sum(cw * A)                         # ones @ A @ ix
-    sum_xy = np.sum(rw * cw * A)                   # ix @ A @ ix
-    sum_xsq = np.sum(np.outer(ix ** 2, ones) * A)  # (ix ** 2) @ A @ ones
-    sum_ysq = np.sum(np.outer(ones, ix ** 2) * A)  # ones @ A @ (ix ** 2)
-    numerator = mass * sum_xy - sum_x * sum_y
-    denominator = (np.sqrt(mass * sum_xsq - (sum_x ** 2)) *
-                   np.sqrt(mass * sum_ysq - (sum_y ** 2)))
-    return numerator / denominator
-
-
 # BASIC FILE I/O
 paramdir = 'params'
-indir = op.join('processed-data', 'confusion-matrices')
+# indir defined below, after loading YAML parameters
 outdir = op.join('processed-data', 'matrix-correlations')
 if not op.isdir(outdir):
     mkdir(outdir)
@@ -70,6 +42,7 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     feature_systems = analysis_params['feature_systems']
     subj_langs = analysis_params['subj_langs']
     accuracies = analysis_params['theoretical_accuracies']
+    use_ordered = analysis_params['sort_matrices']
     methods = analysis_params['methods']
     skip = analysis_params['skip']
 del analysis_params
@@ -77,6 +50,8 @@ del analysis_params
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
+ordered = 'ordered-' if use_ordered else ''
+indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
 
 # init container
 matrix_diagonality = {m: None for m in methods}
@@ -98,12 +73,12 @@ for method in methods:
         for feat_sys in feature_systems:
             # load the data
             middle_arg = feat_sys if simulating else cv + nc + feat_sys
-            args = [method, 'eng', middle_arg, subj_code]
-            fname = '{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+            args = [ordered, method, 'eng', middle_arg, subj_code]
+            fname = '{}{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
             confmat = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
             # compute diagonality
             matrix_diagonality[method].loc[subj_code, feat_sys] = \
                 matrix_row_column_correlation(confmat)
     # save
-    fname = op.join(outdir, 'matrix-diagonality-{}.tsv'.format(method))
+    fname = op.join(outdir, '{}matrix-diagonality-{}.tsv'.format(ordered, method))
     matrix_diagonality[method].to_csv(fname, sep='\t')

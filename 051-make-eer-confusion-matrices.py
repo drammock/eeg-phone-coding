@@ -143,24 +143,3 @@ for subj_code in subjects:
             args = [lang, cv + nc + feat_sys, subj_code]
             out_fname = 'eer-confusion-matrix-{}-{}-{}.tsv'.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')
-
-            # perform optimal ordering of rows/columns
-            orders = dict()
-            for key, jp in dict(row=joint_prob, col=joint_prob.T).items():
-                # must do pairwise distances manually because the entropy
-                # metric can yield infinite values (which we set to a million
-                # times the largest finite value)
-                dists = pdist(jp, metric=entropy)
-                valid = np.where(np.isfinite(dists))
-                dists[np.where(np.isinf(dists))] = 1e9 * dists[valid].max()
-                dists = np.abs(dists)
-                z = linkage(dists, optimal_ordering=True)
-                dg = dendrogram(z, truncate_mode=None, no_plot=True)
-                #dg = dendrogram(z, truncate_mode=None, leaf_rotation=0,
-                #                leaf_label_func=lambda x: joint_prob.index[x])
-                orders[key] = dg['leaves']
-            ordered_prob = joint_prob.iloc[orders['row'], orders['col']]
-            # save
-            args = [lang, cv + nc + feat_sys, subj_code]
-            out_fname = 'eer-ordered-confusion-matrix-{}-{}-{}.tsv'.format(*args)
-            ordered_prob.to_csv(op.join(outdir, out_fname), sep='\t')
