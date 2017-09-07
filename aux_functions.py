@@ -341,6 +341,9 @@ def optimal_leaf_ordering(matrix, metric=_symmetric_kl_divergence):
         dists = _dist(mat, metric)
         z = hy.linkage(dists, optimal_ordering=True)
         dg = hy.dendrogram(z, no_plot=True)
+        # make dendrogram output play nice with YAML
+        for coord in ['icoord', 'dcoord']:
+            dg[coord] = np.array(dg[coord], dtype=float).tolist()
         results['dendrograms'][key] = dg
         results['linkages'][key] = z
     return results
@@ -357,3 +360,18 @@ def optimal_matrix_diag(matrix, metric=_symmetric_kl_divergence):
     ranked = np.argsort(dists, axis=None)
     neighbors = np.argsort(dists, axis=1)
     '''
+
+
+def plot_dendrogram(dg, orientation='top', ax=None, no_labels=False,
+                    leaf_font_size=None, leaf_rotation=None,
+                    contraction_marks=None, above_threshold_color='b'):
+    '''wrapper for scipy's (private) dendrogram plotting function'''
+    from scipy.cluster.hierarchy import _plot_dendrogram
+    defaults = dict(p=30, n=len(dg['ivl']), mh=z[:, 2].max(),
+                    orientation=orientation, ax=ax, no_labels=no_labels,
+                    leaf_font_size=leaf_font_size, leaf_rotation=leaf_rotation,
+                    contraction_marks=contraction_marks,
+                    above_threshold_color=above_threshold_color)
+    dg.update(defaults)
+    del dg['leaves']
+    _plot_dendrogram(**dg)

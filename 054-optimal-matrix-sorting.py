@@ -80,14 +80,18 @@ for method in methods:
                 (dendrograms, _) = optimal_leaf_ordering(joint_prob).values()
                 row_ord = dendrograms['row']['leaves']
                 col_ord = dendrograms['col']['leaves']
+                ordered_prob = joint_prob.iloc[row_ord, col_ord]
+                # save ordered matrix
+                out = op.join(outdir, 'ordered-' + fname)
+                ordered_prob.to_csv(out, sep='\t')
                 if lang == 'eng':
-                    ordered_prob = joint_prob.iloc[row_ord, row_ord]
-                else:
-                    ordered_prob = joint_prob.iloc[row_ord, col_ord]
+                    row_ordered_prob = joint_prob.iloc[row_ord, row_ord]
+                    col_ordered_prob = joint_prob.iloc[col_ord, col_ord]
+                    row_out = op.join(outdir, 'row-ordered-' + fname)
+                    col_out = op.join(outdir, 'col-ordered-' + fname)
+                    row_ordered_prob.to_csv(row_out, sep='\t')
+                    col_ordered_prob.to_csv(col_out, sep='\t')
                 # save dendrogram objects
                 dg_fname = '{}-dendrogram-{}-{}-{}.yaml'.format(*args)
                 with open(op.join(dgdir, dg_fname), 'w') as dgf:
                     yaml.dump(dendrograms, dgf, default_flow_style=True)
-                # save ordered matrix
-                out = op.join(outdir, 'ordered-' + fname)
-                ordered_prob.to_csv(out, sep='\t')
