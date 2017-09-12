@@ -27,4 +27,9 @@ Scripts that are ancillary (not precursors to the next step in the pipeline) are
 - `040-classify.py`: The machine learning workhorse that runs the grid search / cross validation.
 - `050-make-confusion-matrices.py`: Make confusion matrices based on the phone-level error rates from classifying the held-out data.
 - `051-make-eer-confusion-matrices.py`: Make confusion matrices based on a fixed error rate for each feature, determined by that feature’s classifier’s “equal error rate” (EER).
+- `052-make-theoretical-confusion-matrices.py`: Make confusion matrices based on a fixed error rate across all features, for simulating robustness of feature systems to varying levels of noise.
+- `054-optimal-matrix-sorting.py`: Re-orders the rows/columns of confusion matrices using hierarchical clustering with “optimal leaf ordering”.
+    - `055-measure-diagonality.py`: Compute how much of the weight of each matrix lies near the diagonal.
+    - `056-plot-diagonality.py`: Plot diagonality values for each subject.
+    - `057-plot-snr-vs-diagonality.py`: Plot SNR vs diagonality.
 - `060-plot-confusion-matrices.py`: Plots grids of confusion matrices for comparing performance of the different feature systems, or performance on different languages for a given feature system.
