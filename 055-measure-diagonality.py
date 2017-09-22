@@ -45,12 +45,14 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     use_ordered = analysis_params['sort_matrices']
     methods = analysis_params['methods']
     skip = analysis_params['skip']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
 del analysis_params
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 ordered = 'ordered-' if use_ordered else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
 
 # init container
@@ -73,12 +75,13 @@ for method in methods:
         for feat_sys in feature_systems:
             # load the data
             middle_arg = feat_sys if simulating else cv + nc + feat_sys
-            args = [ordered, method, 'eng', middle_arg, subj_code]
-            fname = '{}{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+            args = [ordered, method, sfn, 'eng', middle_arg, subj_code]
+            fname = '{}{}-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
             confmat = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
             # compute diagonality
             matrix_diagonality[method].loc[subj_code, feat_sys] = \
                 matrix_row_column_correlation(confmat)
     # save
-    fname = op.join(outdir, '{}matrix-diagonality-{}.tsv'.format(ordered, method))
+    blargs = [ordered, sfn, method]
+    fname = op.join(outdir, '{}matrix-diagonality-{}-{}.tsv'.format(*blargs))
     matrix_diagonality[method].to_csv(fname, sep='\t')

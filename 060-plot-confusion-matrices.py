@@ -20,10 +20,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
-from matplotlib.colors import Normalize, LogNorm, NoNorm
+from matplotlib.colors import LogNorm
+from aux_functions import plot_confmat
 
 plt.ioff()
-pd.set_option('display.width', 140)
+pd.set_option('display.width', 130)
 
 # BASIC FILE I/O
 paramdir = 'params'
@@ -47,6 +48,9 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     accuracies = analysis_params['theoretical_accuracies']
     methods = analysis_params['methods']
     use_ordered = analysis_params['sort_matrices']
+    lang_names = analysis_params['pretty_lang_names']
+    feat_sys_names = analysis_params['pretty_legend_names']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
     skip = analysis_params['skip']
 del analysis_params
 
@@ -55,6 +59,7 @@ cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
 
 # load plot style; make colormap with NaN data mapped as 0 (to handle log(0))
@@ -62,90 +67,57 @@ plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
 cmap_copy = copy.copy(get_cmap())
 cmap_copy.set_bad(cmap_copy.colors[0])
 
-# pretty names for axis labels
-lang_names = dict(hin='Hindi', swh='Swahili', hun='Hungarian', nld='Dutch',
-                  eng='English')
-feat_sys_names = dict(jfh_dense='Jakobson Fant &\nHalle (dense)',
-                      jfh_sparse='Jakobson Fant &\nHalle (sparse)',
-                      spe_dense='Chomsky & Halle\n(dense)',
-                      spe_sparse='Chomsky & Halle\n(sparse)',
-                      phoible_sparse='Moran McCloy &\nWright (sparse)')
-
-# loop over methods (phone-level vs. uniform-eer)
+# loop over methods (phone-level, feature-level-eer, system-level-simulated)
 for method in methods:
     simulating = (method == 'theoretical')
-    if simulating:
-        subjects = {str(acc): acc for acc in accuracies}
+    _subjs = {str(acc): acc for acc in accuracies} if simulating else subjects
     # init containers. Must be done as nested dict and converted afterwards;
     # creating as pd.Panel converts embedded DataFrames to ndarrays.
-    confmats_dict = {s: dict() for s in list(subjects) if s not in skip}
+    confmats_dict = {s: dict() for s in list(_subjs) if s not in skip}
     # load the data
-    for subj_code in subjects:
+    for subj_code in _subjs:
         if subj_code in skip:
             continue
         key = 'theoretical' if simulating else subj_code
-        for lang in subj_langs[key]:
-            confmats_dict[subj_code][lang] = dict()
+        # loop over matrix row/column sortings
+        for sorting in ['row-', 'col-', '']:
+            sort_key = sorting[:3] if len(sorting) else 'rowcol'
+            confmats_dict[subj_code][sort_key] = dict()
             for feat_sys in feature_systems:
                 middle_arg = feat_sys if simulating else cv + nc + feat_sys
-                args = [ordered, method, lang, middle_arg, subj_code]
-                fname = '{}{}-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+                args = [sorting, ordered, method, sfn, middle_arg, subj_code]
+                fname = '{}{}{}-confusion-matrix-{}-eng-{}-{}.tsv'.format(*args)
                 confmat = pd.read_csv(op.join(indir, fname), sep='\t',
                                       index_col=0)
-                confmats_dict[subj_code][lang][feat_sys] = confmat
-    # convert to Panel. axes: (subj_code, feat_sys, lang)
+                confmats_dict[subj_code][sort_key][feat_sys] = confmat
+    # convert to Panel. axes: (subj_code, feat_sys, sort_key)
     confmats = pd.Panel.from_dict(confmats_dict, dtype=object)
-
-    # set common color scale. Mapping NaN to -1 handles subject+language
-    # combinations that didn't occur in the experiment (each subj heard only
-    # 2 of the 4 non-English languages)
+    # set common color scale
     maxima = confmats.apply(lambda x: x.applymap(lambda y: y.max().max()
-                                                 if not np.all(np.isnan(y))
-                                                 else -1.), axis=(0, 1))
+                                                 ), axis=(0, 1))
+    maximum = maxima.loc['row'].max().max()  # invariant across sortings
+    normalizer = LogNorm(vmax=maximum)
 
-    # English only plot, comparing subjs. and feature systems
-    eng_confmats = confmats.loc[:, :, 'eng']
-    eng_max = maxima.loc['eng'].max().max()
-    normalizer = LogNorm(vmax=eng_max)
-
-    figsize = tuple(np.array(eng_confmats.shape)[::-1] * 2.6)
-    fig, axs = plt.subplots(*eng_confmats.shape, figsize=figsize)
-    for row, feat_sys in enumerate(eng_confmats.index):
-        for col, subj_code in enumerate(eng_confmats.columns):
-            ax = axs[row, col]
-            data = eng_confmats.loc[feat_sys, subj_code]
-            ax.imshow(data, origin='upper', norm=normalizer, cmap=cmap_copy)
-            if not row:
-                ax.set_title(subj_code)
-            if not col:
-                ax.set_ylabel(feat_sys_names[feat_sys])
-                #ax.set_ylabel(lang_names[lang])
-            # label the axes
-            ax.set_xticks(np.arange(data.shape[1])[1::2], minor=False)
-            ax.set_xticks(np.arange(data.shape[1])[::2], minor=True)
-            ax.set_yticks(np.arange(data.shape[0])[1::2], minor=False)
-            ax.set_yticks(np.arange(data.shape[0])[::2], minor=True)
-            ax.set_xticklabels(data.columns[1::2], minor=False)
-            ax.set_xticklabels(data.columns[::2], minor=True)
-            ax.set_yticklabels(data.index[1::2], minor=False)
-            ax.set_yticklabels(data.index[::2], minor=True)
-            if row == (len(eng_confmats.index) - 1):
-                ax.set_xlabel('English')
-
-    fig.subplots_adjust(left=0.03, right=0.99, bottom=0.05, top=0.97,
-                        wspace=0.3, hspace=0.4)
-    args = [method, ordered]
-    figname = '{}-{}confusion-matrices-subj-x-featsys-ENG.pdf'.format(*args)
-    fig.savefig(op.join(outdir, figname))
-
-# TODO: plot foreign confmats
-"""
-# calculate figure size
-matrix_width = 3 * confmat.shape[1]
-heights = np.array([confmats[lg].shape[0] for lg in langs])
-figsize = np.array([matrix_width, heights.sum()]) * figwidth / matrix_width
-# initialize figure
-fig = plt.figure(figsize=figsize)
-axs = ImageGrid(fig, 111, nrows_ncols=(len(langs), ncol), axes_pad=0.5,
-                label_mode='all')
-"""
+    # loop over matrix row/column sortings
+    for sorting in ['row-', 'col-', '']:
+        sort_key = sorting[:3] if len(sorting) else 'rowcol'
+        this_confmats = confmats.loc[:, :, sort_key]
+        # init figure
+        figsize = tuple(np.array(this_confmats.shape)[::-1] * 2.6)
+        fig, axs = plt.subplots(*this_confmats.shape, figsize=figsize)
+        for row, feat_sys in enumerate(this_confmats.index):
+            for col, subj_code in enumerate(this_confmats.columns):
+                ax = axs[row, col]
+                data = this_confmats.loc[feat_sys, subj_code]
+                title = '' if row else subj_code
+                ylabel = '' if col else feat_sys_names[feat_sys]
+                xlabel = ('' if row != (len(this_confmats.index) - 1) else
+                          'English')
+                kwargs = dict(norm=normalizer, cmap=cmap_copy, title=title,
+                              xlabel=xlabel, ylabel=ylabel)
+                plot_confmat(data, ax, **kwargs)
+        fig.subplots_adjust(left=0.03, right=0.99, bottom=0.05, top=0.97,
+                            wspace=0.3, hspace=0.4)
+        args = [method, sorting, ordered, sfn]
+        figname = '{}-{}{}confusion-matrices-{}-eng.pdf'.format(*args)
+        fig.savefig(op.join(outdir, figname))

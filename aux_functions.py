@@ -375,3 +375,65 @@ def plot_dendrogram(dg, orientation='top', ax=None, no_labels=False,
     dg.update(defaults)
     del dg['leaves']
     _plot_dendrogram(**dg)
+
+
+def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
+                 xlabel='', ylabel='', **kwargs):
+    from os.path import join
+    import matplotlib.pyplot as plt
+    if ax is None:
+        fig, ax = plt.subplots(**kwargs)
+    with plt.style.context(join('params', 'matplotlib-style-confmats.yaml')):
+        ax.imshow(df, origin=origin, norm=norm, cmap=cmap)
+        # garnish
+        ax.set_xticks(np.arange(df.shape[1])[1::2], minor=False)
+        ax.set_xticks(np.arange(df.shape[1])[::2], minor=True)
+        ax.set_yticks(np.arange(df.shape[0])[1::2], minor=False)
+        ax.set_yticks(np.arange(df.shape[0])[::2], minor=True)
+        ax.set_xticklabels(df.columns[1::2], minor=False)
+        ax.set_xticklabels(df.columns[::2], minor=True)
+        ax.set_yticklabels(df.index[1::2], minor=False)
+        ax.set_yticklabels(df.index[::2], minor=True)
+        # annotate
+        if len(title):
+            ax.set_title(title)
+        if len(xlabel):
+            ax.set_xlabel(xlabel)
+        if len(ylabel):
+            ax.set_ylabel(ylabel)
+    return ax
+
+
+def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='', **kwargs):
+    from os.path import join
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    rowsort = pd.DataFrame(np.sort(df, axis=1)[:, ::-1], index=df.index)
+    sorted_df = rowsort.sort_values(by=0, axis=0)[::-1].T
+    style_context = join('params', 'matplotlib-style-numerous-lineplots.yaml')
+    with plt.style.context(style_context):
+        if ax is None:
+            fig, ax = plt.subplots(**kwargs)
+        sorted_df.plot(ax=ax, legend=False)
+        ax.set_xticks(np.arange(23))
+        ax.set_xticklabels(np.arange(1, 24))
+        ax.set_yticks([])
+        cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        last_y = 1e3
+        x = -0.1
+        for ix, label in enumerate(sorted_df.columns):
+            y = sorted_df.iloc[0, ix]
+            far_enough = last_y - y > 0.003
+            x = (x - 0.5) if not far_enough else -0.1
+            if far_enough:
+                last_y = y
+            c = cycle[ix % len(cycle)]
+            ax.text(x, y, label, ha='right', va='center', color=c)
+        # annotate
+        if len(title):
+            ax.set_title(title)
+        if len(xlabel):
+            ax.set_xlabel(xlabel)
+        if len(ylabel):
+            ax.set_ylabel(ylabel)
+    return ax

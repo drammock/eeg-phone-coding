@@ -45,7 +45,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     canonical_phone_order = analysis_params['canonical_phone_order']
     subj_langs = analysis_params['subj_langs']
     skip = analysis_params['skip']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
 del analysis_params
+
+# file naming variables
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train']
@@ -107,8 +111,8 @@ for subj_code in subjects:
             # expand to 3D (classif_prob x ground_truth x features)
             prob_3d = pd.Panel({p: prob_by_phone for p in this_gr_truth.index},
                                items=this_gr_truth.index).swapaxes(0, 1)
-            truth_3d = pd.Panel({p: this_gr_truth for p in prob_by_phone.index},
-                                items=prob_by_phone.index)
+            truth_3d = pd.Panel({p: this_gr_truth for p in prob_by_phone.index
+                                 }, items=prob_by_phone.index)
             # make sure we did the swapaxes correctly
             assert np.array_equal(prob_by_phone.T, prob_3d.iloc[:, 0])
             assert np.allclose(this_gr_truth, truth_3d.iloc[0],
@@ -121,18 +125,20 @@ for subj_code in subjects:
             mask = np.where(np.logical_not(truth_3d))
             prob_3d.values[mask] = 1. - prob_3d.values[mask]
 
-            # ignore feature values that are "sparse" in this feature system
-            nan_mask = np.where(np.isnan(truth_3d))
-            prob_3d.values[nan_mask] = np.nan
+            # handle feature values that are "sparse" in this feature system
+            sparse_mask = np.where(np.isnan(truth_3d))
+            sparse_value = np.nan if sparse_feature_nan else 0.5
+            prob_3d.values[sparse_mask] = sparse_value
 
             # collapse across features to compute joint probabilities
             axis = [x.name for x in prob_3d.axes].index('features')
+            ''' this one-liner can be numerically unstable, use three-liner
             joint_prob = prob_3d.prod(axis=axis, skipna=True).swapaxes(0, 1)
-            """ ALTERNATE WAY
+            '''
             log_prob_3d = (-1. * prob_3d.apply(np.log))
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
-            """
-            args = [lang, cv + nc + feat_sys, subj_code]
-            out_fname = 'phone-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+            # save
+            args = [sfn, lang, cv + nc + feat_sys, subj_code]
+            out_fname = 'phone-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')

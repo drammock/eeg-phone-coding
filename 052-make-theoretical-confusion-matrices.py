@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import os.path as op
 from os import mkdir
-from aux_functions import merge_features_into_df
 
 np.set_printoptions(precision=6, linewidth=160)
 pd.set_option('display.width', 140)
@@ -41,7 +40,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     canonical_phone_order = analysis_params['canonical_phone_order']
     subj_langs = analysis_params['subj_langs']
     accuracies = analysis_params['theoretical_accuracies']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
 del analysis_params
+
+# file naming variables
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load features
 ground_truth = pd.read_csv(op.join(paramdir, feature_sys_fname), sep='\t',
@@ -99,18 +102,22 @@ for subj_code, acc in subjects.items():
             prob_3d = acc_3d.copy()
             prob_3d.values[indices] = 1. - prob_3d.values[indices]
 
-            # restore NaN values where features are undefined
-            nan_mask = np.where(np.isnan(feats_out))
-            prob_3d.values[nan_mask] = np.nan
+            # handle feature values that are "sparse" in this feature system
+            sparse_mask = np.where(np.isnan(feats_out))
+            sparse_value = np.nan if sparse_feature_nan else 0.5
+            prob_3d.values[sparse_mask] = sparse_value
 
             # collapse across features to compute joint probabilities
             axis = [x.name for x in prob_3d.axes].index('features')
+            ''' this one-liner can be numerically unstable, use three-liner
             joint_prob = prob_3d.prod(axis=axis, skipna=True).swapaxes(0, 1)
-            """ ALTERNATE WAY
+            '''
             log_prob_3d = (-1. * prob_3d.apply(np.log))
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
-            """
-            args = [lang, feat_sys, subj_code]
-            out_fname = 'theoretical-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+
+            # save
+            args = [sfn, lang, feat_sys, subj_code]
+            out_fname = 'theoretical-confusion-matrix-{}-{}-{}-{}.tsv'
+            out_fname = out_fname.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')

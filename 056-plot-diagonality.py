@@ -39,10 +39,13 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     feature_systems = analysis_params['feature_systems']
     use_ordered = analysis_params['sort_matrices']
     methods = analysis_params['methods']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
+    legend_names = analysis_params['pretty_legend_names']
 del analysis_params
 
 # file naming variables
 ordered = 'ordered-' if use_ordered else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load plot style
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
@@ -54,13 +57,8 @@ titles = dict(phone='Empirical phone-level accuracy',
 xlabels = dict(phone='subject code',
                eer='subject code',
                theoretical='accuracy')
-legend_names = dict(phoible_sparse='PHOIBLE',
-                    jfh_dense='JF&H (dense)',
-                    jfh_sparse='JF&H (orig.)',
-                    spe_dense='SPE (dense)',
-                    spe_sparse='SPE (orig.)')
-plotting_order = ['phoible_sparse', 'jfh_dense', 'spe_dense', 'spe_sparse',
-                  'jfh_sparse']
+plotting_order = ['phoible_redux', 'phoible_sparse', 'jfh_dense', 'spe_dense',
+                  'spe_sparse', 'jfh_sparse']
 plotting_order = [legend_names[name] for name in plotting_order]
 
 # init figure
@@ -68,7 +66,7 @@ fig, axs = plt.subplots(3, 1, figsize=(6, 12))
 
 # loop over methods (phone-level, feature-level-eer, uniform-error-simulations)
 for ax, method in zip(axs, methods[::-1]):
-    fname = '{}matrix-diagonality-{}.tsv'.format(ordered, method)
+    fname = '{}matrix-diagonality-{}-{}.tsv'.format(ordered, sfn, method)
     df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
     df.rename(columns=legend_names, inplace=True)
     # sorting
@@ -88,7 +86,8 @@ for ax, method in zip(axs, methods[::-1]):
     ax.set_title(titles[method])
     ax.set_xlabel(xlabels[method])
     ax.set_ylabel('matrix diagonality')
-    ax.set_ylim(-0.2, 1.)
+    ylim = (-1., 1.) if method == 'eer' else (-0.5, 1.)
+    ax.set_ylim(*ylim)
 
 fig.tight_layout()
 fig.subplots_adjust(hspace=0.4)
@@ -98,4 +97,5 @@ new_xmax = bbox.xmin + 0.7 * (bbox.xmax - bbox.xmin)
 new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
 axs[0].set_position(new_bbox)
 axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-fig.savefig(op.join(outdir, '{}matrix-correlations.pdf'.format(ordered)))
+out_fname = '{}matrix-correlations-{}.pdf'.format(ordered, sfn)
+fig.savefig(op.join(outdir, out_fname))

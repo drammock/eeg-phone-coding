@@ -19,9 +19,6 @@ from os import mkdir
 import numpy as np
 import pandas as pd
 import os.path as op
-from scipy.cluster.hierarchy import linkage, dendrogram
-from scipy.stats import entropy
-from scipy.spatial.distance import pdist
 import matplotlib.pyplot as plt
 from aux_functions import merge_features_into_df
 
@@ -50,7 +47,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     canonical_phone_order = analysis_params['canonical_phone_order']
     subj_langs = analysis_params['subj_langs']
     skip = analysis_params['skip']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
 del analysis_params
+
+# file naming variables
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train']
@@ -70,9 +71,6 @@ ground_truth.columns.name = 'features'
 
 # load equal error rates (EERs)
 eers = pd.read_csv(op.join(indir, 'eers.tsv'), sep='\t', index_col=0)
-# add theoretical "subject" where all features are equipotent
-eers['theory'] = 0.01
-subjects['theory'] = -1  # dummy value
 eng_phones = canonical_phone_order['eng']
 
 # file naming variables
@@ -114,32 +112,30 @@ for subj_code in subjects:
                                 items=this_gr_truth.index).swapaxes(0, 1)
             feats_in.items.name = 'ipa_in'
 
-            # intersect feats_in with feats_out to get boolean feature_match array
+            # intersect feats_in with feats_out -> boolean feature_match array
             feat_match = np.logical_not(np.logical_xor(feats_in, feats_out))
-            """
-            axis = [x.name for x in feat_match.axes].index('features')
-            n_feat_match = match.sum(axis=axis)
-            """
 
             # where features mismatch, insert the EER for that feature.
             # where they match, insert 1. - EER.
             prob_3d = eer_3d.copy()
-            prob_3d.values[np.where(feat_match)] = 1. - prob_3d.values[np.where(feat_match)]
+            match_ix = np.where(feat_match)
+            prob_3d.values[match_ix] = 1. - prob_3d.values[match_ix]
 
-            # restore NaN values where features are undefined
-            nan_mask = np.where(np.isnan(feats_out))
-            prob_3d.values[nan_mask] = np.nan
+            # handle feature values that are "sparse" in this feature system
+            sparse_mask = np.where(np.isnan(feats_out))
+            sparse_value = np.nan if sparse_feature_nan else 0.5
+            prob_3d.values[sparse_mask] = sparse_value
 
             # collapse across features to compute joint probabilities
             axis = [x.name for x in prob_3d.axes].index('features')
+            ''' this one-liner can be numerically unstable, use three-liner
             joint_prob = prob_3d.prod(axis=axis, skipna=True).swapaxes(0, 1)
-            """ ALTERNATE WAY
+            '''
             log_prob_3d = (-1. * prob_3d.apply(np.log))
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
-            """
 
             # save unordered confusion matrix
-            args = [lang, cv + nc + feat_sys, subj_code]
-            out_fname = 'eer-confusion-matrix-{}-{}-{}.tsv'.format(*args)
+            args = [sfn, lang, cv + nc + feat_sys, subj_code]
+            out_fname = 'eer-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')

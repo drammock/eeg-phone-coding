@@ -3,14 +3,14 @@
 
 """
 ===============================================================================
-Script 'optimal-matrix-sorting.py'
+Script 'featural-matrix-sorting.py'
 ===============================================================================
 
-This script uses "optimal leaf ordering" to sort the rows and columns of the
+This script uses classifier EERs to sort the rows and columns of the
 confusion matrices.
 """
 # @author: drmccloy
-# Created on Mon Sep  4 11:13:58 PDT 2017
+# Created on Fri Sep 22 15:13:27 PDT 2017
 # License: BSD (3-clause)
 
 import yaml
@@ -19,7 +19,6 @@ import numpy as np
 import pandas as pd
 import os.path as op
 import matplotlib.pyplot as plt
-from aux_functions import optimal_leaf_ordering
 
 np.set_printoptions(precision=4, linewidth=160)
 pd.set_option('display.width', 250)
@@ -44,11 +43,13 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     feature_systems = analysis_params['feature_systems']
-    subj_langs = analysis_params['subj_langs']
     accuracies = analysis_params['theoretical_accuracies']
+    sparse_feature_nan = analysis_params['sparse_feature_nan']
+    canonical_phone_order = analysis_params['canonical_phone_order']
+    feature_fnames = analysis_params['feature_fnames']
+    subj_langs = analysis_params['subj_langs']
     methods = analysis_params['methods']
     skip = analysis_params['skip']
-    sparse_feature_nan = analysis_params['sparse_feature_nan']
 del analysis_params
 
 # file naming variables
@@ -56,11 +57,25 @@ cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
+# load EERs
+eers = pd.read_csv(op.join(datadir, 'eers.tsv'), sep='\t', index_col=0)
+eng_phones = canonical_phone_order['eng']
+
+# load phone-feature matrix
+featmat_fname = 'consonant-features-transposed-all-reduced.tsv'
+featmat = pd.read_csv(op.join(paramdir, featmat_fname), sep='\t', index_col=0,
+                      comment='#')
+
 # loop over methods
 for method in methods:
+    _eers = eers.copy()
+    _subjects = subjects.copy()
     simulating = (method == 'theoretical')
-    _subjects = ({str(accuracy): accuracy for accuracy in accuracies}
-                 if simulating else subjects)
+    if simulating:
+        _subjects = {str(accuracy): accuracy for accuracy in accuracies}
+        for acc in accuracies:
+            _eers[str(acc)] = acc
+        _eers = _eers[[str(acc) for acc in accuracies]]
     # loop over subjects
     for subj_code in _subjects:
         if subj_code in skip:
@@ -76,22 +91,19 @@ for method in methods:
                 fname = '{}-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
                 fpath = op.join(indir, fname)
                 joint_prob = pd.read_csv(fpath, index_col=0, sep='\t')
+                # subset the EER dataframe
+                this_eers = _eers.loc[feats, subj_code]
+                this_eers.sort_values(inplace=True)
+                # subset the feature system
+                this_featmat = featmat.loc[eng_phones, this_eers.index]
+                this_featmat.sort_values(this_eers.index.tolist(),
+                                         inplace=True)
                 # perform optimal ordering of rows/columns
-                (dendrograms, _) = optimal_leaf_ordering(joint_prob).values()
-                row_ord = dendrograms['row']['leaves']
-                col_ord = dendrograms['col']['leaves']
-                ordered_prob = joint_prob.iloc[row_ord, col_ord]
-                # save ordered matrix
-                out = op.join(outdir, 'ordered-' + fname)
-                ordered_prob.to_csv(out, sep='\t')
+                col_ord = this_featmat.index.tolist()
                 if lang == 'eng':
-                    row_ordered_prob = joint_prob.iloc[row_ord, row_ord]
-                    col_ordered_prob = joint_prob.iloc[col_ord, col_ord]
-                    row_out = op.join(outdir, 'row-ordered-' + fname)
-                    col_out = op.join(outdir, 'col-ordered-' + fname)
-                    row_ordered_prob.to_csv(row_out, sep='\t')
-                    col_ordered_prob.to_csv(col_out, sep='\t')
-                # save dendrogram objects
-                dg_fname = '{}-dendrogram-{}-{}-{}-{}.yaml'.format(*args)
-                with open(op.join(dgdir, dg_fname), 'w') as dgf:
-                    yaml.dump(dendrograms, dgf, default_flow_style=True)
+                    ordered_prob = joint_prob.loc[col_ord, col_ord]
+                else:
+                    ordered_prob = joint_prob.loc[:, col_ord]
+                # save ordered matrix
+                out = op.join(outdir, 'feat-ordered-' + fname)
+                ordered_prob.to_csv(out, sep='\t')

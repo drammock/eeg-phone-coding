@@ -45,9 +45,6 @@ feature_sys_fname = feature_fnames['jfh_dense']
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-ft = '-'.join(feature_sys_fname.split('.')[0].split('-')[-2:])
-fname_suffix = cv + nc + ft
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx']
@@ -84,9 +81,6 @@ for column, fname in zip(['ipa', 'syll'], ['phone-counts', 'stim-counts']):
     table['max'] = table.apply(np.nanmax, axis=1)
     table.to_csv(op.join(outdir, '{}.tsv'.format(fname)), sep='\t',
                  na_rep='', float_format='%.0f')
-
-# TODO: repeat above after separating train/valid/test?
-raise RuntimeError
 
 # split into training-validation-testing
 train_mask = reduced_df['train']

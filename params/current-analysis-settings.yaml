@@ -137,6 +137,9 @@ feature_systems:
                    'voiced', 'coronal', 'dorsal', 'lateral', 'anterior_sparse',
                    'sonorant', 'distributed', 'delayedrelease',
                    'strident_phoible']
+  phoible_redux: ['consonantal', 'flat', 'continuant_spe', 'voiced', 'coronal',
+                  'dorsal', 'anterior_sparse', 'sonorant', 'distributed',
+                  'strident_phoible']
 
 feature_mappings:
   jfh_dense:
@@ -198,6 +201,17 @@ feature_mappings:
     distributed: distributed
     delayedrelease: delayedrelease
     strident_phoible: strident
+  phoible_redux:
+    consonantal: consonantal
+    flat: labial
+    continuant_spe: continuant
+    voiced: voiced
+    coronal: coronal
+    dorsal: dorsal
+    anterior_sparse: anterior
+    sonorant: sonorant
+    distributed: distributed
+    strident_phoible: strident
 
 feature_fnames:
   jfh_dense: consonant-features-transposed-dense-jfh.tsv
@@ -205,6 +219,7 @@ feature_fnames:
   spe_dense: consonant-features-transposed-dense-spe.tsv
   spe_sparse: consonant-features-transposed-sparse-spe.tsv
   phoible_sparse: consonant-features-transposed-sparse-phoible_ext.tsv
+  phoible_redux: consonant-features-transposed-sparse-phoible.tsv
 
 canonical_phone_order:
   eng: ['p', 'b', 't', 'd', 'k', 'ɡ', 'tʃ', 'dʒ', 'f', 'v', 'θ', 'ð', 's', 'z',
@@ -223,6 +238,30 @@ canonical_phone_order:
 theoretical_accuracies: [0.999, 0.99, 0.9, 0.8, 0.7, 0.6, 0.5]
 methods: ['phone', 'eer', 'theoretical']
 sort_matrices: true
+sparse_feature_nan: true
+
+pretty_lang_names:
+  hin: Hindi
+  swh: Swahili
+  hun: Hungarian
+  nld: Dutch
+  eng: English
+
+pretty_featsys_names:
+  jfh_dense: Jakobson Fant &\nHalle (dense)
+  jfh_sparse: Jakobson Fant &\nHalle (orig.)
+  spe_dense: Chomsky & Halle\n(dense)
+  spe_sparse: Chomsky & Halle\n(orig.)
+  phoible_sparse: Moran McCloy &\nWright (extended)
+  phoible_redux: Moran McCloy &\nWright (minimal)
+
+pretty_legend_names:
+  phoible_redux: PHOIBLE
+  phoible_sparse: PHOIBLE (ext.)
+  jfh_dense: JF&H (dense)
+  jfh_sparse: JF&H (orig.)
+  spe_dense: SPE (dense)
+  spe_sparse: SPE (orig.)
 
 # below are just notes, not read in by any scripts:
 
