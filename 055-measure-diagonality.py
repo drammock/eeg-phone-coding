@@ -64,24 +64,36 @@ for method in methods:
     if simulating:
         subjects = {str(acc): acc for acc in accuracies}
     # init dataframe
-    matrix_diagonality[method] = pd.DataFrame(data=np.nan, index=subjects,
-                                              columns=feature_systems)
-    # loop over subjects
-    for subj_code in subjects:
-        if subj_code in skip:
-            matrix_diagonality[method].drop(subj_code, inplace=True)
-            continue
-        # loop over feature systems
-        for feat_sys in feature_systems:
-            # load the data
-            middle_arg = feat_sys if simulating else cv + nc + feat_sys
-            args = [ordered, method, sfn, 'eng', middle_arg, subj_code]
-            fname = '{}{}-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
-            confmat = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
-            # compute diagonality
-            matrix_diagonality[method].loc[subj_code, feat_sys] = \
-                matrix_row_column_correlation(confmat)
-    # save
-    blargs = [ordered, sfn, method]
-    fname = op.join(outdir, '{}matrix-diagonality-{}-{}.tsv'.format(*blargs))
-    matrix_diagonality[method].to_csv(fname, sep='\t')
+    if use_ordered:
+        matrix_diagonality[method] = dict()
+    else:
+        matrix_diagonality[method] = pd.DataFrame(data=np.nan, index=subjects,
+                                                  columns=feature_systems)
+    # loop over ordering types
+    order_types = ('row-', 'col-', 'feat-') if use_ordered else ('',)
+    for order_type in order_types:
+        df = matrix_diagonality[method]
+        if use_ordered:
+            kwargs = dict(data=np.nan, index=subjects, columns=feature_systems)
+            matrix_diagonality[method][order_type] = pd.DataFrame(**kwargs)
+            df = df[order_type]
+        # loop over subjects
+        for subj_code in subjects:
+            if subj_code in skip:
+                df.drop(subj_code, inplace=True)
+                continue
+            # loop over feature systems
+            for feat_sys in feature_systems:
+                # load the data
+                middle_arg = feat_sys if simulating else cv + nc + feat_sys
+                args = [order_type, ordered, method, sfn, 'eng', middle_arg,
+                        subj_code]
+                fname = '{}{}{}-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
+                confmat = pd.read_csv(op.join(indir, fname), sep='\t',
+                                      index_col=0)
+                # compute diagonality
+                df.loc[subj_code, feat_sys] = matrix_row_column_correlation(confmat)
+        # save
+        args = [order_type, ordered, sfn, method]
+        fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)
+        df.to_csv(op.join(outdir, fname), sep='\t')

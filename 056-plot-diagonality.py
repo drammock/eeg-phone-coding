@@ -61,41 +61,43 @@ plotting_order = ['phoible_redux', 'phoible_sparse', 'jfh_dense', 'spe_dense',
                   'spe_sparse', 'jfh_sparse']
 plotting_order = [legend_names[name] for name in plotting_order]
 
-# init figure
-fig, axs = plt.subplots(3, 1, figsize=(6, 12))
-
 # loop over methods (phone-level, feature-level-eer, uniform-error-simulations)
-for ax, method in zip(axs, methods[::-1]):
-    fname = '{}matrix-diagonality-{}-{}.tsv'.format(ordered, sfn, method)
-    df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
-    df.rename(columns=legend_names, inplace=True)
-    # sorting
-    df = df[plotting_order]
-    if ax == axs[0]:
-        df = df.iloc[:0:-1]  # reverse row order & omit 0.999
-    # plot
-    df.plot(x=df.index, ax=ax, title=titles[method], legend=False)
-    # garnish
-    if ax == axs[0]:
-        ax.set_xticks(df.index)
-        ax.set_xticklabels(df.index)
-    else:
-        xticks = ax.xaxis.get_ticklocs()
-        ax.set_xticks(np.linspace(xticks[0], xticks[-1], len(df.index)))
-        ax.set_xticklabels(df.index)
-    ax.set_title(titles[method])
-    ax.set_xlabel(xlabels[method])
-    ax.set_ylabel('matrix diagonality')
-    ylim = (-1., 1.) if method == 'eer' else (-0.5, 1.)
-    ax.set_ylim(*ylim)
+order_types = ('row-', 'col-', 'feat-') if use_ordered else ('',)
+for order_type in order_types:
+    # init figure
+    fig, axs = plt.subplots(3, 1, figsize=(6, 12))
+    for ax, method in zip(axs, methods[::-1]):
+        args = (order_type, ordered, sfn, method)
+        fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)
+        df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
+        df.rename(columns=legend_names, inplace=True)
+        # sorting
+        df = df[plotting_order]
+        if ax == axs[0]:
+            df = df.iloc[:0:-1]  # reverse row order & omit 0.999
+        # plot
+        df.plot(x=df.index, ax=ax, title=titles[method], legend=False)
+        # garnish
+        if ax == axs[0]:
+            ax.set_xticks(df.index)
+            ax.set_xticklabels(df.index)
+        else:
+            xticks = ax.xaxis.get_ticklocs()
+            ax.set_xticks(np.linspace(xticks[0], xticks[-1], len(df.index)))
+            ax.set_xticklabels(df.index)
+        ax.set_title(titles[method])
+        ax.set_xlabel(xlabels[method])
+        ax.set_ylabel('matrix diagonality')
+        ax.set_ylim(-0.2, 1)
 
-fig.tight_layout()
-fig.subplots_adjust(hspace=0.4)
-# legend
-bbox = axs[0].get_position()
-new_xmax = bbox.xmin + 0.7 * (bbox.xmax - bbox.xmin)
-new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
-axs[0].set_position(new_bbox)
-axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-out_fname = '{}matrix-correlations-{}.pdf'.format(ordered, sfn)
-fig.savefig(op.join(outdir, out_fname))
+    fig.tight_layout()
+    fig.subplots_adjust(hspace=0.4)
+    # legend
+    bbox = axs[0].get_position()
+    new_xmax = bbox.xmin + 0.7 * (bbox.xmax - bbox.xmin)
+    new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
+    axs[0].set_position(new_bbox)
+    axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
+    args = (order_type, ordered, sfn)
+    out_fname = '{}{}matrix-correlations-{}.pdf'.format(*args)
+    fig.savefig(op.join(outdir, out_fname))
