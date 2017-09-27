@@ -34,7 +34,7 @@ this_feature = sys.argv[2]  # vocalic, consonantal, etc
 indir = 'eeg-data-clean'
 outdir = 'processed-data'
 paramdir = 'params'
-feature_sys_fname = 'consonant-features-transposed-all-reduced.tsv'
+feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
 

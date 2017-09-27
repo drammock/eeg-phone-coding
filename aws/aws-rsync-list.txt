@@ -17,7 +17,7 @@ eeg-data-clean/epochs/012-IT-cvalign-epo.fif.gz
 eeg-data-clean/time-domain-redux/
 params/ascii-to-ipa.json
 params/conda-env.yaml
-params/consonant-features-transposed-all-reduced.tsv
+params/all-features.tsv
 params/current-analysis-settings.yaml
 params/english-ascii-to-ipa.json
 params/master-dataframe.tsv

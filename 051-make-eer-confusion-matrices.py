@@ -30,7 +30,7 @@ plt.ion()
 paramdir = 'params'
 indir = 'processed-data'
 outdir = op.join(indir, 'confusion-matrices')
-feature_sys_fname = 'consonant-features-transposed-all-reduced.tsv'
+feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
 

@@ -62,7 +62,7 @@ eers = pd.read_csv(op.join(datadir, 'eers.tsv'), sep='\t', index_col=0)
 eng_phones = canonical_phone_order['eng']
 
 # load phone-feature matrix
-featmat_fname = 'consonant-features-transposed-all-reduced.tsv'
+featmat_fname = 'all-features.tsv'
 featmat = pd.read_csv(op.join(paramdir, featmat_fname), sep='\t', index_col=0,
                       comment='#')
 
