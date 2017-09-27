@@ -1,0 +1,43 @@
+# font
+font.family : sans-serif
+font.serif : Charis SIL
+font.sans-serif : Source Sans Pro
+
+# font sizes
+font.size : 12
+xtick.labelsize : 11
+ytick.labelsize : 11
+legend.fontsize : 10
+
+# legend line length
+legend.handlelength : 1.5
+
+# spines
+axes.spines.top : false
+axes.spines.left : true
+axes.spines.right : false
+axes.spines.bottom : true
+xtick.top : false
+ytick.right : false
+
+# color cycle
+axes.prop_cycle : cycler('color', ['332288', 'CC6677', 'DDCC77', '117733', '88CCEE', 'AA4499', '44AA99', '999933', '882255'])
+
+# tick size (in pixels?)
+xtick.major.size : 4
+ytick.major.size : 4
+xtick.minor.size : 0
+ytick.minor.size : 0
+xtick.major.width : 1
+ytick.major.width : 1
+
+# gap between tick and label
+xtick.major.pad : 2
+ytick.major.pad : 2
+xtick.minor.pad : 2
+ytick.minor.pad : 2
+
+# garnish colors
+xtick.color : 0.5
+ytick.color : 0.5
+axes.edgecolor : 0.5

@@ -10,6 +10,7 @@ Auxiliary functions.
 import numpy as np
 import scipy.cluster.hierarchy as hy
 
+
 def pca(cov, max_components=None, thresh=0):
     """Perform PCA decomposition from a covariance matrix
 
@@ -111,8 +112,10 @@ def dss(data, trial_types=None, pca_max_components=None, pca_thresh=0,
             data_dss = np.einsum('hij,hik->hkj', data, dss_operator)
             results.append(data_dss)
         if return_power:
-            unbiased_power = np.array([_power(data_cov, dss) for dss in dss_operator])
-            biased_power = np.array([_power(bias, dss) for bias, dss in zip(bias_cov, dss_operator)])
+            unbiased_power = np.array([_power(data_cov, dss)
+                                       for dss in dss_operator])
+            biased_power = np.array([_power(bias, dss) for bias, dss in
+                                     zip(bias_cov, dss_operator)])
             results.extend([unbiased_power, biased_power])
         '''
     else:
@@ -173,7 +176,7 @@ def _eer(probs, thresholds, pos, neg):
     err_state = np.seterr(divide='ignore')
     false_pos_rate = false_pos.sum(axis=1) / neg.sum()
     false_neg_rate = false_neg.sum(axis=1) / pos.sum()
-    _ = np.seterr(**err_state)
+    np.seterr(**err_state)
     # get rid of infs and zeros
     false_pos_rate[false_pos_rate == np.inf] = 1e9
     false_neg_rate[false_neg_rate == np.inf] = 1e9
@@ -257,7 +260,7 @@ def merge_features_into_df(df, paramdir, features_file):
     feats = pd.read_csv(op.join(paramdir, features_file), sep='\t',
                         index_col=0, comment='#')
     feats = feats.astype(float)  # passing dtype=float in reader doesn't work
-    feats.columns = [cn.split('-')[0] for cn in feats.columns]  # flat-plain -> flat
+    feats.columns = [cn.split('-')[0] for cn in feats.columns]  # flat-plain -> flat # noqa
     # abstract away from individual tokens
     df['ascii'] = df['syll'].transform(lambda x: x[:-2].replace('-', '_')
                                        if x.split('-')[-1] in ('0', '1', '2')
