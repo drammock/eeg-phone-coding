@@ -80,16 +80,17 @@ for method in methods:
             continue
         key = 'theoretical' if simulating else subj_code
         # loop over matrix row/column sortings
-        for sorting in ['row-', 'col-', '']:
-            sort_key = sorting[:3] if len(sorting) else 'rowcol'
+        for sorting in ['feat-', 'row-', 'col-', '']:
+            sort_key = sorting[:-1] if len(sorting) else 'rowcol'
             confmats_dict[subj_code][sort_key] = dict()
             for feat_sys in feature_systems:
                 middle_arg = feat_sys if simulating else cv + nc + feat_sys
                 args = [sorting, ordered, method, sfn, middle_arg, subj_code]
-                fname = '{}{}{}-confusion-matrix-{}-eng-{}-{}.tsv'.format(*args)
-                confmat = pd.read_csv(op.join(indir, fname), sep='\t',
+                fn = '{}{}{}-confusion-matrix-{}-eng-{}-{}.tsv'.format(*args)
+                confmat = pd.read_csv(op.join(indir, fn), sep='\t',
                                       index_col=0)
                 confmats_dict[subj_code][sort_key][feat_sys] = confmat
+
     # convert to Panel. axes: (subj_code, feat_sys, sort_key)
     confmats = pd.Panel.from_dict(confmats_dict, dtype=object)
     # set common color scale
@@ -98,9 +99,9 @@ for method in methods:
     maximum = maxima.loc['row'].max().max()  # invariant across sortings
     normalizer = LogNorm(vmax=maximum)
 
-    # loop over matrix row/column sortings
-    for sorting in ['row-', 'col-', '']:
-        sort_key = sorting[:3] if len(sorting) else 'rowcol'
+    # loop over matrix sorting methods
+    for sorting in ['feat-', 'row-', 'col-', '']:
+        sort_key = sorting[:-1] if len(sorting) else 'rowcol'
         this_confmats = confmats.loc[:, :, sort_key]
         # init figure
         figsize = tuple(np.array(this_confmats.shape)[::-1] * 2.6)
