@@ -3,11 +3,11 @@
 
 """
 ===============================================================================
-Script 'featural-matrix-sorting.py'
+Script 'rank-classifier-performance.py'
 ===============================================================================
 
-This script uses classifier EERs to sort the rows and columns of the
-confusion matrices.
+This script generates sorted EER tables and generates plots comparing
+classifier performance for each feature system.
 """
 # @author: drmccloy
 # Created on Fri Sep 22 15:13:27 PDT 2017

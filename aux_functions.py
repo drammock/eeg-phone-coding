@@ -407,7 +407,8 @@ def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
     return ax
 
 
-def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='', **kwargs):
+def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='',
+                         **kwargs):
     from os.path import join
     import matplotlib.pyplot as plt
     import pandas as pd

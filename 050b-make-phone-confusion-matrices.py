@@ -138,6 +138,7 @@ for subj_code in subjects:
             log_prob_3d = (-1. * prob_3d.apply(np.log))
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
+
             # save
             args = [sfn, lang, cv + nc + feat_sys, subj_code]
             out_fname = 'phone-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)

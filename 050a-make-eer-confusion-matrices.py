@@ -19,12 +19,10 @@ from os import mkdir
 import numpy as np
 import pandas as pd
 import os.path as op
-import matplotlib.pyplot as plt
 from aux_functions import merge_features_into_df
 
 np.set_printoptions(precision=6, linewidth=160)
 pd.set_option('display.width', 250)
-plt.ion()
 
 # BASIC FILE I/O
 paramdir = 'params'
