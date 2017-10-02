@@ -113,8 +113,8 @@ classifiers['{}-{}'.format(subj_code, this_feature)] = clf
 threshold, eer = EER_threshold(clf, X=train_data, y=train_labels,
                                return_eer=True)
 with open(op.join(subj_outdir, 'eer-threshold.tsv'), 'w') as f:
-    f.write('{}\t{}\t{}\n'.format('subj', 'threshold', 'eer'))
-    f.write('{}\t{}\t{}\n'.format(subj_code, threshold, eer))
+    f.write('{}\t{}\t{}\t{}\n'.format('subj', 'feature', 'threshold', 'eer'))
+    f.write('{}\t{}\t{}\t{}\n'.format(subj_code, this_feature, threshold, eer))
 
 # test on new English talkers & foreign talkers
 for lang in set(df['lang']):
