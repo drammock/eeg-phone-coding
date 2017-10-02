@@ -96,6 +96,8 @@ for method in methods:
     # set common color scale
     maxima = confmats.apply(lambda x: x.applymap(lambda y: y.max().max()
                                                  ), axis=(0, 1))
+    maxima.loc['row'].to_csv(op.join('processed-data', 'matrix-maxima.tsv'),
+                             sep='\t')
     maximum = maxima.loc['row'].max().max()  # invariant across sortings
     normalizer = LogNorm(vmax=maximum)
 
