@@ -16,7 +16,6 @@ confusion matrices.
 import yaml
 import os.path as op
 from os import mkdir
-from functools import partial
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,23 +27,23 @@ def get_leaf_label(df, ix):
     return df.index[ix]
 
 
-def order_featmat_rows(featmat, return_intermediates=False):
+def nanhattan(u, v):
+    # get it? NaN-hattan? Treats NaN values as zero distance from any value
+    return np.nansum(np.abs(u - v))
+
+
+def order_featmat_rows(featmat, return_intermediates=True):
     # optimally orders the rows of the feature matrix while preserving the
     # hierarchy implicit in the order of the columns.
     mult = np.tile((2 ** np.arange(featmat.shape[1]))[::-1],
                    (featmat.shape[0], 1))
     fm = featmat * mult
-
-    def nanhattan(u, v):
-        # get it? NaN-hattan? Treats NaN values as zero distance from any value
-        return np.nansum(np.abs(u - v))
-
     dists = pdist(fm, nanhattan)
     z = hy.linkage(dists, optimal_ordering=True)
     dg = hy.dendrogram(z, no_plot=True)
     returns = featmat.iloc[dg['leaves']]
     if return_intermediates:
-        returns = (returns, z, dg)
+        returns = (returns, dg, z)
     return returns
 
 
@@ -131,7 +130,8 @@ for method in methods:
                 # would instead sort based on EERs for only this subject.
                 ordered_feats = np.array(order)[np.in1d(order, feats)]
                 this_featmat = featmat.loc[eng_phones, ordered_feats]
-                this_featmat = order_featmat_rows(this_featmat)  # asterisk
+                (this_featmat, dendrogram,
+                 linkage) = order_featmat_rows(this_featmat)
                 '''
                 this_eers = _eers.loc[feats, subj_code]
                 this_eers.sort_values(inplace=True)
@@ -146,14 +146,13 @@ for method in methods:
                 else:
                     row_ord = canonical_phone_order[lang]
                     ordered_prob = joint_prob.loc[row_ord, col_ord]
+
                 # save ordered matrix
                 out = op.join(outdir, 'feat-ordered-' + fname)
                 ordered_prob.to_csv(out, sep='\t')
 
-# asterisk (for testing):
-(this_featmat, z, dg) = order_featmat_rows(this_featmat,
-                                           return_intermediates=True)
-if feat_sys.startswith('phoible'):
-    hy.dendrogram(z, leaf_rotation=0, leaf_font_size=14,
-                  leaf_label_func=partial(get_leaf_label, this_featmat))
-    raise RuntimeError
+                # save dendrogram object
+                prefix = 'feat-ordered-'
+                dg_fname = '{}-dendrogram-{}-{}-{}-{}.yaml'.format(*args)
+                with open(op.join(dgdir, prefix + dg_fname), 'w') as dgf:
+                    yaml.dump(dendrogram, dgf, default_flow_style=True)

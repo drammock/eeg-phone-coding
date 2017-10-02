@@ -77,7 +77,8 @@ for method in methods:
                 fpath = op.join(indir, fname)
                 joint_prob = pd.read_csv(fpath, index_col=0, sep='\t')
                 # perform optimal ordering of rows/columns
-                (dendrograms, _) = optimal_leaf_ordering(joint_prob).values()
+                olo = optimal_leaf_ordering(joint_prob)
+                dendrograms, linkages = olo['dendrograms'], olo['linkages']
                 row_ord = dendrograms['row']['leaves']
                 col_ord = dendrograms['col']['leaves']
                 ordered_prob = joint_prob.iloc[row_ord, col_ord]
@@ -92,6 +93,9 @@ for method in methods:
                     row_ordered_prob.to_csv(row_out, sep='\t')
                     col_ordered_prob.to_csv(col_out, sep='\t')
                 # save dendrogram objects
-                dg_fname = '{}-dendrogram-{}-{}-{}-{}.yaml'.format(*args)
-                with open(op.join(dgdir, dg_fname), 'w') as dgf:
-                    yaml.dump(dendrograms, dgf, default_flow_style=True)
+                for ordering in ['row', 'col']:
+                    prefix = '{}-ordered-'.format(ordering)
+                    dg_fname = '{}-dendrogram-{}-{}-{}-{}.yaml'.format(*args)
+                    with open(op.join(dgdir, prefix + dg_fname), 'w') as dgf:
+                        yaml.dump(dendrograms[ordering], dgf,
+                                  default_flow_style=True)
