@@ -18,7 +18,6 @@ import os.path as op
 from os import mkdir
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hy
 from scipy.spatial.distance import pdist
 
@@ -40,16 +39,15 @@ def order_featmat_rows(featmat, return_intermediates=True):
     fm = featmat * mult
     dists = pdist(fm, nanhattan)
     z = hy.linkage(dists, optimal_ordering=True)
-    dg = hy.dendrogram(z, no_plot=True)
+    dg = hy.dendrogram(z, no_plot=True, labels=featmat.index)
+    # clean up dendrogram to be YAML-friendly
+    for coord in ['dcoord', 'icoord']:
+        dg[coord] = np.array(dg[coord], dtype=float).tolist()
     returns = featmat.iloc[dg['leaves']]
     if return_intermediates:
         returns = (returns, dg, z)
     return returns
 
-
-np.set_printoptions(precision=4, linewidth=160)
-pd.set_option('display.width', 250)
-plt.ion()
 
 # BASIC FILE I/O
 paramdir = 'params'

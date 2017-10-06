@@ -302,7 +302,6 @@ def matrix_row_column_correlation(matrix):
     mass = A.sum()            # total mass of matrix
     rw = np.outer(ix, ones)   # row weights
     cw = np.outer(ones, ix)   # column weights
-    rcw = np.outer(ix, ix)    # row * column weights
 
     # BROADCASTING METHOD                          # LINALG ALTERNATIVE
     sum_x = np.sum(rw * A)                         # ix @ A @ ones
@@ -339,11 +338,13 @@ def _dist(matrix, metric=_symmetric_kl_divergence, fixup=True):
 
 def optimal_leaf_ordering(matrix, metric=_symmetric_kl_divergence):
     '''performs optimal leaf ordering on the rows and columns of a matrix'''
+    from pandas import DataFrame
     results = dict(dendrograms=dict(), linkages=dict())
     for key, mat in dict(row=matrix, col=matrix.T).items():
         dists = _dist(mat, metric)
+        labels = mat.index if isinstance(mat, DataFrame) else None
         z = hy.linkage(dists, optimal_ordering=True)
-        dg = hy.dendrogram(z, no_plot=True)
+        dg = hy.dendrogram(z, no_plot=True, labels=labels)
         # make dendrogram output play nice with YAML
         for coord in ['icoord', 'dcoord']:
             dg[coord] = np.array(dg[coord], dtype=float).tolist()
@@ -366,18 +367,25 @@ def optimal_matrix_diag(matrix, metric=_symmetric_kl_divergence):
 
 
 def plot_dendrogram(dg, orientation='top', ax=None, no_labels=False,
-                    leaf_font_size=None, leaf_rotation=None,
+                    leaf_font_size=None, leaf_rotation=None, linewidth=None,
                     contraction_marks=None, above_threshold_color='b'):
     '''wrapper for scipy's (private) dendrogram plotting function'''
-    from scipy.cluster.hierarchy import _plot_dendrogram
-    defaults = dict(p=30, n=len(dg['ivl']), mh=z[:, 2].max(),
+    import matplotlib.pyplot as plt
+    from matplotlib.collections import LineCollection
+    if ax is None:
+        fig, ax = plt.subplots()
+    defaults = dict(p=30, n=len(dg['ivl']), mh=np.array(dg['dcoord']).max(),
                     orientation=orientation, ax=ax, no_labels=no_labels,
                     leaf_font_size=leaf_font_size, leaf_rotation=leaf_rotation,
                     contraction_marks=contraction_marks,
                     above_threshold_color=above_threshold_color)
-    dg.update(defaults)
-    del dg['leaves']
-    _plot_dendrogram(**dg)
+    defaults.update(dict(dcoords=dg['dcoord'], icoords=dg['icoord'],
+                         ivl=dg['ivl'], color_list=dg['color_list']))
+    hy._plot_dendrogram(**defaults)
+    if linewidth is not None:
+        # get the handle of the dendrogram lines
+        lc = [x for x in ax.get_children() if isinstance(x, LineCollection)][0]
+        lc.set_linewidths(linewidth)
 
 
 def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
@@ -422,13 +430,15 @@ def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='',
         ax.set_xticks(np.arange(23))
         ax.set_xticklabels(np.arange(1, 24))
         ax.set_yticks([])
+        ax.set_yticklabels([])
         cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        # text labels at end of each curve, left-shifted to avoid overlap
         last_y = 1e3
         x = -0.1
         for ix, label in enumerate(sorted_df.columns):
             y = sorted_df.iloc[0, ix]
-            far_enough = last_y - y > 0.003
-            x = (x - 0.5) if not far_enough else -0.1
+            far_enough = last_y - y > 0.004
+            x = (x - 0.6) if not far_enough else -0.1
             if far_enough:
                 last_y = y
             c = cycle[ix % len(cycle)]
