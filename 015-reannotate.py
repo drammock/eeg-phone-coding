@@ -18,7 +18,7 @@ import yaml
 import os.path as op
 from os import mkdir
 import mne
-from mne.preprocessing import find_eog_events, create_eog_epochs
+from mne.preprocessing import find_eog_events
 
 # FLAGS
 # set True to check behavior of blink projectors after 1st round of annotation

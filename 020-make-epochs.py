@@ -64,7 +64,7 @@ df['w_dur'] = df['wav_nsamp'] / stim_fs
 df['v_dur'] = df['w_dur'] - df['CV-transition-time']
 df.rename(columns={'CV-transition-time': 'c_dur', 'wav_idx': 'event_id',
                    'wav_nsamp': 'nsamp'}, inplace=True)
-df = df[['event_id', 'key', 'nsamp', 'c_dur', 'v_dur', 'w_dur']]  # talker consonant
+df = df[['event_id', 'key', 'nsamp', 'c_dur', 'v_dur', 'w_dur']]
 
 # set epoch temporal parameters. Include as much pre-stim time as possible,
 # so later we can shift to align on C-V transition.
@@ -86,7 +86,7 @@ for subj_code, subj in subjects.items():
     basename = '{0:03}-{1}-'.format(subj, subj_code)
     raw_fname = op.join(indir, 'raws-with-projs', basename + 'raw.fif.gz')
     raw = mne.io.read_raw_fif(raw_fname, preload=True)
-    #raw.set_eeg_reference([])  # EEG ref. chan. set & dropped in prev. script
+    # raw.set_eeg_reference([])  # EEG ref. chan. set & dropped in prev. script
     raw.info['bads'] = bad_channels[subj_code]
 
     # make event dicts
