@@ -87,23 +87,22 @@ grid_shape = (grid_size + 1, grid_size)
 # skip some of the usual looping
 method = 'eer'
 lang = 'eng'
-subjects = dict(CQ=[])
 phoible_feats = ['vocalic', 'consonantal', 'nasal', 'flat', 'continuant_spe',
                  'voiced', 'coronal', 'dorsal', 'lateral', 'anterior_sparse',
                  'sonorant', 'distributed', 'delayedrelease',
                  'strident_phoible']
 feature_systems = dict(phoible_sparse=phoible_feats)
 sortings = ['feat-']  # ['feat-', 'row-', 'col-']
-# loop over orderings
-for sorting in sortings:
-    # init figure
-    fig = plt.figure(figsize=(4, 8))
-    grid = gs.GridSpec(*grid_shape, left=0.1, right=0.95, bottom=0.01,
-                       top=0.975, hspace=0.05)
-    # loop over subjects
-    for subj_code in subjects:
-        if subj_code in skip:
-            continue
+# loop over subjects
+for subj_code in subjects:
+    if subj_code in skip:
+        continue
+    # loop over orderings
+    for sorting in sortings:
+        # init figure
+        fig = plt.figure(figsize=(4, 8))
+        grid = gs.GridSpec(*grid_shape, left=0.1, right=0.95, bottom=0.01,
+                           top=0.975, hspace=0.05)
         # loop over feature systems
         for feat_sys, feats in feature_systems.items():
             # load feature rankings
@@ -193,12 +192,11 @@ for sorting in sortings:
                 if print_below:
                     kwargs.update(dict(xytext=(0, -0.8), va='top'))
                 ax.annotate(n, xy, **kwargs)
-            '''
-            '''
 
-    if savefig:
-        figname = '{}ordered-confmat-dgram-{}.pdf'.format(sorting, subj_code)
-        fig.savefig(op.join(outdir, figname))
+        if savefig:
+            figname = '{}ordered-confmat-dgram-{}.pdf'.format(sorting,
+                                                              subj_code)
+            fig.savefig(op.join(outdir, figname))
 
 if not savefig:
     plt.ion()
