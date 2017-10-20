@@ -18,7 +18,6 @@ import mne
 import numpy as np
 import pandas as pd
 import os.path as op
-from os import mkdir
 from aux_functions import merge_features_into_df
 
 np.set_printoptions(precision=6, linewidth=160)
@@ -83,7 +82,8 @@ for column, fname in zip(['ipa', 'syll'], ['phone-counts', 'stim-counts']):
 
 # split into training-validation-testing
 train_mask = reduced_df['train']
-valid_mask = np.logical_not(reduced_df['train']) & (reduced_df['lang'] == 'eng')
+valid_mask = np.logical_and(np.logical_not(reduced_df['train']),
+                            (reduced_df['lang'] == 'eng'))
 test_mask = reduced_df['lang'] != 'eng'
 masks = [train_mask, valid_mask, test_mask]
 prefixes = ['train-', 'valid-', 'test-']
@@ -91,7 +91,8 @@ prefixes = ['train-', 'valid-', 'test-']
 # counts by phoneme & by stimulus identity in the train/valid/test subsets
 for column, fname in zip(['ipa', 'syll'], ['phone-counts', 'stim-counts']):
     for mask, prefix in zip(masks, prefixes):
-        table = reduced_df.loc[mask].groupby([column, 'subj_code']).count()['subj'].unstack()
+        table = (reduced_df.loc[mask].groupby([column, 'subj_code'])
+                 .count()['subj'].unstack())
         table['min'] = table.apply(np.nanmin, axis=1)
         table['max'] = table.apply(np.nanmax, axis=1)
         table.to_csv(op.join(outdir, '{}{}.tsv'.format(prefix, fname)),
