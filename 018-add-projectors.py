@@ -16,11 +16,9 @@ it after subtraction.
 
 import yaml
 import mne
-from mne.preprocessing import find_eog_events, create_eog_epochs
-import numpy as np
+from mne.preprocessing import find_eog_events
 from os import mkdir
 import os.path as op
-from pandas import read_csv
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'

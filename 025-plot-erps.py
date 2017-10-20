@@ -13,7 +13,6 @@ This script plots ERPs from labelled epochs.
 # License: BSD (3-clause)
 
 import yaml
-import json
 import mne
 import numpy as np
 import pandas as pd
@@ -37,9 +36,9 @@ paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
-subjects = analysis_params['subjects']
-align_on_cv = analysis_params['align_on_cv']
-features_file = analysis_params['features_file']
+    subjects = analysis_params['subjects']
+    align_on_cv = analysis_params['align_on_cv']
+    feature_fnames = analysis_params['feature_fnames']
 del analysis_params
 
 # file naming variables

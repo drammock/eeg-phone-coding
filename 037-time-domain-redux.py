@@ -22,8 +22,6 @@ from os import mkdir
 from time import time
 from aux_functions import time_domain_pca, print_elapsed
 
-np.set_printoptions(precision=6, linewidth=160)
-
 # BASIC FILE I/O
 indir = 'eeg-data-clean'
 outdir = op.join(indir, 'time-domain-redux')
