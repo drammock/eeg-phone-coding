@@ -49,7 +49,9 @@ df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx', 'wav_path']
 df_types = dict(subj=int, talker=str, syll=str, train=bool, wav_idx=int)
 df = pd.read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
                  usecols=df_cols, dtype=df_types)
-df = merge_features_into_df(df, paramdir, features_file)
+# choice doesn't matter; just need something to pass to the merge function:
+feature_sys_fname = feature_fnames['jfh_dense']
+df = merge_features_into_df(df, paramdir, feature_sys_fname)
 
 # iterate over subjects
 for subj_code, subj_num in subjects.items():

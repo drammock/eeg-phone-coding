@@ -40,9 +40,6 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     feature_fnames = analysis_params['feature_fnames']
     skip = analysis_params['skip']
 
-# choice doesn't matter here; just need something to pass to the merge function
-feature_sys_fname = feature_fnames['jfh_dense']
-
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
 
@@ -51,6 +48,8 @@ df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx']
 df_types = dict(subj=int, talker=str, syll=str, train=bool, wav_idx=int)
 df = pd.read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
                  usecols=df_cols, dtype=df_types)
+# choice doesn't matter; just need something to pass to the merge function:
+feature_sys_fname = feature_fnames['jfh_dense']
 df = merge_features_into_df(df, paramdir, feature_sys_fname)
 df['subj_code'] = (df['subj'] + 1).map({v: k for k, v in subjects.items()})
 df = df[(['subj_code'] + df_cols + ['lang', 'ascii', 'ipa'])]
