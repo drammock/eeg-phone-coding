@@ -3,6 +3,7 @@ eeg:
     eeg: 0.000075
   interpolate: false
   ref_channel: ['Ch17']
+  n_blink_projectors: 4
 
 dss:
   use: true
@@ -71,7 +72,7 @@ blink_channel:
 bad_channels:
   IJ: ['Ch3', 'Ch7']  # 32
   IL: []
-  FA: ['Ch7']  # 2, 8, 20
+  FA: ['Ch7', 'Ch2', 'Ch1']  # 8, 20
   IM: ['Ch3']  # 7, 22
   ID: ['Ch16', 'Ch12', 'Ch7']
   CQ: ['Ch3']
