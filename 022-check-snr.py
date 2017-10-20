@@ -40,15 +40,25 @@ del analysis_params
 # load master dataframe
 master_df = pd.read_csv(op.join(paramdir, 'master-dataframe.tsv'), sep='\t')
 master_df['subj'] = master_df['subj'].apply(int)
+master_df['lang'] = master_df['talker'].apply(lambda x: x[:3])
+
+# count total trials
 n_trials = master_df.groupby('subj')['trial_id'].count()
 n_trials.index = [{subjects[s]: s for s in subjects}[k + 1]
                   for k in n_trials.index]
 n_trials.index.name = 'subj'
 n_trials.name = 'n_trials'
+# count total English-talker trials
+eng_df = master_df.loc[master_df['lang'] == 'eng']
+n_eng_trials = eng_df.groupby('subj')['trial_id'].count()
+n_eng_trials.index = n_trials.index
+n_eng_trials.name = 'n_eng_trials'
 
 # init containers
 snr = dict()
+n_eng_epochs = dict()
 
+# get SNR and number of retained English-talker epochs for each subj.
 for subj_code, subj in subjects.items():
     # read Epochs
     basename = '{0:03}-{1}-'.format(subj, subj_code)
@@ -60,10 +70,17 @@ for subj_code, subj in subjects.items():
     evoked_power = stim_evoked.pick_types(eeg=True).get_data().var()
     baseline_power = baseline.pick_types(eeg=True).get_data().var()
     snr[subj_code] = 10 * np.log10(evoked_power / baseline_power)
+    # which retained epochs are English?
+    eps = [{v: k for k, v in epochs.event_id.items()}[e]
+           for e in epochs.events[:, 2]]
+    eng_eps = [e for e in eps if e.startswith('eng')]
+    n_eng_epochs[subj_code] = len(eng_eps)
 
 # convert to dataframe columns
 snr = pd.DataFrame.from_dict(snr, orient='index')
 snr.columns = ['snr']
+n_eng_epochs = pd.DataFrame.from_dict(n_eng_epochs, orient='index')
+n_eng_epochs.columns = ['n_eng_epochs']
 
 # load external data (blinks, retained epochs)
 bl = pd.read_csv(op.join('eeg-data-clean', 'blinks', 'blink-summary.tsv'),
@@ -73,7 +90,7 @@ ep = pd.read_csv(op.join(indir, 'epoch-summary.tsv'), sep='\t')
 ep = ep.set_index('subj')
 
 # combine into one dataframe
-df = pd.concat((bl, ep, snr, n_trials), axis=1)
+df = pd.concat((snr, bl, ep, n_trials, n_eng_epochs, n_eng_trials), axis=1)
 df.to_csv(op.join(outdir, 'blinks-epochs-snr.tsv'), sep='\t')
 
 # prettify column names for plotting
