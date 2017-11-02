@@ -20,9 +20,6 @@ import numpy as np
 import pandas as pd
 from aux_functions import matrix_row_column_correlation
 
-np.set_printoptions(precision=6, linewidth=130)
-pd.set_option('display.width', 130)
-
 
 # BASIC FILE I/O
 paramdir = 'params'

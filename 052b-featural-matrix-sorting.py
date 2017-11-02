@@ -27,7 +27,7 @@ def get_leaf_label(df, ix):
 
 
 def nanhattan(u, v):
-    # get it? NaN-hattan? Treats NaN values as zero distance from any value
+    # Manhattan distance, but treats NaN values as zero distance from any value
     return np.nansum(np.abs(u - v))
 
 
