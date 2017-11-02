@@ -68,11 +68,26 @@ for subj_code, subj_num in subjects.items():
                              verbose=False, preload=False)
     data = np.load(op.join(indir, 'time-domain-redux',
                            basename + datafile_suffix))
+    event_ids = epochs.events[:, -1]
     # reduce to just this subj (NB: df['subj'] is 0-indexed, subj dict is not)
     this_df = df.loc[df['subj'] == (subj_num - 1)]
-    # remove dropped epochs (trials)
+    # remove dropped epochs (trials). The `while` loop is skipped for most
+    # subjects but should handle cases where the run was stopped and restarted,
+    # by cutting out trials from the middle of `df` until
+    # `df['wav_idx'].iloc[epochs.selection]` yields the stim IDs in `event_ids`
+    match = this_df['wav_idx'].iloc[epochs.selection].values == event_ids
+    unmatched = np.logical_not(np.all(match))
+    while unmatched:
+        first_bad_sel = np.where(np.logical_not(match))[0].min()
+        first_bad = epochs.selection[first_bad_sel]
+        mismatched_wavs = this_df['wav_idx'].iloc[first_bad:]
+        mismatched_evs = event_ids[first_bad_sel:]
+        new_start = np.where(mismatched_wavs == mismatched_evs[0])[0][0]
+        this_df = pd.concat((this_df.iloc[:first_bad],
+                             this_df.iloc[(first_bad + new_start):]))
+        match = this_df['wav_idx'].iloc[epochs.selection].values == event_ids
+        unmatched = np.logical_not(np.all(match))
     this_df = this_df.iloc[epochs.selection, :]
-    event_ids = epochs.events[:, -1]
     assert np.array_equal(this_df['wav_idx'].values, event_ids)
     # make the data classifier-friendly
     train_mask = this_df['train']

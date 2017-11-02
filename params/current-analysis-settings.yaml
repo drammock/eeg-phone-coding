@@ -15,7 +15,7 @@ pca:
   time_domain: true
   truncate_to_n_timepts:  # 20 is reasonable, leave unset (=None) to disable
 
-n_jobs: 6  # 'cuda' is hard-coded on some lines (for filtering, resampling)
+n_jobs: 8  # 'cuda' is hard-coded on some lines (for filtering, resampling)
 
 align_on_cv: true  # epoch t0 = stimulus onset (false) or cv transition (true)
 
@@ -38,7 +38,7 @@ subjects:
   IT: 12
 
 # skip: ['IJ', 'IL', 'FA', 'IM', 'ID', 'CQ', 'IP', 'FV', 'IA', 'IV', 'IQ', 'IT']
-skip: ['IA']
+skip: []
 
 subj_langs:
   IJ: ['eng', 'hin', 'hun']

@@ -68,10 +68,12 @@ fname_suffix = cv + nc + this_feature
 epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
                          verbose=False)
 data = np.load(op.join(indir, 'time-domain-redux', basename + datafile_suffix))
+event_ids = epochs.events[:, -1]
 
 # load the trial params
-df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx']
-df_types = dict(subj=int, talker=str, syll=str, train=bool, wav_idx=int)
+df_cols = ['subj', 'block', 'talker', 'syll', 'train', 'wav_idx']
+df_types = dict(subj=int, block=int, talker=str, syll=str, train=bool,
+                wav_idx=int)
 df = pd.read_csv(op.join('params', 'master-dataframe.tsv'), sep='\t',
                  usecols=df_cols, dtype=df_types)
 df = merge_features_into_df(df, paramdir, feature_sys_fname)
@@ -80,9 +82,26 @@ df = df[(df_cols + ['lang', 'ascii', 'ipa', this_feature])]
 # reduce to just this subject (NB: df['subj'] is 0-indexed, subj. dict is not)
 df = df.loc[df['subj'] == (subjects[subj_code] - 1)]
 
-# remove dropped epochs (trials)
+# remove dropped epochs (trials). The `while` loop is skipped for most subjects
+# but should handle cases where the run was stopped and restarted, by cutting
+# out trials from the middle of `df` until
+# `df['wav_idx'].iloc[epochs.selection]` yields the stim IDs in `event_ids`
+match = df['wav_idx'].iloc[epochs.selection].values == event_ids
+unmatched = np.logical_not(np.all(match))
+# i = 0
+while unmatched:
+    # print('iteration {}; {} / {} matches'.format(i, match.sum(), len(match)))
+    first_bad_sel = np.where(np.logical_not(match))[0].min()
+    first_bad = epochs.selection[first_bad_sel]
+    mismatched_wavs = df['wav_idx'].iloc[first_bad:]
+    mismatched_evs = event_ids[first_bad_sel:]
+    new_start = np.where(mismatched_wavs == mismatched_evs[0])[0][0]
+    df = pd.concat((df.iloc[:first_bad],
+                    df.iloc[(first_bad + new_start):]))
+    match = df['wav_idx'].iloc[epochs.selection].values == event_ids
+    unmatched = np.logical_not(np.all(match))
+    # i += 1
 df = df.iloc[epochs.selection, :]
-event_ids = epochs.events[:, -1]
 assert np.array_equal(df['wav_idx'].values, event_ids)
 
 # make the data classifier-friendly
@@ -112,7 +131,8 @@ classifiers['{}-{}'.format(subj_code, this_feature)] = clf
 # compute EER threshold (refits using best params from grid search object)
 threshold, eer = EER_threshold(clf, X=train_data, y=train_labels,
                                return_eer=True)
-with open(op.join(subj_outdir, 'eer-threshold.tsv'), 'w') as f:
+eer_fname = op.join(subj_outdir, 'eer-threshold-{}.tsv'.format(this_feature))
+with open(eer_fname, 'w') as f:
     f.write('{}\t{}\t{}\t{}\n'.format('subj', 'feature', 'threshold', 'eer'))
     f.write('{}\t{}\t{}\t{}\n'.format(subj_code, this_feature, threshold, eer))
 
