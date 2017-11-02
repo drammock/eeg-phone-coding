@@ -1,0 +1,70 @@
+phoible_redux: ['continuant+dorsal',  # /j w/ vs the world
+                'continuant+sonorant',  # /ɹ/ vs everything except /j w/
+                'dorsal',
+                'continuant+labial',  # /p b m/  vs  /t d tʃ dʒ f v θ ð s z ʃ ʒ n h l/
+                'coronal',
+                'continuant',
+                'anter.|distr.|strid.',
+                'consonantal|labial',
+                'sonorant',
+                'sonorant',
+                'sonorant',
+                'distr.',
+                'anter.|strid.',
+                'voiced',
+                'voiced',
+                'voiced',
+                'voiced',
+                'voiced',
+                'voiced',
+                'voiced',
+                'voiced',
+                'labial']
+
+jfh_sparse: ['(flat)',  # /ɹ/ vs the world
+             '(continuant)',  # /k ɡ p b t d tʃ dʒ/ vs /f v s z ʃ ʒ m n h l j w/
+             '(strident)',  # /k ɡ/ vs /p b t d tʃ dʒ/
+             '(strident+continuant)',  # /θ ð/ vs everything except /ɹ/
+             'tense',
+             'tense',
+             'tense',
+             '(tense)',
+             'consonantal',
+             'vocalic',
+             'vocalic',
+             'nasal',
+             'compact',
+             'compact',
+             'compact',
+             'compact',
+             'grave',
+             'grave',
+             'grave',
+             'grave',
+             'grave',
+             'grave']
+
+spe_sparse: ['high+consonantal',  # /j w/  vs the world
+             'nasal',  # /n m/ vs. /p b t d k ɡ tʃ dʒ f v θ ð s z ʃ ʒ h l ɹ/
+             'high',  # /k ɡ tʃ dʒ ʃ ʒ/  vs  /p b t d f v θ ð s z h l ɹ/
+             'back|strident|coronal',
+             'low|consonantal',
+             'back',
+             'voiced',
+             'voiced',
+             'voiced',
+             'strident',
+             'strident',
+             'coronal',
+             'coronal',
+             'continuant',
+             'coronal',
+             'continuant',
+             'continuant',
+             'continuant',
+             'coronal',
+             'vocalic',
+             'coronal',
+             'anterior']
+
+
