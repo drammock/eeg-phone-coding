@@ -1,5 +1,5 @@
 ---
-title: EEG phoneme coding (working title)
+title: Does the brain encode distinctive features? Evaluating phonological feature theories against EEG measures of phoneme perception
 author:
 - name: Daniel R. McCloy
 - name: Adrian K. C. Lee
@@ -20,7 +20,6 @@ abstract: >
 
 # Introduction
 Foo.
-
 
 # Background
 Foo.
