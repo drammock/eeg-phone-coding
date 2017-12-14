@@ -95,14 +95,19 @@ for feat_sys in feature_systems:
         prefix = 'cross-subj-row-ordered-eer-confusion-matrix-'
         args = [sfn, cv + nc + feat_sys, subj_code]
         fn = prefix + '{}-eng-{}-{}.tsv'.format(*args)
-        confmat = pd.read_csv(op.join(indir, fn), sep='\t',
-                              index_col=0)
+        confmat = pd.read_csv(op.join(indir, fn), sep='\t', index_col=0)
         confmats_dict[feat_sys][subj_code] = confmat
     # add in theoretical confmats
     prefix = 'cross-subj-row-ordered-theoretical-confusion-matrix-eng-'
     fname = prefix + '{}-{}.tsv'.format(feat_sys, accuracy)
     confmat = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
     confmats_dict[feat_sys]['simulated'] = confmat
+    # add in average confmats
+    prefix = 'cross-subj-row-ordered-eer-confusion-matrix-'
+    args = [sfn, cv + nc + feat_sys, 'average']
+    fn = prefix + '{}-eng-{}-{}.tsv'.format(*args)
+    confmat = pd.read_csv(op.join(indir, fn), sep='\t', index_col=0)
+    confmats_dict[feat_sys]['average'] = confmat
 
 # convert to DataFrame of DataFrames. axes: (subj_code, feat_sys)
 confmats = pd.DataFrame.from_dict(confmats_dict, dtype=object)
@@ -173,6 +178,16 @@ for row, feat_sys in enumerate(confmats.columns):
         kwargs = dict(norm=normalizer, cmap=cmap_copy, title=title,
                       xlabel='', ylabel='')
         plot_confmat(data, ax, **kwargs)
+    # plot average confmat
+    ax = axs[row, -1]
+    data = confmats.loc['average', feat_sys]
+    diag = matrix_row_column_correlation(data)
+    title = '' if row else 'Average'
+    title = ' '.join([title, '({:.2f})'.format(diag)])
+    kwargs = dict(norm=normalizer, cmap=cmap_copy, title=title,
+                  xlabel='', ylabel='')
+    plot_confmat(data, ax, **kwargs)
+
 fig.subplots_adjust(left=0.01, right=0.99, bottom=0.05, top=0.95,
                     wspace=0.2, hspace=0.3)
 if savefig:

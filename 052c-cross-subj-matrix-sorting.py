@@ -13,6 +13,7 @@ confusion matrices.
 # Created on Mon Sep  4 11:13:58 PDT 2017
 # License: BSD (3-clause)
 
+import copy
 import yaml
 from os import mkdir
 import pandas as pd
@@ -55,11 +56,15 @@ cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
+subj_avg = copy.copy(subjects)
+subj_avg.update(dict(average=0))
+
 # sort by cross-subj similarity by stacking confmats before running OLO
 confmats = dict()
 for feat_sys in feature_systems:
     confmats[feat_sys] = dict()
-    for subj_code in subjects:
+    # load in the across-subject averages along with individ. subjs.
+    for subj_code in subj_avg:
         if subj_code in skip:
             continue
         # load the data
@@ -76,7 +81,7 @@ row_order = confmats['phoible_redux']['IJ'].index.tolist()
 confmat_list = list()
 for feat_sys in feature_systems:
     this_confmat_list = list()
-    for subj_code in subjects:
+    for subj_code in subjects:  # don't include the average here
         if subj_code in skip:
             continue
         this_confmat_list.append(confmats[feat_sys][subj_code].loc[row_order])
@@ -88,9 +93,9 @@ for feat_sys in feature_systems:
     dendrograms, linkages = olo['dendrograms'], olo['linkages']
     new_row_order = dendrograms['row']['ivl']
 
-    # re-loop over subjects to apply new row order & save
+    # re-loop over subjects (and average) to apply new row order & save
     prefix = 'cross-subj-row-ordered-'
-    for subj_code in subjects:
+    for subj_code in subj_avg:
         if subj_code in skip:
             continue
         # save confmat
@@ -123,7 +128,7 @@ new_row_order = dendrograms['row']['leaves']
 # apply new row order & save
 prefix = 'cross-featsys-cross-subj-row-ordered-'
 for feat_sys in feature_systems:
-    for subj_code in subjects:
+    for subj_code in subj_avg:
         if subj_code in skip:
             continue
         # save confmat
