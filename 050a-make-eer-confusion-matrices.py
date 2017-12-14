@@ -75,14 +75,19 @@ eng_phones = canonical_phone_order['eng']
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 
+# init container
+confmats = dict()
+
 # loop over subjects
 for subj_code in subjects:
     if subj_code in skip:
         continue
+    confmats[subj_code] = dict()
 
     # loop over languages
     for lang in subj_langs[subj_code]:
         this_phones = canonical_phone_order[lang]
+        confmats[subj_code][lang] = dict()
 
         # loop over feature systems
         for feat_sys, feats in feature_systems.items():
@@ -132,8 +137,21 @@ for subj_code in subjects:
             log_prob_3d = (-1. * prob_3d.apply(np.log))
             joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
             joint_prob = joint_log_prob.apply(np.exp)
+            confmats[subj_code][lang][feat_sys] = joint_prob
 
             # save unordered confusion matrix
             args = [sfn, lang, cv + nc + feat_sys, subj_code]
             out_fname = 'eer-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
             joint_prob.to_csv(op.join(outdir, out_fname), sep='\t')
+
+# compute across-subject averages
+for feat_sys in feature_systems:
+    these_confmats = dict()
+    for subj_code in subjects:
+        if subj_code in skip:
+            continue
+        these_confmats[subj_code] = confmats[subj_code]['eng'][feat_sys]
+    average_confmat = pd.Panel(these_confmats).mean(axis=0)
+    args = [sfn, 'eng', cv + nc + feat_sys, 'average']
+    out_fname = 'eer-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
+    average_confmat.to_csv(op.join(outdir, out_fname), sep='\t')
