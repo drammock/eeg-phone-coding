@@ -1,35 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
 ===============================================================================
-Script 'plot-erps.py'
+Script 'plot-dss-topomap.py'
 ===============================================================================
 
-This script plots ERPs from labelled epochs.
+This script loads EEG data that has been processed with denoising source
+separation (DSS) and plots scalp topomaps of the DSS components.
 """
 # @author: drmccloy
-# Created on Tue May 30 11:01:12 2017
+# Created on Thu Aug  3 15:28:34 PDT 2017
 # License: BSD (3-clause)
 
+from os import path as op
 import yaml
-import mne
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os.path as op
-from os import mkdir
+import mne
 from aux_functions import merge_features_into_df
 
-pd.set_option('display.width', None)
-np.set_printoptions(linewidth=130)
-plt.ioff()
+td_redux = True
 
 # BASIC FILE I/O
-indir = op.join('eeg-data-clean')
-outdir = op.join('figures', 'erps')
-if not op.isdir(outdir):
-    mkdir(outdir)
+indir = 'eeg-data-clean'
+outdir = op.join('figures', 'dss')
 
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
@@ -38,11 +33,14 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     align_on_cv = analysis_params['align_on_cv']
+    do_dss = analysis_params['dss']['use']
+    n_comp = analysis_params['dss']['n_components']
     feature_fnames = analysis_params['feature_fnames']
 del analysis_params
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
 
 # LOAD PARAMS FROM CSV
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx', 'wav_path']
@@ -54,16 +52,21 @@ feature_sys_fname = feature_fnames['jfh_dense']
 df = merge_features_into_df(df, paramdir, feature_sys_fname)
 
 # iterate over subjects
-for subj_code, subj_num in subjects.items():
-    # read epochs
+for ix, (subj_code, subj_num) in enumerate(subjects.items()):
+    # load the data
     basename = '{0:03}-{1}-{2}'.format(subj_num, subj_code, cv)
+    if td_redux:
+        datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')
+        dss_data = np.load(op.join(indir, 'time-domain-redux',
+                           basename + datafile_suffix))
+    else:
+        datafile_suffix = 'dss-data.npy'
+        dss_data = np.load(op.join(indir, 'dss', basename + datafile_suffix))
     epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
                              verbose=False)
-    epochs.apply_proj()
+    event_ids = epochs.events[:, -1]
     epochs_keys = list(epochs.event_id)
-    # deal with dropped epochs
-    events = mne.read_events(op.join(indir, 'events', basename + 'eve.txt'),
-                             mask=None)[epochs.selection, -1]
+
     # subset df for this subject
     this_df = df.loc[df['subj'] == (subj_num - 1)]  # subj. dict not 0-indexed
     this_df = this_df.iloc[epochs.selection, :]
@@ -73,8 +76,8 @@ for subj_code, subj_num in subjects.items():
                                   'ascii'].unique())
     for_cons = sorted(set(for_cons) - set(eng_cons))
     # initialize figure
-    fig, axs = plt.subplots(10, 6, figsize=(36, 24))
-    # iterate over consonants, putting english first
+    fig, axs = plt.subplots(10, 6, figsize=(36, 24), sharex=True, sharey=True)
+    # iterate over consonants
     for ix, this_ascii in enumerate(eng_cons + for_cons):
         this_cons_df = this_df.loc[this_df['ascii'] == this_ascii].copy()
         n_epochs = this_cons_df.shape[0]
@@ -84,11 +87,20 @@ for subj_code, subj_num in subjects.items():
             missing = this_keys[np.logical_not(has_epochs)]
             for m in missing:
                 print('no epochs matching {}'.format(m))
-        # plot ERP
-        evoked = epochs[this_keys.tolist()].average()
-        title = '{} ({} epochs)'.format(this_ascii, n_epochs)
-        evoked.plot(spatial_colors=True, gfp=True, axes=axs.ravel()[ix],
-                    titles=dict(eeg=title), show=False, selectable=False,
-                    ylim=dict(eeg=[-10, 10]))
-    fig.savefig(op.join(outdir, '{}erp.pdf'.format(basename)))
+        # find indices
+        this_ev_id = [epochs.event_id[x] for x in this_keys]
+        evoked = dss_data[np.in1d(event_ids, this_ev_id)].mean(axis=0)
+        ax = axs.ravel()[ix]
+        if td_redux:
+            ax.plot(evoked.reshape(n_comp, -1).T, linewidth=0.5)
+            ax.set_ylim(-0.0075, 0.0075)
+        else:
+            time = np.tile(epochs.times, (dss_data.shape[1], 1)).T
+            ax.plot(time, evoked.T, linewidth=0.5)
+            ax.set_ylim(-0.0025, 0.0025)
+        ax.set_title('{} ({} epochs)'.format(this_ascii, n_epochs))
+    fig.tight_layout()
+    tdr = 'redux-' if td_redux else ''
+    outfile = '{}dss{}-{}erp.pdf'.format(basename, n_comp, tdr)
+    fig.savefig(op.join(outdir, outfile))
     plt.close(fig)
