@@ -15,12 +15,7 @@ separation (DSS) and plots scalp topomaps of the DSS components.
 from os import path as op
 import yaml
 import numpy as np
-import matplotlib.pyplot as plt
 import mne
-from mne_sandbox.preprocessing._dss import _pca
-from aux_functions import dss
-
-np.set_printoptions(linewidth=130)
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'
