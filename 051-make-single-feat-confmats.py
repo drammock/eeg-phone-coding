@@ -20,9 +20,12 @@ import pandas as pd
 import os.path as op
 from aux_functions import merge_features_into_df
 
+# FLAGS
+svm = False
+
 # BASIC FILE I/O
 paramdir = 'params'
-indir = 'processed-data'
+indir = 'processed-data' if svm else 'processed-data-logistic'
 outdir = op.join(indir, 'single-feat-confmats')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):

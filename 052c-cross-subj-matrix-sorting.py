@@ -20,9 +20,12 @@ import pandas as pd
 import os.path as op
 from aux_functions import optimal_leaf_ordering
 
+# FLAGS
+svm = False
+
 # BASIC FILE I/O
 paramdir = 'params'
-datadir = 'processed-data'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 indir = op.join(datadir, 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 outdir = op.join(datadir, 'ordered-confusion-matrices')
@@ -112,8 +115,8 @@ for feat_sys in feature_systems:
 
     # make theoretical confmats of various accuracies with same order
     for accuracy in [0.6, 0.7, 0.8, 0.9, 0.99, 0.999]:
-        fname = ('theoretical-confusion-matrix-eng-{}-{}.tsv'
-                 ''.format(feat_sys, accuracy))
+        fname = ('theoretical-confusion-matrix-{}-eng-{}-{}.tsv'
+                 ''.format(sfn, feat_sys, accuracy))
         simulated = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
         simulated = simulated.loc[new_row_order, new_row_order]
         out_fname = 'cross-subj-row-ordered-' + fname

@@ -240,9 +240,11 @@ def EER_threshold(clf, X, y, return_eer=False):
     y: np.ndarray
         training labels
     """
+    from sklearn.svm import SVC
     estimator = clf.estimator
     estimator.C = clf.best_params_['C']
-    estimator.gamma = clf.best_params_['gamma']
+    if isinstance(estimator, SVC):
+        estimator.gamma = clf.best_params_['gamma']
     estimator.fit(X, y)
     score, threshold = _EER_score_threshold(estimator, X, y)
     result = (threshold, (1 - score)) if return_eer else threshold

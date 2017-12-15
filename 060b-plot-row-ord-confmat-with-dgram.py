@@ -24,15 +24,18 @@ from matplotlib.colors import LogNorm
 from aux_functions import (plot_confmat, plot_dendrogram,
                            matrix_row_column_correlation)
 
-plt.ioff()
+# FLAGS
+svm = False
 accuracy = 0.9
 savefig = True
+plt.ioff()
 
 # BASIC FILE I/O
 paramdir = 'params'
-indir = op.join('processed-data', 'ordered-confusion-matrices')
+datadir = 'processed-data' if svm else 'processed-data-logistic'
+indir = op.join(datadir, 'ordered-confusion-matrices')
 outdir = op.join('figures', 'confusion-matrices')
-dgdir = op.join('processed-data', 'dendrograms')
+dgdir = op.join(datadir, 'dendrograms')
 if not op.isdir(outdir):
     mkdir(outdir)
 
@@ -73,6 +76,7 @@ cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
+logistic = '' if svm else '-logistic'
 
 # load plot style; make colormap with NaN data (from log(0)) mapped as gray
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -98,8 +102,8 @@ for feat_sys in feature_systems:
         confmat = pd.read_csv(op.join(indir, fn), sep='\t', index_col=0)
         confmats_dict[feat_sys][subj_code] = confmat
     # add in theoretical confmats
-    prefix = 'cross-subj-row-ordered-theoretical-confusion-matrix-eng-'
-    fname = prefix + '{}-{}.tsv'.format(feat_sys, accuracy)
+    prefix = 'cross-subj-row-ordered-theoretical-confusion-matrix-'
+    fname = prefix + '{}-eng-{}-{}.tsv'.format(sfn, feat_sys, accuracy)
     confmat = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
     confmats_dict[feat_sys]['simulated'] = confmat
     # add in average confmats
@@ -191,8 +195,9 @@ for row, feat_sys in enumerate(confmats.columns):
 fig.subplots_adjust(left=0.01, right=0.99, bottom=0.05, top=0.95,
                     wspace=0.2, hspace=0.3)
 if savefig:
-    fname = 'cross-subj-row-ordered-confusion-matrices-{}-eng.pdf'.format(sfn)
-    fig.savefig(op.join(outdir, fname))
+    fname = 'cross-subj-row-ordered-confusion-matrices-'
+    suffix = '{}-eng{}.pdf'.format(sfn, logistic)
+    fig.savefig(op.join(outdir, fname + suffix))
 else:
     plt.ion()
     plt.show()

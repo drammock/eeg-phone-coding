@@ -21,10 +21,14 @@ import pandas as pd
 from aux_functions import matrix_row_column_correlation
 
 
+# FLAGS
+svm = False
+
 # BASIC FILE I/O
 paramdir = 'params'
 # indir defined below, after loading YAML parameters
-outdir = op.join('processed-data', 'matrix-correlations')
+datadir = 'processed-data' if svm else 'processed-data-logistic'
+outdir = op.join(datadir, 'matrix-correlations')
 if not op.isdir(outdir):
     mkdir(outdir)
 
@@ -50,7 +54,7 @@ cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
-indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
+indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
 
 # init container
 matrix_diagonality = {m: None for m in methods}
@@ -89,7 +93,8 @@ for method in methods:
                 confmat = pd.read_csv(op.join(indir, fname), sep='\t',
                                       index_col=0)
                 # compute diagonality
-                df.loc[subj_code, feat_sys] = matrix_row_column_correlation(confmat)
+                df.loc[subj_code,
+                       feat_sys] = matrix_row_column_correlation(confmat)
         # save
         args = [order_type, ordered, sfn, method]
         fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)

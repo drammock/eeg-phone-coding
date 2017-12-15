@@ -49,9 +49,12 @@ def order_featmat_rows(featmat, return_intermediates=True):
     return returns
 
 
+# FLAGS
+svm = False
+
 # BASIC FILE I/O
 paramdir = 'params'
-datadir = 'processed-data'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 indir = op.join(datadir, 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 rankdir = op.join(datadir, 'feature-rankings')

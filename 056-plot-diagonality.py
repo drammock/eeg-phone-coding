@@ -20,13 +20,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 
-np.set_printoptions(precision=6, linewidth=130)
-pd.set_option('display.width', 130)
+# FLAGS
+svm = False
 plt.ioff()
 
 # BASIC FILE I/O
 paramdir = 'params'
-indir = op.join('processed-data', 'matrix-correlations')
+datadir = 'processed-data' if svm else 'processed-data-logistic'
+indir = op.join(datadir, 'matrix-correlations')
 outdir = op.join('figures', 'matrix-correlations')
 if not op.isdir(outdir):
     mkdir(outdir)
@@ -46,6 +47,7 @@ del analysis_params
 # file naming variables
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
+logistic = '' if svm else '-logistic'
 
 # load plot style
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
@@ -98,6 +100,6 @@ for order_type in order_types:
     new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
     axs[0].set_position(new_bbox)
     axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-    args = (order_type, ordered, sfn)
-    out_fname = '{}{}matrix-correlations-{}.pdf'.format(*args)
+    args = (order_type, ordered, sfn, logistic)
+    out_fname = '{}{}matrix-correlations-{}{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, out_fname))

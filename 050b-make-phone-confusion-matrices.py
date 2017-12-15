@@ -21,12 +21,12 @@ import os.path as op
 from os import mkdir
 from aux_functions import merge_features_into_df
 
-np.set_printoptions(precision=6, linewidth=160)
-pd.set_option('display.width', 140)
+# FLAGS
+svm = False
 
 # BASIC FILE I/O
 paramdir = 'params'
-indir = 'processed-data'
+indir = 'processed-data' if svm else 'processed-data-logistic'
 outdir = op.join(indir, 'confusion-matrices')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
@@ -94,7 +94,7 @@ for subj_code in subjects:
                 # NB: columns are [-feat, +feat, feat, lang], where the first
                 # two are classifier probabilities, and "feat" is the binary
                 # classification based on the EER threshold for that feature
-                fpath = op.join(indir, subj_code, fname)
+                fpath = op.join(indir, 'classifiers', subj_code, fname)
                 kwargs = dict(sep='\t', index_col=0, usecols=['ipa', feat],
                               dtype={'ipa': str, feat: int})
                 classifications.append(pd.read_csv(fpath, **kwargs))

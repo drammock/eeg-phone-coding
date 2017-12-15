@@ -17,10 +17,8 @@ import yaml
 import numpy as np
 import pandas as pd
 import os.path as op
+from os import makedirs
 import matplotlib.pyplot as plt
-
-np.set_printoptions(precision=4, linewidth=160)
-pd.set_option('display.width', 250)
 
 
 def plot_eers(df, ax, legend=False, title=''):
@@ -41,12 +39,14 @@ def plot_eers(df, ax, legend=False, title=''):
 
 
 # FLAGS
+svm = False
 savefig = True
 
 # BASIC FILE I/O
 paramdir = 'params'
-datadir = 'processed-data'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 rankdir = op.join(datadir, 'feature-rankings')
+makedirs(rankdir, exist_ok=True)
 
 # LOAD PARAMS FROM YAML
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -120,7 +120,8 @@ fig.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.95,
                     hspace=0.8, wspace=0.3)
 
 if savefig:
-    fig.savefig(op.join('figures', 'eer-by-feat-sys.pdf'))
+    fname = 'eer-by-feat-sys.pdf' if svm else 'eer-by-feat-sys-logistic.pdf'
+    fig.savefig(op.join('figures', fname))
 else:
     plt.ion()
     plt.show()

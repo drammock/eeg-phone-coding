@@ -23,13 +23,16 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
 from aux_functions import plot_confmat
 
+# FLAGS
+svm = False
 plt.ioff()
-pd.set_option('display.width', 130)
 
 # BASIC FILE I/O
 paramdir = 'params'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 # indir defined below, after loading YAML parameters
-outdir = op.join('figures', 'confusion-matrices')
+figdir = 'svm' if svm else 'logistic'
+outdir = op.join('figures', 'confusion-matrices', figdir)
 if not op.isdir(outdir):
     mkdir(outdir)
 
@@ -60,7 +63,7 @@ nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
-indir = op.join('processed-data', '{}confusion-matrices'.format(ordered))
+indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
 
 # load plot style; make colormap with NaN data mapped as 0 (to handle log(0))
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -96,8 +99,7 @@ for method in methods:
     # set common color scale
     maxima = confmats.apply(lambda x: x.applymap(lambda y: y.max().max()
                                                  ), axis=(0, 1))
-    maxima.loc['row'].to_csv(op.join('processed-data', 'matrix-maxima.tsv'),
-                             sep='\t')
+    maxima.loc['row'].to_csv(op.join(datadir, 'matrix-maxima.tsv'), sep='\t')
     maximum = maxima.loc['row'].max().max()  # invariant across sortings
     normalizer = LogNorm(vmax=maximum)
 

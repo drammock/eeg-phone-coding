@@ -15,19 +15,16 @@ confusion matrices.
 
 import yaml
 from os import mkdir
-import numpy as np
 import pandas as pd
 import os.path as op
-import matplotlib.pyplot as plt
 from aux_functions import optimal_leaf_ordering
 
-np.set_printoptions(precision=4, linewidth=160)
-pd.set_option('display.width', 250)
-plt.ion()
+# FLAGS
+svm = False
 
 # BASIC FILE I/O
 paramdir = 'params'
-datadir = 'processed-data'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 indir = op.join(datadir, 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 outdir = op.join(datadir, 'ordered-confusion-matrices')

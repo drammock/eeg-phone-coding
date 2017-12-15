@@ -21,12 +21,12 @@ import pandas as pd
 import os.path as op
 from aux_functions import merge_features_into_df
 
-np.set_printoptions(precision=6, linewidth=160)
-pd.set_option('display.width', 250)
+# flags
+svm = False
 
 # BASIC FILE I/O
 paramdir = 'params'
-indir = 'processed-data'
+indir = 'processed-data' if svm else 'processed-data-logistic'
 outdir = op.join(indir, 'confusion-matrices')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
