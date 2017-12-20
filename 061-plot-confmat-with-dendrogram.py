@@ -24,14 +24,14 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
 from aux_functions import plot_confmat, plot_dendrogram
 
-plt.ioff()
-
 # FLAGS
 savefig = True
+svm = False
+plt.ioff()
 
 # BASIC FILE I/O
 paramdir = 'params'
-datadir = 'processed-data'
+datadir = 'processed-data' if svm else 'processed-data-logistic'
 dgdir = op.join(datadir, 'dendrograms')
 # indir defined below, after loading YAML parameters
 outdir = op.join('figures', 'dendrograms')
@@ -63,6 +63,7 @@ nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
+logistic = '' if svm else '-logistic'
 indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
 outdir = op.join('figures', 'dendrograms')
 
@@ -151,6 +152,7 @@ for subj_code in subjects:
             plot_dendrogram(dg, orientation='bottom', ax=ax, linewidth=0.5,
                             leaf_rotation=0)
             ax.axis('off')  # comment this out to confirm correct ordering
+            # ax.set_ylim(20, 0)  adjust to zoom in as needed
 
             # align confmat/dendrogram spacing
             # NB: doing this with transforms doesn't seem to work (good result
@@ -168,21 +170,45 @@ for subj_code in subjects:
             ax.set_xlim(new_xlim)
             # annotate dendrogram
             order = np.argsort([y[1] for y in dg['dcoord']])[::-1]
-            names = ([('− continuant +', False),
-                      ('− dorsal +', False),
-                      ('+ dorsal −', False),
-                      ('− sonorant +', False),
-                      ('− delayedrelease +', True),
-                      ('− sonorant +', False)] +
-                     [('− consonantal +', True)] * 2 +
-                     [('− coronal +', True)] * 3 +
-                     [('− voi +', False)] * 5 +
-                     [('− voi +', True),
-                      ('− distr +', True),
-                      ('+ distr −', True),
-                      ('+ strid −', False),
-                      ('− strid +', False),
-                      ('− labial +', False)])
+            if svm:
+                names = ([('− continuant +', False),
+                          ('− dorsal +', False),
+                          ('+ dorsal −', False),
+                          ('− sonorant +', False),
+                          ('− delayedrelease +', True),
+                          ('− sonorant +', False)] +
+                         [('− consonantal +', True)] * 2 +
+                         [('− coronal +', True)] * 3 +
+                         [('− voi +', False)] * 5 +
+                         [('− voi +', True),
+                          ('− distr +', True),
+                          ('+ distr −', True),
+                          ('+ strid −', False),
+                          ('− strid +', False),
+                          ('− labial +', False)])
+            else:
+                names = ([('+ nasal −', False),
+                          ('− lateral +', False),
+                          ('[continuant]', True),
+                          ('+ sonorant −', False),
+                          ('+ voiced −', True),
+                          ('− voiced +', True),
+                          ('+ cons −', False),
+                          ('− dors +', True),
+                          ('+ dors −', True),
+                          ('− dors +', True),
+                          ('−cont+', False),
+                          ('+ cont −', False),
+                          ('− lab +', False),
+                          ('+ lab −', False),
+                          ('[ant]', True),
+                          ('− lab. +', False),
+                          ('[strid]', True),
+                          ('− lab +', False),
+                          ('[ant]', True),
+                          ('[distr]', True),
+                          ('− lab +', False),
+                          ('− lab +', False)])
             for i, d, (n, print_below) in zip(np.array(dg['icoord'])[order],
                                               np.array(dg['dcoord'])[order],
                                               names):
@@ -194,8 +220,8 @@ for subj_code in subjects:
                 ax.annotate(n, xy, **kwargs)
 
         if savefig:
-            figname = '{}ordered-confmat-dgram-{}.pdf'.format(sorting,
-                                                              subj_code)
+            args = [sorting, subj_code, logistic]
+            figname = '{}ordered-confmat-dgram-{}{}.pdf'.format(*args)
             fig.savefig(op.join(outdir, figname))
 
 if not savefig:
