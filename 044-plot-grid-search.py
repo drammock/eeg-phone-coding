@@ -113,6 +113,7 @@ for i, subj_code in enumerate(_subjects):
             ax.plot(scores)
             ax.xaxis.set_ticks(np.arange(len(c_range)))
             ax.xaxis.set_ticklabels(c_range, rotation=90)
+            ax.set_ylim(0, 1)
         if not j:
             ax.set_ylabel(subj_code, fontsize=24)
         if not i:
