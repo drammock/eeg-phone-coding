@@ -20,18 +20,8 @@ import pandas as pd
 import os.path as op
 from aux_functions import merge_features_into_df
 
-# FLAGS
-svm = False
-
-# BASIC FILE I/O
-paramdir = 'params'
-indir = 'processed-data' if svm else 'processed-data-logistic'
-outdir = op.join(indir, 'single-feat-confmats')
-feature_sys_fname = 'all-features.tsv'
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -45,7 +35,18 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     subj_langs = analysis_params['subj_langs']
     skip = analysis_params['skip']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
+    scheme = analysis_params['classification_scheme']
 del analysis_params
+
+if scheme in ['pairwise', 'OVR', 'multinomial']:
+    raise RuntimeError('This script unnecessary for non-feature analysis')
+
+# BASIC FILE I/O
+indir = 'processed-data-{}'.format(scheme)
+outdir = op.join(indir, 'single-feat-confmats')
+feature_sys_fname = 'all-features.tsv'
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # file naming variables
 sfn = 'nan' if sparse_feature_nan else 'nonan'

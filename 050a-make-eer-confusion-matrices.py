@@ -21,18 +21,8 @@ import pandas as pd
 import os.path as op
 from aux_functions import merge_features_into_df
 
-# flags
-svm = False
-
-# BASIC FILE I/O
-paramdir = 'params'
-indir = 'processed-data' if svm else 'processed-data-logistic'
-outdir = op.join(indir, 'confusion-matrices')
-feature_sys_fname = 'all-features.tsv'
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -46,9 +36,21 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     subj_langs = analysis_params['subj_langs']
     skip = analysis_params['skip']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
+    scheme = analysis_params['classification_scheme']
 del analysis_params
 
+phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
+
+# BASIC FILE I/O
+indir = 'processed-data-{}'.format(scheme)
+outdir = op.join(indir, 'confusion-matrices')
+feature_sys_fname = 'all-features.tsv'
+if not op.isdir(outdir):
+    mkdir(outdir)
+
 # file naming variables
+cv = 'cvalign-' if align_on_cv else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load the trial params
@@ -71,10 +73,6 @@ ground_truth.columns.name = 'features'
 eers = pd.read_csv(op.join(indir, 'eers.tsv'), sep='\t', index_col=0)
 eng_phones = canonical_phone_order['eng']
 
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-
 # init container
 confmats = dict()
 
@@ -86,6 +84,54 @@ for subj_code in subjects:
 
     # loop over languages
     for lang in subj_langs[subj_code]:
+
+        # handle pairwise classifier data differently
+        if phone_level:
+            if lang != 'eng':
+                continue
+            # subset EERs to this subject
+            this_eers = eers[subj_code]
+            # make empty confmat
+            confmat = pd.DataFrame(index=pd.Index(eng_phones, name='ipa_in'),
+                                   columns=pd.Index(eng_phones,
+                                                    name='ipa_out'),
+                                   dtype=float, data=np.nan)
+            if scheme == 'OVR':
+                clfs = pd.DataFrame()
+                for phone in eng_phones:
+                    fname = ('classifier-probabilities-{}-{}{}-{}.tsv'
+                             .format(lang, cv + nc, phone, subj_code))
+                    this_clf = pd.read_csv(op.join(indir, 'classifiers',
+                                                   subj_code, fname),
+                                           sep='\t', index_col='ipa')
+                    clfs[phone] = this_clf['prediction']
+                n_present = clfs['p'].groupby(clfs.index).count()
+                n_classif = clfs.groupby(clfs.index).sum(axis=0)
+                n_classif = n_classif[n_classif.index]  # order cols like rows
+                pcts = n_classif / np.tile(n_present[:, None],
+                                           (1, n_classif.shape[1]))
+                pd.set_option('display.max_columns', 30)
+                pd.set_option('display.width', 800)
+                raise RuntimeError
+            else:
+                # fill in off-diagonal values
+                for contrast, eer in this_eers.iteritems():
+                    phone_one, _, phone_two = contrast.split('_')
+                    confmat.loc[phone_one, phone_two] = eer
+                    confmat.loc[phone_two, phone_one] = eer
+                # compute diagonal entries (mean accuracy of row; subtract
+                # from 1 because other entries are error rate, not accuracy)
+                means = np.nanmean(1. - confmat, axis=1)
+                confmat.values[np.diag_indices(confmat.shape[0])] = means
+            assert np.all(np.isfinite(confmat))
+            # put in dict
+            confmats[subj_code] = confmat
+            # save unordered confusion matrix
+            args = [sfn, lang, cv + nc, subj_code]
+            out_fname = 'eer-confusion-matrix-{}-{}-{}{}.tsv'.format(*args)
+            confmat.to_csv(op.join(outdir, out_fname), sep='\t')
+            continue
+
         this_phones = canonical_phone_order[lang]
         confmats[subj_code][lang] = dict()
 
@@ -146,12 +192,19 @@ for subj_code in subjects:
 
 # compute across-subject averages
 for feat_sys in feature_systems:
-    these_confmats = dict()
-    for subj_code in subjects:
-        if subj_code in skip:
-            continue
-        these_confmats[subj_code] = confmats[subj_code]['eng'][feat_sys]
+    if phone_level:
+        these_confmats = confmats
+    else:
+        these_confmats = dict()
+        for subj_code in subjects:
+            if subj_code in skip:
+                continue
+            these_confmats[subj_code] = confmats[subj_code]['eng'][feat_sys]
     average_confmat = pd.Panel(these_confmats).mean(axis=0)
-    args = [sfn, 'eng', cv + nc + feat_sys, 'average']
-    out_fname = 'eer-confusion-matrix-{}-{}-{}-{}.tsv'.format(*args)
+    middle_arg = '' if phone_level else '{}-'.format(feat_sys)
+    args = [sfn, 'eng', cv + nc + middle_arg, 'average']
+    out_fname = 'eer-confusion-matrix-{}-{}-{}{}.tsv'.format(*args)
     average_confmat.to_csv(op.join(outdir, out_fname), sep='\t')
+    # don't need to loop over feature_systems if pairwise/OVR
+    if phone_level:
+        break
