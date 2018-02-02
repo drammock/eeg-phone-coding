@@ -407,6 +407,14 @@ def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
         ax.set_xticklabels(df.columns[::2], minor=True)
         ax.set_yticklabels(df.index[1::2], minor=False)
         ax.set_yticklabels(df.index[::2], minor=True)
+        xt = ax.get_xticklabels(which='both')
+        yt = ax.get_yticklabels(which='both')
+        try:
+            new_col = str(float(xt[0].get_color()) - 0.15)
+        except ValueError:  # color is a non-numeric string
+            new_col = xt[0].get_color()
+        plt.setp(xt, color=new_col)
+        plt.setp(yt, color=new_col)
         # annotate
         if len(title):
             ax.set_title(title)
@@ -453,3 +461,69 @@ def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='',
         if len(ylabel):
             ax.set_ylabel(ylabel)
     return ax
+
+
+def simulate_confmat(feature_matrix, accuracy, sparsity_value=0.5):
+    '''Simulate (mis)perception probabilities for phonological feature systems.
+
+    Parameters
+    ----------
+    feature_matrix: pd.DataFrame
+        shape should be (n_phones, n_features). Feature presence should be
+        encoded as 1, absence as 0, and underspecified values as np.nan.
+    accuracy: float
+        desired accuracy to simulate. Should be between 0 and 1.
+    sparsity_value: float | np.nan
+        value to use for undefined features when computing joint probabilities.
+
+    Returns
+    -------
+    confusion_matrix: pd.DataFrame
+        Possibly non-symmetric matrix of confusion probabilities. Row labels
+        are input phonemes, column labels are percepts.
+    '''
+    import pandas as pd
+
+    phones = feature_matrix.index
+    features = feature_matrix.columns
+    features.name = 'features'
+
+    # generate uniform accuracy matrix
+    idx_in = pd.Index(phones, name='ipa_in')
+    idx_out = pd.Index(phones, name='ipa_out')
+    acc = pd.DataFrame(data=accuracy, index=idx_out, columns=features)
+
+    # make 3d array of accuracy. Each feature plane of shape (ipa_in, ipa_out)
+    # has a uniform value corresponding to the accuracy for that feature (and
+    # in this case, accuracy for all features is the same).
+    acc_3d = pd.Panel({p: acc for p in phones}, items=idx_in)
+
+    # make 3d arrays of feature values where true feature values are repeated
+    # along orthogonal planes (i.e., feats_in.loc['p'] looks like
+    # feats_out.loc[:, 'p'].T)
+    feats_out = pd.Panel({p: feature_matrix for p in phones}, items=idx_in)
+    feats_in = pd.Panel({p: feature_matrix.loc[phones] for p in phones},
+                        items=phones).swapaxes(0, 1)
+    feats_in.items.name = 'ipa_in'
+
+    # intersect feats_in with feats_out to get boolean feature_match
+    # array. Where features match, insert the accuracy for that
+    # feature. Where they mismatch, insert 1. - accuracy.
+    feat_mismatch = np.logical_xor(feats_in, feats_out)
+    indices = np.where(feat_mismatch)
+    prob_3d = acc_3d.copy()
+    prob_3d.values[indices] = 1. - prob_3d.values[indices]
+
+    # handle feature values that are "sparse" in this feature system
+    sparse_mask = np.where(np.isnan(feats_out))
+    prob_3d.values[sparse_mask] = sparsity_value
+
+    # collapse across features to compute joint probabilities
+    axis = [x.name for x in prob_3d.axes].index('features')
+    ''' this one-liner can be numerically unstable, use three-liner below
+    joint_prob = prob_3d.prod(axis=axis, skipna=True).swapaxes(0, 1)
+    '''
+    log_prob_3d = (-1. * prob_3d.apply(np.log))
+    joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
+    joint_prob = joint_log_prob.apply(np.exp)
+    return joint_prob

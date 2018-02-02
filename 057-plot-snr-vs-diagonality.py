@@ -20,17 +20,10 @@ from os import mkdir
 import matplotlib.pyplot as plt
 
 # FLAGS
-svm = False
 plt.ioff()
 
-# BASIC FILE I/O
-paramdir = 'params'
-indir = 'processed-data' if svm else 'processed-data-logistic'
-outdir = op.join('figures', 'snr-vs-diagonality')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -40,20 +33,28 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     use_ordered = analysis_params['sort_matrices']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     legend_names = analysis_params['pretty_legend_names']
+    scheme = analysis_params['classification_scheme']
 del analysis_params
+
+# BASIC FILE I/O
+indir = 'processed-data-{}'.format(scheme)
+outdir = op.join('figures', 'snr-vs-diagonality')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # file naming variables
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
-logistic = '' if svm else '-logistic'
 
-# load SNR data (logistic folder tree here; only exists in SVM tree)
-fname = op.join('processed-data', 'blinks-epochs-snr.tsv')
+# load SNR data (only exists in SVM folder tree)
+fname = op.join('processed-data-svm', 'blinks-epochs-snr.tsv')
 snr = pd.read_csv(fname, sep='\t', index_col=0)
 snr = snr['snr']  # ignore other columns (n_trials, n_blinks, retained_epochs)
 
 # ignore simulation data
 _ = methods.pop(methods.index('theoretical'))
+if scheme == 'pairwise':
+    _ = methods.pop(methods.index('phone'))
 
 # load plot style
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
@@ -65,22 +66,27 @@ colnames = dict(snr='SNR: 10×log(evoked/baseline power)',
 titles = dict(phone='Phone-level', eer='Feature-level')
 
 for ordering in ['row-', 'col-', 'feat-']:
-    fig, axs = plt.subplots(len(methods), len(feature_systems),
-                            figsize=(18, 9))
-    for ax_row, method in zip(axs, methods):
+    if scheme == 'pairwise' and ordering != 'row-':
+        continue
+    ncol = 1 if scheme == 'pairwise' else len(feature_systems)
+    nrow = 1 if scheme == 'pairwise' else len(methods)
+    fig, axs = plt.subplots(nrow, ncol, figsize=(2.5 * ncol + 3, 4.5 * nrow))
+    for ax_row, method in zip(np.atleast_2d(axs), methods):
         fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(ordering, ordered,
                                                           sfn, method)
         fpath = op.join(indir, 'matrix-correlations', fname)
         diag_df = pd.read_csv(fpath, sep='\t', index_col=0)
-        for ax, feat_sys in zip(ax_row, feature_systems):
-            diagonality = diag_df[feat_sys]
+        cols = ['pairwise'] if scheme == 'pairwise' else feature_systems
+        for ax, col in zip(np.atleast_1d(ax_row), cols):
+            diagonality = diag_df[col]
             diagonality.name = 'diagonality'
             # merge
             df = pd.concat((snr, diagonality), axis=1, join='inner')
             df.sort_values(by='snr')
             df.rename(columns=colnames, inplace=True)
             # plot
-            title = '{}: {}'.format(titles[method], legend_names[feat_sys])
+            title = ('pairwise logistic' if scheme == 'pairwise'
+                     else '{}: {}'.format(titles[method], legend_names[col]))
             # do the scatterplot just to get plot dimensions and garnishes
             df.plot.scatter(x=colnames['snr'], y=colnames['diagonality'],
                             ax=ax, title=title, legend=False, color='w')
@@ -100,8 +106,11 @@ for ordering in ['row-', 'col-', 'feat-']:
                     np.sign(ylim) * np.array([-1, 1])) / 10.)
             ax.set_ylim(*ylim)
 
-    fig.subplots_adjust(left=0.05, right=0.95, wspace=0.8, hspace=0.4)
+    if scheme == 'pairwise':
+        fig.subplots_adjust(left=0.125, right=0.95)
+    else:
+        fig.subplots_adjust(left=0.05, right=0.95, wspace=0.8, hspace=0.4)
     fig.suptitle('SNR vs. matrix diagonality (empirical accuracies)')
-    args = [ordering, ordered, sfn, method, logistic]
-    fname = 'snr-vs-matrix-diagonality-{}{}{}-{}{}.pdf'.format(*args)
+    args = [ordering, ordered, sfn, method, scheme]
+    fname = 'snr-vs-matrix-diagonality-{}{}{}-{}-{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, fname))

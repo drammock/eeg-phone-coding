@@ -21,7 +21,7 @@ xtick.top : false
 ytick.right : false
 
 # color cycle
-axes.prop_cycle : cycler('color', ['332288', 'CC6677', 'DDCC77', '117733', '88CCEE', 'AA4499', '44AA99', '999933', '882255'])
+axes.prop_cycle : cycler('color', ['332288', 'CC6677', 'DDCC77', '117733', '88CCEE', 'AA4499', '44AA99', '999933', '882255', '661100', '6699CC', 'AA4466'])
 
 # tick size (in pixels?)
 xtick.major.size : 4

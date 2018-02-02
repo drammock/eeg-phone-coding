@@ -23,6 +23,9 @@ brain_resp_dur: 0.2
 
 use_eer_in_plots: true
 
+# svm, logistic (feature-based); pairwise, OVR, multinomial (phone-based)
+classification_scheme: multinomial
+
 subjects:
   IJ: 1
   IL: 2

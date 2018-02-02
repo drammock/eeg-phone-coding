@@ -21,18 +21,10 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 
 # FLAGS
-svm = False
 plt.ioff()
 
-# BASIC FILE I/O
-paramdir = 'params'
-datadir = 'processed-data' if svm else 'processed-data-logistic'
-indir = op.join(datadir, 'matrix-correlations')
-outdir = op.join('figures', 'matrix-correlations')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -42,12 +34,21 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     methods = analysis_params['methods']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     legend_names = analysis_params['pretty_legend_names']
+    scheme = analysis_params['classification_scheme']
 del analysis_params
+
+phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
+
+# BASIC FILE I/O
+datadir = 'processed-data-{}'.format(scheme)
+indir = op.join(datadir, 'matrix-correlations')
+outdir = op.join('figures', 'matrix-correlations')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # file naming variables
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
-logistic = '' if svm else '-logistic'
 
 # load plot style
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
@@ -66,40 +67,67 @@ plotting_order = [legend_names[name] for name in plotting_order]
 # loop over methods (phone-level, feature-level-eer, uniform-error-simulations)
 order_types = ('row-', 'col-', 'feat-') if use_ordered else ('',)
 for order_type in order_types:
-    # init figure
-    fig, axs = plt.subplots(3, 1, figsize=(6, 12))
-    for ax, method in zip(axs, methods[::-1]):
-        args = (order_type, ordered, sfn, method)
-        fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)
-        df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
-        df.rename(columns=legend_names, inplace=True)
-        # sorting
-        df = df[plotting_order]
-        if ax == axs[0]:
-            df = df.iloc[:0:-1]  # reverse row order & omit 0.999
-        # plot
-        df.plot(x=df.index, ax=ax, title=titles[method], legend=False)
-        # garnish
-        if ax == axs[0]:
-            ax.set_xticks(df.index)
+    if phone_level:
+        if order_type == 'row-':
+            fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+            axs = [ax]
+            args = (order_type, ordered, sfn, 'eer')
+            fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)
+            colname_dict = dict(pairwise='Pairwise',
+                                OVR='One-vs-rest',
+                                multinomial='Multinomial')
+            for sch in ['pairwise', 'OVR', 'multinomial']:
+                this_indir = op.join('processed-data-{}'.format(sch),
+                                     'matrix-correlations')
+                df = pd.read_csv(op.join(this_indir, fname), sep='\t',
+                                 index_col=0)
+                df.rename(columns=colname_dict, inplace=True)
+                df.plot(x=df.index, ax=ax, legend=False)
+            ax.set_title('Phone-level logistic classifiers')
+            # xticks = ax.xaxis.get_ticklocs()
+            # ax.set_xticks(np.linspace(xticks[0], xticks[-1], len(df.index)))
+            ax.set_xticks(np.arange(len(df.index)))
             ax.set_xticklabels(df.index)
+            ax.set_xlabel('subject code')
+            ax.set_ylabel('matrix diagonality')
+            ax.set_ylim(-0.2, 1)
         else:
-            xticks = ax.xaxis.get_ticklocs()
-            ax.set_xticks(np.linspace(xticks[0], xticks[-1], len(df.index)))
-            ax.set_xticklabels(df.index)
-        ax.set_title(titles[method])
-        ax.set_xlabel(xlabels[method])
-        ax.set_ylabel('matrix diagonality')
-        ax.set_ylim(-0.2, 1)
+            continue
+    else:
+        # init figure
+        fig, axs = plt.subplots(3, 1, figsize=(6, 12))
+        for ax, method in zip(axs, methods[::-1]):
+            args = (order_type, ordered, sfn, method)
+            fname = '{}{}matrix-diagonality-{}-{}.tsv'.format(*args)
+            df = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
+            df.rename(columns=legend_names, inplace=True)
+            # sorting
+            df = df[plotting_order]
+            if ax == axs[0]:
+                df = df.iloc[:0:-1]  # reverse row order & omit 0.999
+            # plot
+            df.plot(x=df.index, ax=ax, title=titles[method], legend=False)
+            # garnish
+            if ax == axs[0]:
+                ax.set_xticks(df.index)
+                ax.set_xticklabels(df.index)
+            else:
+                xticks = ax.xaxis.get_ticklocs()
+                ax.set_xticks(np.linspace(xticks[0], xticks[-1],
+                              len(df.index)))
+                ax.set_xticklabels(df.index)
+            ax.set_xlabel(xlabels[method])
+            ax.set_ylabel('matrix diagonality')
+            ax.set_ylim(-0.2, 1)
 
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.4)
     # legend
     bbox = axs[0].get_position()
-    new_xmax = bbox.xmin + 0.7 * (bbox.xmax - bbox.xmin)
+    new_xmax = bbox.xmin + 0.75 * (bbox.xmax - bbox.xmin)
     new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
     axs[0].set_position(new_bbox)
     axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-    args = (order_type, ordered, sfn, logistic)
-    out_fname = '{}{}matrix-correlations-{}{}.pdf'.format(*args)
+    args = (order_type, ordered, sfn, scheme)
+    out_fname = '{}{}matrix-correlations-{}-{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, out_fname))

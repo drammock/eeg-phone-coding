@@ -64,7 +64,8 @@ if scheme in ['svm', 'logistic']:
     makedirs(rankdir, exist_ok=True)
 
 # load EERs
-eers = pd.read_csv(op.join(datadir, 'eers.tsv'), sep='\t', index_col=0)
+fname = 'error-rates.tsv' if scheme == 'multinomial' else 'eers.tsv'
+eers = pd.read_csv(op.join(datadir, fname), sep='\t', index_col=0)
 valid_subjs = [s for s in subjects if s not in skip]
 order = eers.mean(axis=1).sort_values().index
 sorted_eers = eers.loc[order, valid_subjs]
@@ -73,17 +74,22 @@ sorted_eers = eers.loc[order, valid_subjs]
 plt.ioff()
 plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
 
-if scheme in ['pairwise', 'OVR']:
+if scheme in ['pairwise', 'OVR', 'multinomial']:
+    titles = dict(OVR='One-vs-rest logistic classifiers',
+                  pairwise='Pairwise logistic classifiers',
+                  multinomial='Multinomial logistic (cross-entropy)')
+    title = titles[scheme]
+    ylim = ((0.4, 1.05) if scheme == 'multinomial' else (-0.05, 0.6))
+    ylab = ('Error rate' if scheme == 'multinomial' else 'Equal error rate')
+    xrot = (90 if scheme == 'pairwise' else 0)
     plt.rc('font', family='serif')
     plt.rc('xtick', labelsize=8)
     fig, ax = plt.subplots(figsize=(16, 4))
-    title = ('One-vs-rest classifiers' if scheme == 'OVR' else
-             'Pairwise classifiers')
     plot_eers(sorted_eers, ax, legend=True, title=title,
-              ylim=(-0.05, 0.6), legend_bbox=(0.98, 1.), marker='o',
+              ylim=ylim, legend_bbox=(0.98, 1.), marker='o',
               markersize=3, linewidth=0)
-    ax.set_ylabel('Equal error rate')
-    ax.set_xticklabels(sorted_eers.index, rotation=90)
+    ax.set_ylabel(ylab)
+    ax.set_xticklabels(sorted_eers.index, rotation=xrot)
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.2, top=0.9,
                         hspace=0., wspace=0.)
 else:

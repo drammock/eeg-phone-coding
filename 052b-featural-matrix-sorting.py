@@ -49,21 +49,8 @@ def order_featmat_rows(featmat, return_intermediates=True):
     return returns
 
 
-# FLAGS
-svm = False
-
-# BASIC FILE I/O
-paramdir = 'params'
-datadir = 'processed-data' if svm else 'processed-data-logistic'
-indir = op.join(datadir, 'confusion-matrices')
-dgdir = op.join(datadir, 'dendrograms')
-rankdir = op.join(datadir, 'feature-rankings')
-outdir = op.join(datadir, 'ordered-confusion-matrices')
-for _dir in [outdir, dgdir, rankdir]:
-    if not op.isdir(_dir):
-        mkdir(_dir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -80,7 +67,21 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     subj_langs = analysis_params['subj_langs']
     methods = analysis_params['methods']
     skip = analysis_params['skip']
+    scheme = analysis_params['classification_scheme']
 del analysis_params
+
+if scheme == 'pairwise':
+    raise RuntimeError("This script unnecessary for 'pairwise' data")
+
+# BASIC FILE I/O
+datadir = 'processed-data-{}'.format(scheme)
+indir = op.join(datadir, 'confusion-matrices')
+dgdir = op.join(datadir, 'dendrograms')
+rankdir = op.join(datadir, 'feature-rankings')
+outdir = op.join(datadir, 'ordered-confusion-matrices')
+for _dir in [outdir, dgdir, rankdir]:
+    if not op.isdir(_dir):
+        mkdir(_dir)
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''

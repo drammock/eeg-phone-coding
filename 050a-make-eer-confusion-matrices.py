@@ -70,7 +70,8 @@ ground_truth.index.name = 'ipa_out'
 ground_truth.columns.name = 'features'
 
 # load equal error rates (EERs)
-eers = pd.read_csv(op.join(indir, 'eers.tsv'), sep='\t', index_col=0)
+fname = 'error-rates.tsv' if scheme == 'multinomial' else 'eers.tsv'
+eers = pd.read_csv(op.join(indir, fname), sep='\t', index_col=0)
 eng_phones = canonical_phone_order['eng']
 
 # init container
@@ -96,24 +97,7 @@ for subj_code in subjects:
                                    columns=pd.Index(eng_phones,
                                                     name='ipa_out'),
                                    dtype=float, data=np.nan)
-            if scheme == 'OVR':
-                clfs = pd.DataFrame()
-                for phone in eng_phones:
-                    fname = ('classifier-probabilities-{}-{}{}-{}.tsv'
-                             .format(lang, cv + nc, phone, subj_code))
-                    this_clf = pd.read_csv(op.join(indir, 'classifiers',
-                                                   subj_code, fname),
-                                           sep='\t', index_col='ipa')
-                    clfs[phone] = this_clf['prediction']
-                n_present = clfs['p'].groupby(clfs.index).count()
-                n_classif = clfs.groupby(clfs.index).sum(axis=0)
-                n_classif = n_classif[n_classif.index]  # order cols like rows
-                pcts = n_classif / np.tile(n_present[:, None],
-                                           (1, n_classif.shape[1]))
-                pd.set_option('display.max_columns', 30)
-                pd.set_option('display.width', 800)
-                raise RuntimeError
-            else:
+            if scheme == 'pairwise':
                 # fill in off-diagonal values
                 for contrast, eer in this_eers.iteritems():
                     phone_one, _, phone_two = contrast.split('_')
@@ -123,7 +107,33 @@ for subj_code in subjects:
                 # from 1 because other entries are error rate, not accuracy)
                 means = np.nanmean(1. - confmat, axis=1)
                 confmat.values[np.diag_indices(confmat.shape[0])] = means
+            elif scheme == 'multinomial':
+                fname = ('classifier-probabilities-{}-{}{}.tsv'
+                         .format(lang, cv + nc, subj_code))
+                fpath = op.join(indir, 'classifiers', subj_code, fname)
+                probs = pd.read_csv(fpath, sep='\t', index_col=0)
+                # clfs = probs[confmat.columns].apply(lambda x: x == x.max(),
+                #                                     axis=1).astype(int)
+                # assert np.all(clfs.sum(axis=1) == 1)
+                confmat = probs.groupby(probs.index).mean()
+            else:  # OVR
+                probs = pd.DataFrame()
+                clfs = pd.DataFrame()
+                for phone in eng_phones:
+                    fname = ('classifier-probabilities-{}-{}{}-{}.tsv'
+                             .format(lang, cv + nc, phone, subj_code))
+                    this_clf = pd.read_csv(op.join(indir, 'classifiers',
+                                                   subj_code, fname),
+                                           sep='\t', index_col='ipa')
+                    probs[phone] = this_clf[phone]
+                    clfs[phone] = this_clf['prediction']
+                n_present = clfs.index.value_counts(sort=False)
+                n_classif = clfs.groupby(clfs.index).sum()
+                n_classif = n_classif[n_classif.index]  # order cols like rows
+                confmat = n_classif / np.tile(n_present[:, None],
+                                              (1, n_classif.shape[1]))
             assert np.all(np.isfinite(confmat))
+            confmat = confmat[confmat.index]   # order cols like rows
             # put in dict
             confmats[subj_code] = confmat
             # save unordered confusion matrix
