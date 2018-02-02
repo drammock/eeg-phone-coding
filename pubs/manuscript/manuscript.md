@@ -1,5 +1,5 @@
 ---
-title: Does the brain encode distinctive features? Evaluating phonological feature theories against EEG measures of phoneme perception
+title: Does the brain encode phonological features? Evaluating feature theories against EEG measures of phoneme perception
 author:
 - name: Daniel R. McCloy
 - name: Adrian K. C. Lee
@@ -18,14 +18,71 @@ abstract: >
   Foo. Bar. Baz.
 ---
 
+<!--
+# BIG PICTURE QUESTIONS
+
+- SYSTEM LEVEL: which feature system from the literature best captures the contrasts that are recoverable with EEG?
+
+- PHONEME LEVEL: which consonants are well-discernable based on EEG+classifier? Is it consistent with what we'd expect based on temporal properties of the consonants? Is the set different for different feature systems?
+
+- FEATURE LEVEL: which phonological features are more/less learnable from EEG?
+
+# TODO
+- [x] figure out why classifier failures
+- [x] average maps
+- [x] subtraction from simulated maps?
+- [ ] stats on diagonality?
+- unpack the dendrograms: what do we learn from them about:
+    - [ ] features within a system
+    - [ ] diffs. between the systems
+- discussion points:
+    - [ ] sparsity
+    - [ ] levels of computation / representation in the brain
+-->
+
 # Introduction
-Foo.
 
-# Background
-Foo.
+Phonemes are the abstract representations of speech sounds that represent all
+and only the contrastive relationships between sounds (i.e., the set of sounds
+different enough to change the identity of a word if one sound were substituted
+for another).  Within any given language, the set of  phonemes is widely held
+to be structured in terms of *phonological distinctive features* (hereafter
+“phonological features”) — properties common to some subset of the phoneme
+inventory.  For example, all phonemes involving complete occlusion of the oral
+tract might share the feature “non-continuant,” to the exclusion of all other
+phonemes in the language.
 
+Phonological features have been called the most important advance of linguistic
+theory of the 20th century, for their descriptive power in capturing sound
+patterns, and for their potential to capture the structure of phonological
+knowledge as represented in the brain [@MielkeHume2006].  Few linguists would
+dispute the first of these claims; as every first-year phonology student
+learns, descriptions of how a phoneme is pronounced differently word-initially
+versus word-medially, or in stressed versus unstressed syllables, can be
+readily generalized to other phonemes undergoing similar pronunciation changes
+if the change is expressed in terms of features rather than individual phones.
+Phonological features are equally useful for describing sound change over time
+[@BrombergerHalle1989], such as Grimm’s law describing parallel changes of
+reconstructed proto-Indo-European stops /bʱ dʱ ɡʱ ɡʷʱ/ into fricatives
+/ɸ θ x xʷ/ in proto-Germanic.
+
+In contrast, the promise of phonological features as a model of speech sound
+representation or processing in the human brain is far from being conclusively
+established<!--, in part because the epistemic basis of phonological features
+is still unclear-->.  There is growing evidence that neural representation in
+the superior temporal gyrus predominantly reflects *acoustic phonetic* features
+such as voice onset time, vowel formant frequency, or other spectrotemporal
+properties of speech [@MesgaraniEtAl2014; @LeonardEtAl2015], <!--; that the response properties of these populations are often non-linear with respect to acoustic properties of the input, which would support a transformation from continuous to categorical representations;--> and that more abstract representations of phoneme or syllable identity are represented in adjacent temporal areas such as posterior superior temporal sulcus [@VadenEtAl2010] **and Spt XXX**, as well as frontal areas such as left inferior frontal sulcus [@MarkiewiczBohland2016] and left precentral gyrus and sulcus [@EvansDavis2015].
+
+**TODO** Review studies specifically addressing features [@Correia2015; @ArsenaultBuchsbaum2015] various Lahiri papers, and Evans & Davis’s lack of findings.
+
+**TODO** maybe review some neuro speech *production* papers re: phonological features
+
+**TODO** review some relevant ling papers re: phonological features (e.g., word-specific phonetics (Pierrehumbert), maybe the different lexical extents of sound changes like canadian raising)
 
 # Methods
+
+**TODO** add methods figure.
 
 ## Stimulus design
 
@@ -131,7 +188,7 @@ voltage changes exceeding 75 μV in any channel (excluding channels previously
 marked as “bad”) were dropped.  Across subjects, between 3.6% and 8.8% of the
 3680 English syllable presentations were dropped.
 
-<!-- TODO: discussion / plot of SNR? -->
+<!-- TODO: discussion / plot of SNR here? -->
 
 Retained epochs were time-shifted to align on the consonant-vowel transition
 time instead of the stimulus onset.  This was done because information about
@@ -188,18 +245,20 @@ be approached with various multiclass classification techniques.  Instead, the
 approach used here attempts to solve 9 (PSA), 10 (PHOIBLE), or 11 (SPE)
 binary classification problems, by re-labeling the epochs using the
 phonological feature values associated with each consonant, and training a
-separate classifier for each phonological feature.  The classifier used was a
-support vector machine (SVM) with a radial basis function kernel, which
-allows nonlinear decision boundaries to be learned readily.
+separate classifier for each phonological feature.
 
+In initial experiments, the classifier was a support vector machine (SVM) with
+a radial basis function kernel, which allows nonlinear decision boundaries to
+be learned readily.  SVM solutions were highly unstable across repeated runs
+with different random seeds, logistic regression classifiers were used instead.
 Classifier fitting used stratified 5-fold cross-validation at each point in a
-grid search for hyperparameters $C$ (regularization parameter; small $C$ yields
-smoother decision boundary) and $\gamma$ (kernel variance parameter<!--,
+grid search for hyperparameter $C$ (regularization parameter; small $C$ yields
+smoother decision boundary)<!-- and $\gamma$ (kernel variance parameter,
 controlling how far from the decision boundary a data point can be and still
-count as a support vector-->; small $\gamma$ yields fewer support vectors,
-which often leads to smoother decision boundaries).  The grid search was quite
-broad; $C$ ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$ and
-$\gamma$ from $2^{-15}$ to $2^{4}$.
+count as a support vector; small $\gamma$ yields fewer support vectors,
+which often leads to smoother decision boundaries)-->.  The grid search was
+quite broad; $C$ ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$
+<!--and $\gamma$ from $2^{-15}$ to $2^{4}$-->.
 
 Many phonological feature values are unevenly distributed (e.g., of the 23
 consonants presented, only 6 are “+strident”), posing a classification problem
@@ -217,10 +276,11 @@ feature system, the feature “nasal” is unvalued for phonemes /h l ɹ j w/). 
 such cases, trials for phonemes that are undefined on a given phonological
 feature were excluded from the training set for that classifier.
 
-After grid search, each classifier was re-fit using the best hyperparameters on
-the full set of training data.  Held-out test data (trials from the other two
+After grid search, each classifier was re-fit on the full set of training data,
+using the best hyperparameters.  Held-out test data (trials from the other two
 English talkers) were then submitted to the classifiers, and the resulting
-classifications were recorded for each trial.
+classifications <!--and classification probabilities-->were recorded for each
+trial.
 
 ## Aggregation of classifier results
 
@@ -240,33 +300,52 @@ accuracy or the error rate (1 minus the accuracy) of that classifier, depending
 on whether the consonant indices of the row and column of that cell match
 (accuracy) or mismatch (error rate) in that feature.  For example, a cell in
 row /p/, column /b/ of the voicing classifier plane would have as its entry the
-error rate of the voicing classifier, signifying the pseudo-probability that a
-voiceless consonant like /p/ would be mis-classified as a voiced consonant like
-/b/.
+error rate of the voicing classifier, signifying the probability that a
+voiceless /p/ would be mis-classified as a voiced /b/.
 
-Finally, the feature planes are collapsed by taking the product along the third
-dimension, yielding the joint pseudo-probability that the input consonant (the
+Finally, the feature planes are collapsed by taking the product along the last
+dimension, yielding the joint probability that the input consonant (the
 stimulus) would be classified as any given output consonant (the percept).  For
 features involving sparsity, cells corresponding to undefined feature values
 were given a chance value of 0.5; results were broadly similar when undefined
 values were left as unvalued and excluded from the computation.
 
+## Analysis of confusion matrices
+
+**TODO: resume here** At this point, there is one 23×23 matrix for each feature system; a cell in such a matrix represents the probability that...
+
+## Calculation of diagonality
+
 
 # Results
-- SPE, JFH, PHOIBLE
-- Specific features
-- phone-specific error rates
+
+## SPE, JFH, PHOIBLE
+
+![Confusion matrices for three baseline conditions (top row) and the three feature systems (bottom row).  TODO: say more](../../figures/publication/fig-avg-confmats.pdf)
+
+## phone-specific error rates
+
+![Error rates for pairwise classifiers. The three highest confusions are labelled.](../../figures/publication/fig-avg-pairwise-error.pdf)
+
+## Specific features
+
+**TODO** add figure.
 
 # Discussion
+
 - Sparsity
 - EEG limitations
 - Variability across subjects
 
+Of course, neural systems are hierarchical, there's not just one level of representation...  certainly both auditory templates and motor plans both exist...  maybe there is no sense in which our phonological knowledge can be fully distilled, and descriptive adequacy is the best phonologists can do.  (i.e., there is no answer to what is ***the*** most fundamental level of representation)
+
 ## Future directions
+
 - not just consonants
 - MEG
 - ArtPhon / FUL
 - Foreign phones
+- AG’s suggestion
 
 # References
 
