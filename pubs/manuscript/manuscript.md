@@ -14,12 +14,6 @@ geometry:
 - margin=1in
 csl: bib/jasa-numeric.csl
 bibliography: bib/eeg-phone-coding.bib
-reviewers:
-- name: Dave Kleinschmidt
-- name: Noah Silbert
-- name: Keith Johnson
-- name: Ed Lalor
-- name: Nima Mesgarani
 abstract: >
   Foo. Bar. Baz.
 ---
