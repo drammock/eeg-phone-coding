@@ -17,6 +17,16 @@ import numpy as np
 import mne
 from mayavi import mlab
 
+# setup
+target = 'manuscript'  # presentation or manuscript
+
+if target == 'presentation':
+    outdir = op.join('figures', 'jobtalk')
+    bgcolor = (0, 0, 0)
+else:
+    outdir = op.join('figures', 'manuscript')
+    bgcolor = (1, 1, 1)
+
 # basic file I/O
 datadir = op.join('figures', 'eeg-head')
 
@@ -26,8 +36,7 @@ trans = mne.read_trans(op.join(datadir, 'eric_sps_09-trans.fif'))
 raw_fname = op.join(datadir, 'eric_sps_09_01_raw.fif')
 raw = mne.io.read_raw_fif(raw_fname, preload=True, allow_maxshield=True)
 # set up mayavi scene properties
-bgcolor = (1, 1, 1)
-mfig = mlab.figure(bgcolor=bgcolor, size=(1200, 1200))
+mfig = mlab.figure(bgcolor=bgcolor, size=(800, 1200))
 mfig.scene.render_window.point_smoothing = True
 mfig.scene.render_window.line_smoothing = True
 mfig.scene.render_window.polygon_smoothing = True
@@ -71,5 +80,5 @@ rgba_array = np.fliplr(rgba_array)  # put ear on left
 
 # save figure
 np.save(op.join(datadir, 'eeg-sensors.npy'), rgba_array, allow_pickle=False)
-mlab.savefig(op.join(datadir, 'eeg-sensors.png'), figure=mfig)
+mlab.savefig(op.join(outdir, 'eeg-sensors.png'), figure=mfig)
 mlab.close(mfig)

@@ -32,7 +32,7 @@ pd.set_option('display.width', 800)
 pd.set_option('display.max_columns', 30)
 
 # BASIC FILE I/O
-outdir = op.join('figures', 'publication')
+outdir = op.join('figures', 'manuscript')
 if not op.isdir(outdir):
     mkdir(outdir)
 

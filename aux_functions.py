@@ -8,6 +8,8 @@ Auxiliary functions.
 # License: BSD (3-clause)
 
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as hy
 
 
@@ -372,7 +374,6 @@ def plot_dendrogram(dg, orientation='top', ax=None, no_labels=False,
                     leaf_font_size=None, leaf_rotation=None, linewidth=None,
                     contraction_marks=None, above_threshold_color='b'):
     '''wrapper for scipy's (private) dendrogram plotting function'''
-    import matplotlib.pyplot as plt
     from matplotlib.collections import LineCollection
     if ax is None:
         fig, ax = plt.subplots()
@@ -393,7 +394,6 @@ def plot_dendrogram(dg, orientation='top', ax=None, no_labels=False,
 def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
                  xlabel='', ylabel='', **kwargs):
     from os.path import join
-    import matplotlib.pyplot as plt
     if ax is None:
         fig, ax = plt.subplots(**kwargs)
     with plt.style.context(join('params', 'matplotlib-style-confmats.yaml')):
@@ -425,11 +425,31 @@ def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
     return ax
 
 
+def plot_featmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
+                 xlabel='', ylabel='', **kwargs):
+    if ax is None:
+        fig, ax = plt.subplots(**kwargs)
+    ax.imshow(df, origin=origin, norm=norm, cmap=cmap)
+    # garnish
+    ax.set_yticks(np.arange(df.shape[0]), minor=False)
+    ax.set_xticks(np.arange(df.shape[1]), minor=False)
+    ax.set_yticks(np.arange(df.shape[0])[:-1] + 0.5, minor=True)
+    ax.set_xticks(np.arange(df.shape[1])[:-1] + 0.5, minor=True)
+    ax.set_xticklabels(df.columns, minor=False)
+    ax.set_yticklabels(df.index, minor=False)
+    # annotate
+    if len(title):
+        ax.set_title(title)
+    if len(xlabel):
+        ax.set_xlabel(xlabel)
+    if len(ylabel):
+        ax.set_ylabel(ylabel)
+    return ax
+
+
 def plot_consonant_shape(df, ax=None, title='', xlabel='', ylabel='',
                          **kwargs):
     from os.path import join
-    import matplotlib.pyplot as plt
-    import pandas as pd
     rowsort = pd.DataFrame(np.sort(df, axis=1)[:, ::-1], index=df.index)
     sorted_df = rowsort.sort_values(by=0, axis=0)[::-1].T
     style_context = join('params', 'matplotlib-style-numerous-lineplots.yaml')
@@ -482,8 +502,6 @@ def simulate_confmat(feature_matrix, accuracy, sparsity_value=0.5):
         Possibly non-symmetric matrix of confusion probabilities. Row labels
         are input phonemes, column labels are percepts.
     '''
-    import pandas as pd
-
     phones = feature_matrix.index
     features = feature_matrix.columns
     features.name = 'features'
@@ -527,3 +545,74 @@ def simulate_confmat(feature_matrix, accuracy, sparsity_value=0.5):
     joint_log_prob = (-1. * log_prob_3d.sum(axis=axis)).swapaxes(0, 1)
     joint_prob = joint_log_prob.apply(np.exp)
     return joint_prob
+
+
+def plot_segmented_wav(df, wav, fs, pad=0., offset=0., t_lims=None, ax=None,
+                       **kwargs):
+    if ax is None:
+        fig, ax = plt.subplots(**kwargs)
+    else:
+        fig = ax.get_figure()
+    if t_lims is None:
+        beg, end = (df['eeg_tmin'].iloc[0], df['eeg.tmax'].iloc[-1])
+    else:
+        beg, end = t_lims
+    # plot (silent) audio spans between epochs and at beginning/end
+    tmins = np.concatenate(([beg], df['eeg_tmax']))
+    tmaxs = np.concatenate((df['eeg_tmin'], [end]))
+    for tmin, tmax in zip(tmins, tmaxs):
+        ax.plot((tmin, tmax), (0, 0), color='0.5', linewidth=0.5)
+    # get audio extrema
+    minimum = wav[0, :int(df['eeg_tmax'].max() * fs)].min()
+    maximum = wav[0, :int(df['eeg_tmax'].max() * fs)].max()
+    # compute sample indices
+    columns = ['talker', 'ipa', 'eeg_tmin', 'eeg_tmax', 'eeg_cv', 'color']
+    for ix, talker, ipa, tmin, tmax, time, color in df[columns].itertuples():
+        # convert times to sample numbers
+        on = int((tmin - offset) * fs)
+        off = int((tmax - offset) * fs)
+        # zeropad first syllable if needed
+        this_wav = (wav[0, on:off] if on > 0 else
+                    np.concatenate((np.zeros(abs(on)), wav[0, :off])))
+        this_times = np.linspace(tmin, tmax, len(this_wav))
+        ax.plot(this_times, this_wav, color=color, linewidth=0.5)
+        # annotate
+        ann_kwargs = dict(textcoords='offset points', va='baseline',
+                          color=color, size=14, fontweight='bold',
+                          clip_on=False)
+        # consonant
+        ax.annotate(ipa, xy=(time, maximum), xytext=(0, 4), ha='right',
+                    **ann_kwargs)
+        # vowel
+        ax.annotate('ɑ', xy=(time, maximum), xytext=(0, 4), ha='left',
+                    **ann_kwargs)
+        # talker
+        talker = talker.split('-')[1].upper()
+        ann_kwargs.update(ha='left', va='top', size=10, fontweight='bold')
+        ax.annotate(talker, xy=(tmin, minimum), xytext=(4, 0), **ann_kwargs)
+    ax.set_ylim(minimum - 0.01, maximum + 0.01)
+    ax.axis('off')
+    return fig, ax
+
+
+def format_colorbar_percent(ticklabels):
+    for ix, lab in enumerate(ticklabels):
+        if lab == '':
+            continue
+        lab = (lab[14:-2].replace('{', '').replace('}', '')
+               .replace('\\times10', '').replace('10', '1').replace('^', 'e'))
+        lab = 100. * float(lab)
+        lab = int(lab) if lab > 0.5 else lab
+        # the leading space is a hack for a slight rightward shift of label
+        ticklabels[ix] = ' {}%'.format(lab)
+    return ticklabels
+
+
+def colorbar_tick_color(ticklabels, major_color='k', minor_color='0.7'):
+    colors = list()
+    for lab in ticklabels:
+        if lab == '':
+            colors.append(minor_color)
+        else:
+            colors.append(major_color)
+    return colors
