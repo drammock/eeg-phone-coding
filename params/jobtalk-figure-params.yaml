@@ -1,0 +1,33 @@
+# garnishes
+axislabelsize: 14
+ticklabelsize: 8
+axislabelcolor: 'w'
+ticklabelcolor: '0.8'
+gooddatacolor: '0.8'
+baddatacolor: '0.5'
+datacolor: 'w'
+bgcolor: 'k'
+
+# colors
+red: '#CC6677'
+yel: '#DDCC77'
+grn: '#44AA99'
+blu: '#88CCEE'
+vio: '#AA4499'
+brn: '#999933'
+
+colordict:
+    f1:  '#CC6677'  # red
+    f2:  '#DDCC77'  # yel
+    m1:  '#44AA99'  # grn
+    m2:  '#88CCEE'  # blu
+    hin: '#AA4499'  # vio
+    hun: '#999933'  # brn
+
+feat_order:
+    jfh_sparse: [vocalic, consonantal, compact, flat, continuant, tense, nasal,
+                 strident, grave]
+    spe_sparse: [vocalic, consonantal, high, back, continuant, voiced, nasal,
+                 strident, anterior, coronal, low]
+    phoible_redux: [sonorant, consonantal, dorsal, labial, continuant, voiced,
+                    distributed, strident, anterior, coronal]
