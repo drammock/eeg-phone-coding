@@ -14,17 +14,14 @@ geometry:
 - margin=1in
 csl: bib/jasa-numeric.csl
 bibliography: bib/eeg-phone-coding.bib
+reviewers:
+- name: Dave Kleinschmidt
+- name: Noah Silbert
+- name: Keith Johnson
+- name: Ed Lalor
+- name: Nima Mesgarani
 abstract: >
   Foo. Bar. Baz.
-possible_reviewers:
-- Dave Kleinschmidt
-- Noah Silbert
-- Ed Lalor?
-- Narayan?
-other_readers:
-- Bryan Gick
-- Greg Hickok
-- Mark Hasegawa-Johnson
 ---
 
 <!--
@@ -37,10 +34,6 @@ other_readers:
 - FEATURE LEVEL: which phonological features are more/less learnable from EEG?
 
 # TODO
-- [x] figure out why classifier failures
-- [x] average maps
-- [x] subtraction from simulated maps?
-- [ ] stats on diagonality?
 - unpack the dendrograms: what do we learn from them about:
     - [ ] features within a system
     - [ ] diffs. between the systems
@@ -57,24 +50,28 @@ different enough to change the identity of a word if one sound were substituted
 for another).  Within any given language, the set of  phonemes is widely held
 to be structured in terms of *phonological distinctive features* (hereafter
 “phonological features”) — properties common to some subset of the phoneme
-inventory.  For example, all phonemes characterized by sounds made with
-complete occlusion of the oral tract might share the feature “non-continuant.”
+inventory.  For example, in some phonological feature systems, all phonemes
+characterized by sounds made with complete occlusion of the oral tract share
+the feature “non-continuant.”  There are a number of competing hypotheses
+regarding the particular details of what the features are, and whether there is
+a single universal feature system or a separate feature system for each
+language.
 
 Phonological features have been called the most important advance of linguistic
 theory of the 20th century, for their descriptive power in capturing sound
 patterns, and for their potential to capture the structure of phonological
 knowledge as represented in the brain [@MielkeHume2006].  Few linguists would
 dispute the first of these claims; as every first-year phonology student
-learns, descriptions of how a phoneme is realized differently word-initially
-versus word-medially, or in stressed versus unstressed syllables, can be
-readily generalized to other phonemes undergoing similar pronunciation changes
-if the change is expressed in terms of features rather than individual sounds.
-To give a common example, English voiceless stops /p t k/ are aspirated in
-word-initial position or in the onset of a stressed syllable. Phonological
-features are equally useful for describing sound change over time, such as
-Grimm’s law describing parallel changes of reconstructed proto-Indo-European
-stops /bʱ dʱ ɡʱ ɡʷʱ/ into the fricatives /ɸ θ x xʷ/ of proto-Germanic
-[@BrombergerHalle1989].
+learns, descriptions of how a phoneme is realized differently in different
+contexts can be readily generalized to other phonemes undergoing similar
+pronunciation changes if the change is expressed in terms of features rather
+than individual sounds. To give a common example, English voiceless stops /p t
+k/ are aspirated in word-initial position or in the onset of a stressed
+syllable; a change that can be succinctly expressed as [−voiced, −continuant,
+−delayedRelease] → [+spreadGlottis]. Phonological features are equally useful
+for describing sound change over time, such as Grimm’s law describing parallel
+changes of reconstructed proto-Indo-European stops /bʱ dʱ ɡʱ ɡʷʱ/ into the
+fricatives /ɸ θ x xʷ/ of proto-Germanic [@BrombergerHalle1989].
 
 In contrast, the promise of phonological features as a model of speech sound
 representation or processing in the human brain is far from being conclusively
@@ -101,7 +98,7 @@ the possibility of spectrotemporal similarity, no evidence for the
 representation of phonological features was found [@EvansDavis2015].
 
 Moreover, in most studies of how speech sounds are represented in the brain,
-the choice of which “features” to investigate (and which sounds to use in
+the choice of which features to investigate (and which sounds to use in
 representing them) is often non-standard from the point of view of phonological
 theory. For example, one recent study [@ArsenaultBuchsbaum2015] grouped the
 English consonants into five place of articulation “features” (labial, dental,
@@ -110,13 +107,33 @@ analysis of English would treat the dental, alveolar, and palatoalveolar
 consonants as members of a single class of “coronal” consonants, with
 differences between dental /θð/, alveolar /sz/, and palatoalveolar /ʃʒ/
 fricatives encoded through features such as “strident” (which groups /szʃʒ/
-together) or “distributed” (which groups /θðʃʒ/ together) [@Hayes2009].  Consequently, encoding the dental, alveolar, and palatoalveolar sounds as completely disjoint sets ignores the fact that those sounds tend to pattern together in speech (e.g., _**TODO** give examples of rules that apply to strident and distributed classes_).
+together) or “distributed” (which groups /θðʃʒ/ together) [@Hayes2009].
+Consequently, encoding the dental, alveolar, and palatoalveolar sounds as
+completely disjoint sets ignores the fact that those sounds tend to pattern
+together in speech, and fails to test the relationship between the neural
+representation of phonemes and phonological models of structured relationships
+among phonemes.
 
-_**TODO** paragraph about Lahiri’s work._
+<!-- TODO give examples of rules that apply to strident and distributed classes? -->
+
+An exception to this trend of mismatches between the features used or tested in
+neuroscience experiments and the features espoused by phonological theory is
+the work of Lahiri and colleagues [see @LahiriReetz2010 for overview]. However,
+their work tests hypotheses about specific phonological contrasts in specific
+languages, such as the consonant length distinction in Bengali
+[@RobertsEtAl2014] or vowel features in German [@ObleserEtAl2004], but has not
+thusfar tested an entire system of phonological features against neural
+recordings.
 
 <!-- **TODO** maybe review some relevant ling papers re: phonological features (e.g., word-specific phonetics (Pierrehumbert), maybe the different lexical extents of sound changes like canadian raising) -->
 
-To address these issues, the present study takes a somewhat different approach. First,
+To address these issues, the present study takes a somewhat different approach.
+First, rather than testing a specific phonemic contrast, the experiments
+reported here address all consonant phonemes of English (with one exception,
+/ŋ/, which never occurs word-initially in natural English speech). Second,
+these experiments assess the fit between neural recordings during speech
+perception and several different feature systems drawn directly from the
+phonological literature.
 
 # Methods
 
