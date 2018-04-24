@@ -16,6 +16,15 @@ csl: bib/jasa-numeric.csl
 bibliography: bib/eeg-phone-coding.bib
 abstract: >
   Foo. Bar. Baz.
+possible_reviewers:
+- Dave Kleinschmidt
+- Noah Silbert
+- Ed Lalor?
+- Narayan?
+other_readers:
+- Bryan Gick
+- Greg Hickok
+- Mark Hasegawa-Johnson
 ---
 
 <!--
@@ -48,41 +57,70 @@ different enough to change the identity of a word if one sound were substituted
 for another).  Within any given language, the set of  phonemes is widely held
 to be structured in terms of *phonological distinctive features* (hereafter
 “phonological features”) — properties common to some subset of the phoneme
-inventory.  For example, all phonemes involving complete occlusion of the oral
-tract might share the feature “non-continuant,” to the exclusion of all other
-phonemes in the language.
+inventory.  For example, all phonemes characterized by sounds made with
+complete occlusion of the oral tract might share the feature “non-continuant.”
 
 Phonological features have been called the most important advance of linguistic
 theory of the 20th century, for their descriptive power in capturing sound
 patterns, and for their potential to capture the structure of phonological
 knowledge as represented in the brain [@MielkeHume2006].  Few linguists would
 dispute the first of these claims; as every first-year phonology student
-learns, descriptions of how a phoneme is pronounced differently word-initially
+learns, descriptions of how a phoneme is realized differently word-initially
 versus word-medially, or in stressed versus unstressed syllables, can be
 readily generalized to other phonemes undergoing similar pronunciation changes
-if the change is expressed in terms of features rather than individual phones.
-Phonological features are equally useful for describing sound change over time
-[@BrombergerHalle1989], such as Grimm’s law describing parallel changes of
-reconstructed proto-Indo-European stops /bʱ dʱ ɡʱ ɡʷʱ/ into fricatives
-/ɸ θ x xʷ/ in proto-Germanic.
+if the change is expressed in terms of features rather than individual sounds.
+To give a common example, English voiceless stops /p t k/ are aspirated in
+word-initial position or in the onset of a stressed syllable. Phonological
+features are equally useful for describing sound change over time, such as
+Grimm’s law describing parallel changes of reconstructed proto-Indo-European
+stops /bʱ dʱ ɡʱ ɡʷʱ/ into the fricatives /ɸ θ x xʷ/ of proto-Germanic
+[@BrombergerHalle1989].
 
 In contrast, the promise of phonological features as a model of speech sound
 representation or processing in the human brain is far from being conclusively
 established<!--, in part because the epistemic basis of phonological features
-is still unclear-->.  There is growing evidence that neural representation in
-the superior temporal gyrus predominantly reflects *acoustic phonetic* features
-such as voice onset time, vowel formant frequency, or other spectrotemporal
-properties of speech [@MesgaraniEtAl2014; @LeonardEtAl2015], <!--; that the response properties of these populations are often non-linear with respect to acoustic properties of the input, which would support a transformation from continuous to categorical representations;--> and that more abstract representations of phoneme or syllable identity are represented in adjacent temporal areas such as posterior superior temporal sulcus [@VadenEtAl2010] **and Spt XXX**, as well as frontal areas such as left inferior frontal sulcus [@MarkiewiczBohland2016] and left precentral gyrus and sulcus [@EvansDavis2015].
+is still unclear-->.  There is growing evidence for particular brain regions
+<!-- (esp. superior temporal gyrus) -->
+representing *acoustic phonetic* features such as voice onset time, vowel
+formant frequency, or other spectrotemporal properties of speech
+[@MesgaraniEtAl2014; @LeonardEtAl2015], <!--; that the response properties of
+these populations are often non-linear with respect to acoustic properties of
+the input, which would support a transformation from continuous to categorical
+representations;--> and for more abstract representations of phoneme or
+syllable identity in other brain regions [@VadenEtAl2010;
+@MarkiewiczBohland2016; @EvansDavis2015].<!--(adjacent temporal areas such as
+posterior superior temporal sulcus (Vaden) and the sylvian parieto-temporal
+region (???), as well as frontal areas such as left inferior frontal sulcus
+(Markiewicz) and and left precentral gyrus and sulcus (EvansDavis) -->
+However, some studies that have looked for evidence of phonological
+feature representations in the brain have used stimuli that don’t
+distinguish whether the neural representation reflects a truly abstract
+phonological category or merely spectrotemporal properties shared among the
+stimuli [@ArsenaultBuchsbaum2015], and in one study that took pains to rule out
+the possibility of spectrotemporal similarity, no evidence for the
+representation of phonological features was found [@EvansDavis2015].
 
-**TODO** Review studies specifically addressing features [@Correia2015; @ArsenaultBuchsbaum2015] various Lahiri papers, and Evans & Davis’s lack of findings.
+Moreover, in most studies of how speech sounds are represented in the brain,
+the choice of which “features” to investigate (and which sounds to use in
+representing them) is often non-standard from the point of view of phonological
+theory. For example, one recent study [@ArsenaultBuchsbaum2015] grouped the
+English consonants into five place of articulation “features” (labial, dental,
+alveolar, palatoalveolar, and velar); in contrast, a typical phonological
+analysis of English would treat the dental, alveolar, and palatoalveolar
+consonants as members of a single class of “coronal” consonants, with
+differences between dental /θð/, alveolar /sz/, and palatoalveolar /ʃʒ/
+fricatives encoded through features such as “strident” (which groups /szʃʒ/
+together) or “distributed” (which groups /θðʃʒ/ together) [@Hayes2009].  Consequently, encoding the dental, alveolar, and palatoalveolar sounds as completely disjoint sets ignores the fact that those sounds tend to pattern together in speech (e.g., _**TODO** give examples of rules that apply to strident and distributed classes_).
 
-**TODO** maybe review some neuro speech *production* papers re: phonological features
+_**TODO** paragraph about Lahiri’s work._
 
-**TODO** review some relevant ling papers re: phonological features (e.g., word-specific phonetics (Pierrehumbert), maybe the different lexical extents of sound changes like canadian raising)
+<!-- **TODO** maybe review some relevant ling papers re: phonological features (e.g., word-specific phonetics (Pierrehumbert), maybe the different lexical extents of sound changes like canadian raising) -->
+
+To address these issues, the present study takes a somewhat different approach. First,
 
 # Methods
 
-**TODO** add methods figure.
+**TODO** add methods overview and figure.
 
 ## Stimulus design
 
@@ -188,7 +226,7 @@ voltage changes exceeding 75 μV in any channel (excluding channels previously
 marked as “bad”) were dropped.  Across subjects, between 3.6% and 8.8% of the
 3680 English syllable presentations were dropped.
 
-<!-- TODO: discussion / plot of SNR here? -->
+_**TODO:** discussion / plot of SNR here?_
 
 Retained epochs were time-shifted to align on the consonant-vowel transition
 time instead of the stimulus onset.  This was done because information about
@@ -208,7 +246,7 @@ reduction was performed with denoising source separation
 virtual channels (or “components”) that are linear sums of the physical
 electrode channels, constrained by a bias function (typically the average
 evoked response across trials of a given type) that orients the components to
-maximally approximate the bias function.  In this case a single per-subject
+maximally recover the bias function.  In this case a single per-subject
 bias function was used, based on the average of all epochs for that subject.
 This was a more conservative strategy than is typically seen in the literature,
 where separate bias functions are used for each experimental condition.  The
@@ -238,37 +276,68 @@ classifiers.
 ## Supervised learning
 
 At this point, data for one subject comprises a numeric matrix of ~3400 rows
-(one row = one retained epoch) and ~500 columns (5 unstacked DSS components of
-~100 time points each).  Each row could be labelled with the consonant that was
-presented during that epoch, posing a 23-way classification problem that could
-be approached with various multiclass classification techniques.  Instead, the
-approach used here attempts to solve 9 (PSA), 10 (PHOIBLE), or 11 (SPE)
-binary classification problems, by re-labeling the epochs using the
-phonological feature values associated with each consonant, and training a
-separate classifier for each phonological feature.
+(one row = one retained epoch or “trial”) and ~500 columns (5 unstacked DSS
+components of ~100 time points each).  Recall that ¾ of the total trials are
+from training talkers, so ~2500 trials are available to train classifiers,
+employing various labelling and partitioning strategies; the remaining ~900
+trials are then used to assess the information that can be recovered from the
+neural signals.
 
-In initial experiments, the classifier was a support vector machine (SVM) with
-a radial basis function kernel, which allows nonlinear decision boundaries to
-be learned readily.  SVM solutions were highly unstable across repeated runs
-with different random seeds, logistic regression classifiers were used instead.
-Classifier fitting used stratified 5-fold cross-validation at each point in a
-grid search for hyperparameter $C$ (regularization parameter; small $C$ yields
-smoother decision boundary)<!-- and $\gamma$ (kernel variance parameter,
-controlling how far from the decision boundary a data point can be and still
-count as a support vector; small $\gamma$ yields fewer support vectors,
-which often leads to smoother decision boundaries)-->.  The grid search was
-quite broad; $C$ ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$
-<!--and $\gamma$ from $2^{-15}$ to $2^{4}$-->.
+In experiment 1, each trial is labelled with the consonant that was presented
+during that epoch, and a classifier was trained to discriminate between each
+pair of consonants (for 23 consonants, this yields 276 pairwise comparisions,
+with each comparison having ~220 trials of training data). This initial
+experiment serves as a “sanity check” that sufficient information remains in
+the neural signals after all preprocessing steps have been carried out.
 
-Many phonological feature values are unevenly distributed (e.g., of the 23
-consonants presented, only 6 are “+strident”), posing a classification problem
-known as “class imbalance” which can lead to high accuracy scores by simply
-guessing the more numerous class in most or all cases.  To address this, a
-custom score function was written for the classifiers that moved the decision
-boundary threshold from 0.5 to a value that equalized the *ratios* of incorrect
-classifications (i.e., equalized false positive and false negative *rates*
-instead of equalizing the raw number of such errors), and returned a score of 1
-− equal error rate.
+In experiment 2, trials are again labelled using consonant identity, but
+instead of pairwise classifiers, 23 one-versus-rest (OVR) classifiers were
+trained, each receiving the full set of training data and learning to identify
+a different “target” consonant. This serves as a baseline condition against
+which the phonological-feature-based classifiers can be compared.
+<!-- It is analogous to a model of phoneme perception in which a bank of
+phoneme detectors all receive the same input, and a whichever detector is most
+confident determines what is perceived. -->
+
+In experiment 3, trials were labeled with phonological feature values of the
+consonant heard on that trial. One classifier was trained for each phonological
+feature, and three different feature systems were explored: the system
+described in Jakobson, Fant, and Halle’s _Preliminaries to Speech Analysis_
+(PSA) [@JakobsonFantHalle1952], the system in Chomsky and Halle’s _Sound
+Pattern of English_ (SPE) [@ChomskyHalleSPE], and the system used in the
+PHOIBLE database [@phoible2013], which is a corrected and expanded version of
+the system described in Hayes’s _Introduction to Phonology_ [@Hayes2009]. The
+three feature systems each require a different number of features to encode all
+English consonant contrasts (PSA uses 9, SPE uses 11, and PHOIBLE uses 10), but
+all represent a reduction of the 23-way multiclass classification problem into
+a smaller number of binary classification problems.
+
+In all three experiments, logistic regression classifiers were used.
+Stratified 5-fold cross-validation was employed at each point in a grid search
+for hyperparameter $C$ (regularization parameter; small $C$ yields smoother
+decision boundary)<!-- and $\gamma$ (kernel variance parameter, controlling
+how far from the decision boundary a data point can be and still count as a
+support vector; small $\gamma$ yields fewer support vectors, which often leads
+to smoother decision boundaries)-->.  The grid search was quite broad; $C$
+ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$ <!--and $\gamma$
+from $2^{-15}$ to $2^{4}$-->.  After grid search, each classifier was re-fit on
+the full set of training data, using the best hyperparameters.  The trained
+classifiers were then used to make predictions about the class of the
+consonant on each held-out test data trials; in experiments 1 and 2 those
+class predictions were consonant labels; in experiment 3 those class
+predictions were phonological feature values.
+
+Because many phonological feature values are unevenly distributed (e.g., of the
+23 consonants in the stimuli, only 6 are “+strident”), a custom score function
+was written for the classifiers that moved the decision boundary threshold from
+0.5 to a value that equalized the *ratios* of incorrect classifications (i.e.,
+equalized false positive and false negative *rates*), minimized this value
+(called the “equal error rate”), and returned a score of 1 − equal error rate.
+This precludes the situation where high accuracy scores are achieved by simply
+guessing the more numerous class in most or all cases.  Since such class
+imbalance can occur in any of the experiments (and is virtually guaranteed to
+happen for the one-versus-rest classifiers in experiment 2), a score function
+that minimized equal error rate was used for all experiments.
 
 Additionally, many phonological feature systems involve some sparsity (i.e.,
 some features are undefined for certain phonemes; for example, in the PSA
@@ -276,24 +345,20 @@ feature system, the feature “nasal” is unvalued for phonemes /h l ɹ j w/). 
 such cases, trials for phonemes that are undefined on a given phonological
 feature were excluded from the training set for that classifier.
 
-After grid search, each classifier was re-fit on the full set of training data,
-using the best hyperparameters.  Held-out test data (trials from the other two
-English talkers) were then submitted to the classifiers, and the resulting
-classifications <!--and classification probabilities-->were recorded for each
-trial.
-
 ## Aggregation of classifier results
 
+<!-- TODO: clarify that this applies only to experiment 3 -->
 At this point, data for one subject comprises a matrix of ~900 rows (1 per test
 trial) and 9-11 columns (1 per phonological feature classifier; number of
-columns depends on which phonological feature system is being analyzed); each
-cell is a 0 or 1 classification for that combination of trial and phonological
-feature.  From these data, the accuracy of each classifier (subject to the same
-equal-error-rate constraint used during training) was computed.  Next, a
-23×23×N array was constructed (where N is the number of phonological features
-in the current system, i.e., between 9 and 11).  The first axis represents
-which consonant was presented in the stimulus, and the second axis represents
-which consonant was likely perceived by the listener (as estimated from the EEG
+columns depends on which phonological feature system is being analyzed). Each
+cell of that matrix is a 0 or 1 classification for that combination of trial
+and phonological feature.  From these data, the accuracy of each classifier
+(subject to the same equal-error-rate constraint used during training) was
+computed.  Next, a 23×23×N array was constructed (where 23 is the number of
+conosonants in the stimuli, and N is the number of phonological features in the
+current system, i.e., between 9 and 11).  The first axis represents which
+consonant was presented in the stimulus, and the second axis represents which
+consonant was likely perceived by the listener (as estimated from the EEG
 signal).  For each plane along the third axis (i.e., for a given phonological
 feature classifier), the cells of the plane are populated with either the
 accuracy or the error rate (1 minus the accuracy) of that classifier, depending
@@ -307,27 +372,77 @@ Finally, the feature planes are collapsed by taking the product along the last
 dimension, yielding the joint probability that the input consonant (the
 stimulus) would be classified as any given output consonant (the percept).  For
 features involving sparsity, cells corresponding to undefined feature values
-were given a chance value of 0.5; results were broadly similar when undefined
-values were left as unvalued and excluded from the computation.
+were given a chance value of 0.5 (results were broadly similar when such cells
+were coded as `NaN` and excluded from the computation).  The resulting 23×23
+matrices can be thought of as confusion matrices: each cell gives the
+probability that the bank of phonological feature classifiers in that feature
+system would classify a heard consonant (given by the row label) as a
+particular consonant percept (given by the column label).
 
-## Analysis of confusion matrices
+In such matrices, a perfectly performing system would be an identity matrix:
+values of 1 along the main diagonal, and values of 0 everywhere else.  To
+quantify the extent to which each confusion matrix resembles an identity
+matrix, a measure of relative diagonality was computed as in Equation
+@eq-diagonality, where $A$ is the matrix and $r$ and $c$ are integer row and
+column indices (starting at 1 in the upper-left corner).
 
-**TODO: resume here** At this point, there is one 23×23 matrix for each feature system; a cell in such a matrix represents the probability that...
+(@eq-diagonality) $$\mathrm{diagonality} = \sum_{r} \sum_{c} A_{r,c} \times \sum_{r} \sum_{c} r \times c \times A_{r,c} - \sum_{r} (r \times \sum_{c} A_{r,c}) \times \sum_{c} (c \times \sum_{r} A_{r,c})$$
 
-## Calculation of diagonality
+Briefly, this measures the fraction of the total mass of the matrix that lies
+on the main diagonal minus the fraction of the total mass of the matrix that is
+off-diagonal, weighting the off-diagonal mass in each cell by its distance from
+the main diagonal.  This measure yields a value of 1 for an identity matrix,
+zero for a uniform matrix, and −1 for a matrix with all its mass concentrated
+in the extreme lower left and/or upper right cell(s).
 
+This notion of diagonality requires that adjacent rows be relatively similar
+and distant rows be relatively dissimilar (and likewise for columns);
+otherwise, the weighting of off-diagonal elements more strongly depending on
+their distance from the main diagonal is unjustified.  Therefore, before
+computing diagonality, the matrices were submitted to a heirarchical clustering
+of the rows with the optimal leaf ordering algorithm.
 
 # Results
 
-## SPE, JFH, PHOIBLE
+## Experiment 1: Pairwise classifiers
 
-![Confusion matrices for three baseline conditions (top row) and the three feature systems (bottom row).  TODO: say more](../../figures/publication/fig-avg-confmats.pdf)
+Results (aggregated across subjects) for the pairwise classifiers are shown in
+figure \ref{fig-pairwise-confmat}.  Because the classifier score function
+imposed an equal-error-rate constraint, there is no difference between, e.g.,
+proportion of /p/ trials mistaken for /b/ and proportion of /b/ trials mistaken
+for /p/, so the upper triangle is omitted.
+
+![Across-subject average accuracy/error for pairwise classifiers. Off-diagonal cells represent the error rates for the pairwise classifier indicated by that cell’s row/column labels; diagonal cells represent the mean accuracy for all pairs in which that consonant is one element.\label{fig-pairwise-confmat}](../../figures/manuscript/fig-pairwise.pdf)
+
+In general, the mean accuracy across subjects for a given pairwise comparison
+was always above 90%; individual accuracy scores for each subject are shown in
+figure \ref{fig-pairwise-boxplot}.  These plots indicate that consonant
+identity can be recovered fairly well from brain responses to the stimuli.
+However, a suite of pairwise classifiers is not a particularly realistic model
+of how speech perception is likely to work: during normal comprehension it
+isn’t generally the case that listeners are always choosing between 1 of 2
+options for “what that consonant was.”
+
+![Within-subject distributions of accuracy for pairwise classifiers.\label{fig-pairwise-boxplot}](../../figures/manuscript/fig-pairwise-boxplot.pdf)
+
+## Experiment 2: OVR classifiers
+
+![Results for one-versus-rest classifiers. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. Diagonal elements represent the ratio of true positive to false negative classifications (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive to true negative classifications for the consonant given by the row label.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
+
+## Experiment 3: Phonological feature classifiers
+
+![Confusion matrices for the PSA feature system.  TODO: say more.\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
+
+![Confusion matrices for the SPE feature system.  TODO: say more.\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
+
+![Confusion matrices for the PHOIBLE feature system.  TODO: say more.\label{fig-phoible-confmat}](../../figures/manuscript/fig-phoible.pdf)
+
+
 
 ## phone-specific error rates
 
-![Error rates for pairwise classifiers. The three highest confusions are labelled.](../../figures/publication/fig-avg-pairwise-error.pdf)
 
-## Specific features
+## Performance on specific features
 
 **TODO** add figure.
 
