@@ -215,7 +215,7 @@ stimulus identity and timing during post-processing.
 ## Data cleaning
 
 EEG signal processing was carried out in python using the `mne-python`
-module.[@mnepython]  Raw EEG traces were manually inspected and annotated for
+module [@mnepython].  Raw EEG traces were manually inspected and annotated for
 bad channels, and for spans of time with gross movement artifacts.  For a given
 subject, 0 to 3 channels were marked “bad” and excluded from further
 processing.  Subsequently, a blink detection algorithm was applied to the
@@ -298,8 +298,10 @@ In experiment 1, each trial is labelled with the consonant that was presented
 during that epoch, and a classifier was trained to discriminate between each
 pair of consonants (for 23 consonants, this yields 276 pairwise comparisions,
 with each comparison having ~220 trials of training data). This initial
-experiment serves as a “sanity check” that sufficient information remains in
-the neural signals after all preprocessing steps have been carried out.
+experiment serves as a “sanity check” that sufficient information about the
+neural processing of consonant identity is picked up by EEG, and that the
+information remains in the neural signals after all preprocessing steps have
+been carried out.
 
 In experiment 2, trials are again labelled using consonant identity, but
 instead of pairwise classifiers, 23 one-versus-rest (OVR) classifiers were
@@ -358,8 +360,7 @@ feature were excluded from the training set for that classifier.
 
 ## Aggregation of classifier results
 
-<!-- TODO: clarify that this applies only to experiment 3 -->
-At this point, data for one subject comprises a matrix of ~900 rows (1 per test
+At this point in experiment 3, data for one subject comprises a matrix of ~900 rows (1 per test
 trial) and 9-11 columns (1 per phonological feature classifier; number of
 columns depends on which phonological feature system is being analyzed). Each
 cell of that matrix is a 0 or 1 classification for that combination of trial
@@ -432,17 +433,51 @@ identity can be recovered fairly well from brain responses to the stimuli.
 However, a suite of pairwise classifiers is not a particularly realistic model
 of how speech perception is likely to work: during normal comprehension it
 isn’t generally the case that listeners are always choosing between 1 of 2
-options for “what that consonant was.”
+options for “what that consonant was.” Rather, consonant identification is a
+closed-set identification task: listeners know the set of possible consonants
+they might hear, and must determine which one was actually spoken. Experiment 2
+provides a more realistic model of this scenario.
 
 ![Within-subject distributions of accuracy for pairwise classifiers.\label{fig-pairwise-boxplot}](../../figures/manuscript/fig-pairwise-boxplot.pdf)
 
 ## Experiment 2: OVR classifiers
 
-![Results for one-versus-rest classifiers. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. Diagonal elements represent the ratio of true positive to false negative classifications (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive to true negative classifications for the consonant given by the row label.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
+Results for the OVR classifiers in experiment 2 are shown in figures
+\ref{fig-ovr-boxplot} and \ref{fig-ovr-confmat}. Unsurprisingly, the OVR
+classifiers were not as good as the pairwise classifiers at identifying
+consonants from the EEG data; accuracies ranged from below chance to
+near-perfect on individual subject data, with first quartiles between 74% and
+82% and third quartiles between 83% and 92% (see figure \ref{fig-ovr-boxplot}).
+
+![Within-subject distributions of accuracy for one-versus-rest classifiers. Boxes show quartiles; dots are individual classifier accuracies.\label{fig-ovr-boxplot}](../../figures/manuscript/fig-ovr-boxplot.pdf)
+
+Moreover, the classifiers don’t seem to learn much at all, classifying
+non-target and target trials at approximately the same rate (i.e., little
+within-column differentiation in figure \ref{fig-ovr-confmat}, left panel).
+Looking across classifiers for a given stimulus phoneme, it is rarely the case
+that the most frequent classification is the correct one (see figure
+\ref{fig-ovr-confmat}, right panel).
+
+![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. Diagonal elements represent the ratio of true positive to false negative classifications (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive to true negative classifications for the consonant given by the row label.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
 
 ## Experiment 3: Phonological feature classifiers
 
+Whereas experiments 1 and 2 test classification of neural signals based on
+_identity_ of the consonant in each stimulus, experiment 3 tests classification
+of the same signals based on _phonological feature values_ of those consonants,
+and classifications of test data are aggregated across systems of phonological
+feature classifiers to yield consonant-level confusion matrices similar to
+those seen in figures \ref{fig-pairwise-confmat} and \ref{fig-ovr-confmat}. The
+results of this aggregation for the three phonological feature systems (PSA,
+SPE, and PHOIBLE) are shown in figures \ref{fig-psa-confmat},
+\ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}.
+
 ![Confusion matrices for the PSA feature system.  TODO: say more.\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
+
+Unlike the prior confusion matrices, where rows and columns followed a standard
+order based on manner of articulation, in figures \ref{fig-psa-confmat},
+\ref{fig-spe-confmat}, and \ref{fig-phoible-confmat} the matrices are ordered
+based on a heirarchical clustering of the rows with the optimal leaf ordering algorithm <!-- TODO: cite --> as implemented in `scipy` <!-- TODO: cite -->.
 
 ![Confusion matrices for the SPE feature system.  TODO: say more.\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
 
