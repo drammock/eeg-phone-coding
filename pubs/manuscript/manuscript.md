@@ -323,7 +323,9 @@ the system described in Hayes’s _Introduction to Phonology_ [@Hayes2009]. The
 three feature systems each require a different number of features to encode all
 English consonant contrasts (PSA uses 9, SPE uses 11, and PHOIBLE uses 10), but
 all represent a reduction of the 23-way multiclass classification problem into
-a smaller number of binary classification problems.
+a smaller number of binary classification problems. Feature value assignments in the three feature systems are illustrated in figure \ref{}.
+
+![Feature matrices for the three feature systems used in Experiment 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](../../figures/manuscript/fig-featsys-matrices.pdf)
 
 In all three experiments, logistic regression classifiers were used.
 Stratified 5-fold cross-validation was employed at each point in a grid search
@@ -405,7 +407,7 @@ on the main diagonal minus the fraction of the total mass of the matrix that is
 off-diagonal, weighting the off-diagonal mass in each cell by its distance from
 the main diagonal.  This measure yields a value of 1 for an identity matrix,
 zero for a uniform matrix, and −1 for a matrix with all its mass concentrated
-in the extreme lower left and/or upper right cell(s).
+in the extreme lower left and upper right cells.
 
 This notion of diagonality requires that adjacent rows be relatively similar
 and distant rows be relatively dissimilar (and likewise for columns);
@@ -443,7 +445,11 @@ provides a more realistic model of this scenario.
 ## Experiment 2: OVR classifiers
 
 Results for the OVR classifiers in experiment 2 are shown in figures
-\ref{fig-ovr-boxplot} and \ref{fig-ovr-confmat}. Unsurprisingly, the OVR
+\ref{fig-ovr-boxplot} and \ref{fig-ovr-confmat}. As a reminder, these
+classifiers learn to discriminate brain responses to one particular consonant
+against all other consonants as a group (which is a harder problem than
+pairwise comparison, as the non-target class is much more heterogeneous).
+Unsurprisingly, the OVR
 classifiers were not as good as the pairwise classifiers at identifying
 consonants from the EEG data; accuracies ranged from below chance to
 near-perfect on individual subject data, with first quartiles between 74% and
@@ -451,14 +457,29 @@ near-perfect on individual subject data, with first quartiles between 74% and
 
 ![Within-subject distributions of accuracy for one-versus-rest classifiers. Boxes show quartiles; dots are individual classifier accuracies.\label{fig-ovr-boxplot}](../../figures/manuscript/fig-ovr-boxplot.pdf)
 
-Moreover, the classifiers don’t seem to learn much at all, classifying
-non-target and target trials at approximately the same rate (i.e., little
-within-column differentiation in figure \ref{fig-ovr-confmat}, left panel).
-Looking across classifiers for a given stimulus phoneme, it is rarely the case
-that the most frequent classification is the correct one (see figure
-\ref{fig-ovr-confmat}, right panel).
+Moreover, despite passable accuracy scores, the classifiers don’t actually
+learn much, classifying both non-target and target trials as the target
+consonant at similar rates (i.e., little within-column differentiation in
+figure \ref{fig-ovr-confmat}, left panel). The faint checkerboard pattern in
+the upper left quadrant of the matrix does indicate that, e.g., the /b/
+classifier in the second column is relatively more likely to mistakenly
+classify trials with /d/ or /ɡ/ stimuli as /b/ trials, than it is to make the
+same mistake on trials with /p/, /t/, or /k/ stimuli. There is also some
+indication that classifiers for fricative consonants (especially /fszʃʒ/)
+tended to make more misclassifications to trials with (non-target) fricative
+stimuli, compared to trials with non-fricative stimuli (the broad vertical
+stripe near the middle of the matrix, which is darker in its upper and lower
+thirds). However, the classifiers’ ability to make these basic discriminations
+of voiced versus voiceless stop consonants or fricatives versus non-fricatives
+is still rather poor (e.g., the /b/ classifier marks 19% of /p/ trials as /b/,
+and only 41% of /b/ trials as /b/). Finally, looking across classifiers for a
+given stimulus phoneme, it is rarely the case that the most frequent
+classification is the correct one (see figure \ref{fig-ovr-confmat}, right
+panel), further underscoring the impression that a bank of OVR classifiers is
+probably a poor model of the information extraction carried out by the brain
+during speech perception.
 
-![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. Diagonal elements represent the ratio of true positive to false negative classifications (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive to true negative classifications for the consonant given by the row label.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
+![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. Cells on the diagonal represent the ratio of true positive to false negative classifications (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive to true negative classifications (“false alarm rate”) for the consonant given by the row label.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
 
 ## Experiment 3: Phonological feature classifiers
 
@@ -466,24 +487,65 @@ Whereas experiments 1 and 2 test classification of neural signals based on
 _identity_ of the consonant in each stimulus, experiment 3 tests classification
 of the same signals based on _phonological feature values_ of those consonants,
 and classifications of test data are aggregated across systems of phonological
-feature classifiers to yield consonant-level confusion matrices similar to
-those seen in figures \ref{fig-pairwise-confmat} and \ref{fig-ovr-confmat}. The
-results of this aggregation for the three phonological feature systems (PSA,
-SPE, and PHOIBLE) are shown in figures \ref{fig-psa-confmat},
-\ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}.
+features to yield consonant-level confusion matrices similar to those seen in
+figures \ref{fig-pairwise-confmat} and \ref{fig-ovr-confmat}. The results of
+this aggregation for the three phonological feature systems tested (PSA, SPE,
+and PHOIBLE) are shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat},
+and \ref{fig-phoible-confmat}, respectively. Unlike the prior confusion
+matrices, where rows and columns followed a standard order based on consonant
+manner of articulation, in figures \ref{fig-psa-confmat},
+\ref{fig-spe-confmat}, and \ref{fig-phoible-confmat} the matrices are ordered
+based on a heirarchical clustering of the rows (performed separately for each matrix) using the optimal leaf ordering algorithm [@BarJosephEtAl2001]
+as implemented in `scipy` [@scipy1.0.0].  Therefore, the row and column orders do not necessarily match across the three figures, so attention to the row and column labels is necessary when visually comparing the matrices.
 
 ![Confusion matrices for the PSA feature system.  TODO: say more.\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
 
-Unlike the prior confusion matrices, where rows and columns followed a standard
-order based on manner of articulation, in figures \ref{fig-psa-confmat},
-\ref{fig-spe-confmat}, and \ref{fig-phoible-confmat} the matrices are ordered
-based on a heirarchical clustering of the rows with the optimal leaf ordering algorithm <!-- TODO: cite --> as implemented in `scipy` <!-- TODO: cite -->.
+Compared to the confusion matrices for pairwise (figure
+\ref{fig-pairwise-confmat}) and OVR (figure \ref{fig-ovr-confmat}) classifiers,
+much more structure is apparent in the phonological-feature-based confusion
+matrices.  For example, figure \ref{fig-psa-confmat} shows that when
+information is combined from the 9 feature classifiers in the PSA system, 2×2
+submatrices for voiced-voiceless consonant pairs /ð θ/ and /ɡ k/ are visible in
+the lower-right corner, suggesting that the classifier trained to discriminate
+voicing (encoded by the “tense” feature in the PSA system) was relatively less
+accurate than other phonological feature classifiers in the PSA system. In
+contrast, trials with /ɹ/ stimuli are usually not confused with any other
+consonant (the top row of the matrix is mostly a dark color, with its
+diagonal element relatively bright), and likewise other consonants are rarely
+mis-classified as /ɹ/ (the rightmost column is mostly dark, with only its
+diagonal element bright).
 
 ![Confusion matrices for the SPE feature system.  TODO: say more.\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
 
+Looking across feature systems, similar 2×2 submatrices are seen in figure
+\ref{fig-spe-confmat} (e.g., /ɹ l/ and /m n/) and figure
+\ref{fig-phoible-confmat} (e.g., /s z/ and /j w/) as well, and both SPE and
+PHOIBLE show a 4×4 submatrix in the upper left quadrant corresponding to the
+post-alveolar consonants /ʃ ʒ tʃ dʒ/, suggesting that (in addition to voicing)
+the fricative-affricate distinction (encoded by the “continuant” feature in
+both systems) was not well learned by the classifiers. The pair /w j/ is poorly
+discriminated by the classifiers in any of the three systems (the distinction
+is encoded by different features in each: “grave” in PSA, “back” in SPE, and
+“labial” in PHOIBLE). Additionally, the PHOIBLE system show a large block in
+the lower right quadrant corresponding to the alveolar consonants /t d θ ð s z
+l n/ (the class of [+anterior] consonants in the PHOIBLE system).
+
 ![Confusion matrices for the PHOIBLE feature system.  TODO: say more.\label{fig-phoible-confmat}](../../figures/manuscript/fig-phoible.pdf)
 
+To quantify the degree to which the neural responses reflect the contrasts
+encoded by each feature system, we can compute the diagonality of each matrix
+(the degree to which the mass of the matrix falls along the main diagonal).
+Matrix diagonality values for each subject’s data, along with the
+across-subject average matrices, are shown in figure \ref{fig-diag-boxplot}.
+<!-- Prior to computing those diagonality values, heirarchical clustering was
+performed on the rows of each matrix individually, so the diagonality valuet
+reflects the maximal diagonality possible for each subject’s matrix. -->
+The PHOIBLE feature system fares considerably better than the PSA and SPE
+feature systems on this measure, suggesting that the contrasts encoded by the
+PHOIBLE system more closely reflects the kinds of information extracted by the
+brain during speech processing and subsequently detected in the EEG signals.
 
+![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected).\label{fig-diag-boxplot}](../../figures/manuscript/fig-diagonality-barplot-individ.pdf)
 
 ## phone-specific error rates
 
@@ -507,6 +569,9 @@ Of course, neural systems are hierarchical, there's not just one level of repres
 - ArtPhon / FUL
 - Foreign phones
 - AG’s suggestion
+
+# Acknowledgments
+Nick Foti, Kathleen Hall, Mark Hasegawa-Johnson, Ed Lalor, Eric Larson, Majid Mirbagheri, Doug Pulleyblank.
 
 # References
 
