@@ -498,39 +498,43 @@ manner of articulation, in figures \ref{fig-psa-confmat},
 based on a heirarchical clustering of the rows (performed separately for each matrix) using the optimal leaf ordering algorithm [@BarJosephEtAl2001]
 as implemented in `scipy` [@scipy1.0.0].  Therefore, the row and column orders do not necessarily match across the three figures, so attention to the row and column labels is necessary when visually comparing the matrices.
 
-![Confusion matrices for the PSA feature system.  TODO: say more.\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
+![Confusion matrices for the PSA feature system. Notable features include fairly reliable identification of /ɹ/ trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of /s/).\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
 
 Compared to the confusion matrices for pairwise (figure
 \ref{fig-pairwise-confmat}) and OVR (figure \ref{fig-ovr-confmat}) classifiers,
-much more structure is apparent in the phonological-feature-based confusion
-matrices.  For example, figure \ref{fig-psa-confmat} shows that when
-information is combined from the 9 feature classifiers in the PSA system, 2×2
-submatrices for voiced-voiceless consonant pairs /ð θ/ and /ɡ k/ are visible in
-the lower-right corner, suggesting that the classifier trained to discriminate
-voicing (encoded by the “tense” feature in the PSA system) was relatively less
-accurate than other phonological feature classifiers in the PSA system. In
-contrast, trials with /ɹ/ stimuli are usually not confused with any other
-consonant (the top row of the matrix is mostly a dark color, with its
-diagonal element relatively bright), and likewise other consonants are rarely
-mis-classified as /ɹ/ (the rightmost column is mostly dark, with only its
-diagonal element bright).
+the magnitude of the values in the phonological-feature-based confusion
+matrices is smaller (the highest classification scores tend to be around 2-4%),
+but the smallest values are a few orders of magnitude smaller than the values
+in the pairwise and OVR confusion matrices, making the distinction between
+similar and dissimilar cells more apparent.  Consequently, much more structure
+is apparent in the phonological-feature-based confusion matrices.  For example,
+figure \ref{fig-psa-confmat} shows that when information is combined from the 9
+feature classifiers in the PSA system, 2×2 submatrices for voiced-voiceless
+consonant pairs /ð θ/ and /ɡ k/ are visible in the lower-right corner,
+suggesting that the classifier trained to discriminate voicing (encoded by the
+“tense” feature in the PSA system) was relatively less accurate than other
+phonological feature classifiers in the PSA system. In contrast, trials with /ɹ/
+stimuli are fairly well discriminated: the top row of the matrix is mostly
+darker colors with its diagonal element relatively bright, and other consonants
+are rarely mis-classified as /ɹ/ (the leftmost column is mostly dark, with only
+its diagonal element bright).
 
-![Confusion matrices for the SPE feature system.  TODO: say more.\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
+![Confusion matrices for the SPE feature system.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of /h/, and several 2×2 submatrices indicating highly confusable pairs of consonants (e.g., /ɡ k/, /ɹ l/, and /m n/).\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
 
 Looking across feature systems, similar 2×2 submatrices are seen in figure
 \ref{fig-spe-confmat} (e.g., /ɹ l/ and /m n/) and figure
 \ref{fig-phoible-confmat} (e.g., /s z/ and /j w/) as well, and both SPE and
 PHOIBLE show a 4×4 submatrix in the upper left quadrant corresponding to the
-post-alveolar consonants /ʃ ʒ tʃ dʒ/, suggesting that (in addition to voicing)
-the fricative-affricate distinction (encoded by the “continuant” feature in
-both systems) was not well learned by the classifiers. The pair /w j/ is poorly
-discriminated by the classifiers in any of the three systems (the distinction
-is encoded by different features in each: “grave” in PSA, “back” in SPE, and
-“labial” in PHOIBLE). Additionally, the PHOIBLE system show a large block in
-the lower right quadrant corresponding to the alveolar consonants /t d θ ð s z
-l n/ (the class of [+anterior] consonants in the PHOIBLE system).
+post-alveolar consonants /ʃ ʒ tʃ dʒ/, suggesting that, in addition to the
+voicing distinction, the fricative-affricate distinction (encoded by the
+“continuant” feature in both systems) was not well learned by the classifiers.
+Interestingly, the pair /w j/ is poorly discriminated by the classifiers in any
+of the three systems, although the distinction is encoded by different features
+in each: “grave” in PSA, “back” in SPE, and “labial” in PHOIBLE. Additionally,
+the PHOIBLE system show a large block in the lower right quadrant corresponding
+to the class of “+anterior” consonants /t d θ ð s z l n/ in the PHOIBLE system.
 
-![Confusion matrices for the PHOIBLE feature system.  TODO: say more.\label{fig-phoible-confmat}](../../figures/manuscript/fig-phoible.pdf)
+![Confusion matrices for the PHOIBLE feature system. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left,  the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices /s z/ and /ð θ/ within it), and the relative distinctiveness of /j w/ from all other consonants, but not from each other.\label{fig-phoible-confmat}](../../figures/manuscript/fig-phoible.pdf)
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we can compute the diagonality of each matrix
@@ -542,17 +546,17 @@ performed on the rows of each matrix individually, so the diagonality valuet
 reflects the maximal diagonality possible for each subject’s matrix. -->
 The PHOIBLE feature system fares considerably better than the PSA and SPE
 feature systems on this measure, suggesting that the contrasts encoded by the
-PHOIBLE system more closely reflects the kinds of information extracted by the
+PHOIBLE system more closely reflect the kinds of information extracted by the
 brain during speech processing and subsequently detected in the EEG signals.
 
-![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected).\label{fig-diag-boxplot}](../../figures/manuscript/fig-diagonality-barplot-individ.pdf)
-
-## phone-specific error rates
-
+![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](../../figures/manuscript/fig-diagonality-barplot-individ.pdf)
 
 ## Performance on specific features
 
 **TODO** add figure.
+
+## phone-specific error rates
+
 
 # Discussion
 
