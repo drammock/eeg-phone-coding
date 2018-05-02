@@ -102,6 +102,16 @@ $endif$
 \renewcommand{\Affilfont}{\normalfont\itshape}
 \setlength{\affilsep}{0in}
 
+%% force figures to not float
+\usepackage{float}
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][2] {
+    \expandafter\origfigure\expandafter[H]
+} {
+    \endorigfigure
+}
+
 % % % % % % % % % % % % % % % % %
 % title, subtitle, author, date %
 % % % % % % % % % % % % % % % % %
