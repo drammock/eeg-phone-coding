@@ -21,9 +21,15 @@ import matplotlib.pyplot as plt
 import os.path as op
 from os import mkdir
 
+# style setup
+sns.set_style('darkgrid')
+plt.rc('font', family='serif', serif='Linux Libertine O')
+plt.rc('mathtext', fontset='custom', rm='Linux Libertine O',
+       it='Linux Libertine O:italic', bf='Linux Libertine O:bold')
+
 # BASIC FILE I/O
 indir = op.join('eeg-data-clean', 'epochs')
-outdir = 'processed-data'
+outdir = 'processed-data-logistic'
 plotdir = op.join('figures', 'snr')
 if not op.isdir(plotdir):
     mkdir(plotdir)
@@ -96,7 +102,7 @@ df.to_csv(op.join(outdir, 'blinks-epochs-snr.tsv'), sep='\t')
 # prettify column names for plotting
 new_names = dict(n_blinks='Number of blinks detected',
                  n_epochs='Number of retained epochs',
-                 snr='SNR: 10*log(evoked power / baseline power)')
+                 snr='SNR: 10×$\log_{10}$(evoked power / baseline power)')
 df.rename(columns=new_names, inplace=True)
 df.index.name = 'Subject'
 
@@ -115,3 +121,6 @@ for ax, ymax in zip(axs, [9, 2500, 5000]):
 plt.tight_layout()
 plt.subplots_adjust(right=0.9)
 plt.savefig(op.join(plotdir, 'subject-summary.png'))
+
+# supplementary figure
+plt.savefig(op.join('figures', 'supplement', 'subject-summary.pdf'))

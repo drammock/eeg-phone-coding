@@ -18,6 +18,7 @@ import pandas as pd
 import os.path as op
 from os import mkdir
 import matplotlib.pyplot as plt
+from scipy.stats import linregress
 
 # FLAGS
 plt.ioff()
@@ -46,8 +47,8 @@ if not op.isdir(outdir):
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
-# load SNR data (only exists in SVM folder tree)
-fname = op.join('processed-data-svm', 'blinks-epochs-snr.tsv')
+# load SNR data
+fname = op.join('processed-data-logistic', 'blinks-epochs-snr.tsv')
 snr = pd.read_csv(fname, sep='\t', index_col=0)
 snr = snr['snr']  # ignore other columns (n_trials, n_blinks, retained_epochs)
 
@@ -61,12 +62,12 @@ plt.style.use(op.join(paramdir, 'matplotlib-style-lineplots.yaml'))
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 # pretty titles
-colnames = dict(snr='SNR: 10×log(evoked/baseline power)',
-                diagonality='Matrix row/col correlation')
+colnames = dict(snr='SNR: 10×$\log_{10}$(evoked power / baseline power)',
+                diagonality='Matrix row/column correlation')
 titles = dict(phone='Phone-level', eer='Feature-level')
 
 for ordering in ['row-', 'col-', 'feat-']:
-    if scheme == 'pairwise' and ordering != 'row-':
+    if scheme in ('pairwise', 'multinomial') and ordering != 'row-':
         continue
     ncol = 1 if scheme == 'pairwise' else len(feature_systems)
     nrow = 1 if scheme == 'pairwise' else len(methods)
@@ -114,3 +115,52 @@ for ordering in ['row-', 'col-', 'feat-']:
     args = [ordering, ordered, sfn, method, scheme]
     fname = 'snr-vs-matrix-diagonality-{}{}{}-{}-{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, fname))
+
+# supplementary figure
+feature_systems = ['jfh_sparse', 'spe_sparse', 'phoible_redux']
+plot_titles = dict(phoible_redux='PHOIBLE', jfh_sparse='PSA', spe_sparse='SPE')
+plt.rc('font', family='serif', serif='Linux Libertine O')
+plt.rc('mathtext', fontset='custom', rm='Linux Libertine O',
+       it='Linux Libertine O:italic', bf='Linux Libertine O:bold')
+fig, axs = plt.subplots(1, 3, figsize=(6.5, 2.5), sharey=True)
+for ax, featsys in zip(axs, feature_systems):
+    diagonality = diag_df[featsys]
+    diagonality.name = 'diagonality'
+    # merge
+    df = pd.concat((snr, diagonality), axis=1, join='inner')
+    df.sort_values(by='snr')
+    df.rename(columns=colnames, inplace=True)
+    # do the scatterplot just to get plot dimensions and garnishes
+    df.plot.scatter(x=colnames['snr'], y=colnames['diagonality'],
+                    ax=ax, title=plot_titles[featsys], legend=False, color='w')
+    # recycle colors if there aren't enough
+    while len(colors) < df.shape[0]:
+        colors = colors * 2
+    # now add the text
+    new_order = ([colnames[x] for x in ['snr', 'diagonality']] + ['subj'])
+    row_tuples = df.reset_index()[new_order].iterrows()
+    for row, c in zip(row_tuples, colors):
+        ax.text(*row[1], ha='center', va='center', color=c, weight='bold',
+                size=8)
+    # plot lims
+    ax.set_ylim(0.32, 0.72)
+    ax.set_yticks(np.linspace(0.4, 0.7, 4))
+    # xaxis
+    ax.set_xticks(np.linspace(4, 7, 4))
+    if ax != axs[1]:
+        ax.set_xlabel('')
+    # regression line
+    (slope, intercept, rval, pval,
+     stderr) = linregress(df.iloc[:, 0], df.iloc[:, 1])
+    x = np.array(ax.get_xlim())
+    y = slope * x + intercept
+    ax.plot(x, y, linestyle='--', linewidth=1, color='0.5', alpha=0.5,
+            zorder=1)
+    ax.annotate(s=f'R²={np.round(rval ** 2, 2)}\np={np.round(pval, 2)}',
+                xy=(0, 1), xytext=(2, -2), xycoords='axes fraction',
+                textcoords='offset points', ha='left', va='top', color='0.5',
+                size=8)
+
+fig.subplots_adjust(left=0.1, right=0.95, bottom=0.2, top=0.8, wspace=0.4)
+fig.suptitle('SNR versus matrix diagonality')
+fig.savefig(op.join('figures', 'supplement', 'snr-vs-matrix-diagonality.pdf'))
