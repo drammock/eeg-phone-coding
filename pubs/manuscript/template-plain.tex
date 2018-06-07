@@ -75,13 +75,16 @@ $endif$
 %\renewcommand*\thetable{\Roman{table}}
 % format various headings to match the style of section headings
 \renewcommand{\refname}{\bfseries\uppercase{references}}
+\usepackage{caption}
+\captionsetup{font=footnotesize}
 
 % % % % % % % % % % % % %
 % other customizations  %
 % % % % % % % % % % % % %
 \usepackage[shortcuts]{extdash}
-\usepackage{fontspec}
+\usepackage[math]{mathspec}
 \setmainfont[Numbers={Lining}]{Linux Libertine O}
+\setmathfont(Digits,Latin)[Uppercase=Regular]{Linux Libertine O}
 \setmonofont[ItalicFont={M+ 1m}]{M+ 1m}
 \renewcommand{\url}{\begingroup \def\UrlLeft{}\def\UrlRight{}\urlstyle{same}\Url} % set URLs in whatever font surrounding text uses
 \thickmuskip=5mu plus 3mu minus 1mu % adjust equation spacing around =
