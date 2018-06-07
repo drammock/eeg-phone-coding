@@ -52,8 +52,7 @@ del global_params, analysis_params
 
 # LOAD DURATION DATA...
 wav_params = read_csv(op.join(paramdir, 'wav-properties.tsv'), sep='\t')
-cvfile = 'cv-boundary-times.tsv'
-df = read_csv(op.join(paramdir, cvfile), sep='\t')
+df = read_csv(op.join(paramdir, 'cv-boundary-times.tsv'), sep='\t')
 df['key'] = df['talker'] + '/' + df['consonant'] + '.wav'
 # make sure all keys have a CV transition time
 assert set(wav_params['wav_path']) - set(df['key']) == set([])
