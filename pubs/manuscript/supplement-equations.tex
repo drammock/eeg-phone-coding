@@ -1,0 +1,41 @@
+% PEARSON
+\hat{\rho} =& \frac{\mathrm{cov}(c,r)}{\mathrm{stdev}(c) \times \mathrm{stdev}(r)} \\
+           =& \frac{\sum_{i=1}^n (c_i - \bar{c})(r_i - \bar{r})}{\sqrt{\sum_{i=1}^n (c_i - \bar{c})^2} \times \sqrt{\sum_{i=1}^n (r_i - \bar{r})^2}} \label{pearson2} \\
+           =& \frac{n \sum_{i=1}^n c_i r_i - \sum_{i=1}^n c_i \sum_{i=1}^n r_i}{\sqrt{n \sum_{i=1}^n c_i^2 - \left( \sum_{i=1}^n c_i \right)^2}\sqrt{n \sum_{i=1}^n r_i^2 - \left( \sum_{i=1}^n r_i \right)^2}}\label{pearson3}
+
+
+% SCALING FACTOR UNNECESSARY
+\hat{\rho} =& \frac{ w(sA)w^T \times i(sA)i^T -  i(sA)w^T \times w(sA)i^T}{           \sqrt{w(sA)w^T  \times i^2(sA)w^T - (i(sA)w^T)^2} \times \sqrt{w(sA)w^T  \times w(sA)(i^2)^T - (w(sA)i^T)^2}} \\
+           =& \frac{s^2(wAw^T \times iAi^T)   - s^2(iAw^T \times   wAi^T)}{           \sqrt{s^2(wAw^T \times i^2Aw^T    - (iAw^T)^2)}   \times \sqrt{s^2(wAw^T \times wA(i^2)^T    - (wAi^T)^2)}} \\
+           =& \frac{s^2(wAw^T \times iAi^T    -     iAw^T \times   wAi^T)}{s^2 \left( \sqrt{wAw^T     \times i^2Aw^T    - (iAw^T)^2}    \times \sqrt{wAw^T     \times wA(i^2)^T    - (wAi^T)^2} \right)} \\
+           =& \frac{    wAw^T \times iAi^T    -     iAw^T \times   wAi^T }{           \sqrt{wAw^T     \times i^2Aw^T    - (iAw^T)^2}    \times \sqrt{wAw^T     \times wA(i^2)^T    - (wAi^T)^2}} \label{linalg2}
+
+
+% TERM EQUIVALENCIES #1
+n            &= wBw^T &\qquad&\qquad& \sum r_i &= iBw^T &\qquad&\qquad& \sum r_i^2 &= i^2Bw^T \\
+\sum r_i c_i &= iBi^T &\qquad&\qquad& \sum c_i &= wBi^T &\qquad&\qquad& \sum c_i^2 &= wB(i^2)^T
+
+
+% TERM EQUIVALENCIES #2
+n            \enskip&=\enskip wAw^T     \enskip&=&\enskip \sum_{r,c} A_{r,c} \\
+\sum r_i     \enskip&=\enskip iAw^T     \enskip&=&\enskip \sum_{r,c} (i \otimes w \circ A)_{r,c} \\
+\sum c_i     \enskip&=\enskip wAi^T     \enskip&=&\enskip \sum_{r,c} (w \otimes i \circ A)_{r,c} \\
+\sum r_i c_i \enskip&=\enskip iAi^T     \enskip&=&\enskip \sum_{r,c} (i \otimes i \circ A)_{r,c} \\
+\sum r_i^2   \enskip&=\enskip i^2Aw^T   \enskip&=&\enskip \sum_{r,c} (i^2 \otimes w \circ A)_{r,c} \\
+\sum c_i^2   \enskip&=\enskip wA(i^2)^T \enskip&=&\enskip \sum_{r,c} (w \otimes i^2 \circ A)_{r,c}
+
+
+% RHO HAT, HADAMARD VERSION, WITH LIMITS
+\hat{\rho} = \frac{\sum\limits_{r,c} A_{r,c} \; \times \; \sum\limits_{r,c} (i \,\otimes i \,\circ A)_{r,c} \enskip - \enskip \sum\limits_{r,c} (i \,\otimes w \,\circ A)_{r,c} \; \times \; \sum\limits_{r,c} (w \,\otimes i \,\circ A)_{r,c}}{\sqrt{\sum\limits_{r,c} A_{r,c} \; \times \; \sum\limits_{r,c} (i^2 \,\otimes w \,\circ A)_{r,c} \; - \; \left(\sum\limits_{r,c} (i \,\otimes w \,\circ A)_{r,c} \right)^2} \; \times \; \sqrt{\sum\limits_{r,c} A_{r,c} \; \times \; \sum\limits_{r,c} (w \,\otimes i^2 \,\circ A)_{r,c} \; - \; \left(\sum\limits_{r,c} (w \,\otimes i \,\circ A)_{r,c} \right)^2}}
+
+
+% RHO HAT, HADAMARD VERSION, NO LIMITS
+\frac{\sum A \times \sum (i \otimes i \circ A) - \sum (i \otimes w \circ A) \times \sum (w \otimes i \circ A)}{\sqrt{\sum A \times \sum (i^2 \otimes w \circ A) - \left(\sum (i \otimes w \circ A) \right)^2} \times \sqrt{\sum A \times \sum (w \otimes i^2 \circ A) - \left(\sum (w \otimes i \circ A) \right)^2}}
+
+
+% RHO HAT WITH R/C IMAGES
+\frac{\sum A \times \sum \left( \overset{i \,\otimes\, i}{\img{sfigs/mats/weight-rowcol}} \circ A \right) - \sum \left( \overset{i \,\otimes\, w}{\img{sfigs/mats/weight-row}} \circ A \right) \times \sum \left( \overset{w \,\otimes\, i}{\img{sfigs/mats/weight-col}} \circ A \right)}{\sqrt{\sum A \times \sum \left( \overset{i^2 \,\otimes\, w}{\img{sfigs/mats/weight-rowsqu}} \circ A \right) - \left(\sum \left( \overset{i \,\otimes\, w}{\img{sfigs/mats/weight-row}} \circ A \right) \right)^2} \times \sqrt{\sum A \times \sum \left( \overset{w \,\otimes\, i^2}{\img{sfigs/mats/weight-colsqu}} \circ A \right) - \left(\sum \left( \overset{w \,\otimes\, i}{\img{sfigs/mats/weight-col}} \circ A \right) \right)^2}}
+
+
+% RHO HAT WITH ALL IMAGES
+\frac{\sum \left( \img{sfigs/mats/antidiagonal} \right) \times \sum \left( \img{sfigs/mats/weight-rowcol} \,\circ\, \img{sfigs/mats/antidiagonal} \right) - \sum \left( \img{sfigs/mats/weight-row} \,\circ\, \img{sfigs/mats/antidiagonal} \right) \times \sum \left( \img{sfigs/mats/weight-col} \,\circ\, \img{sfigs/mats/antidiagonal} \right)}{\sqrt{\sum \left( \img{sfigs/mats/antidiagonal} \right) \times \sum \left( \img{sfigs/mats/weight-rowsqu} \,\circ\, \img{sfigs/mats/antidiagonal} \right) - \left(\sum \left( \img{sfigs/mats/weight-row} \,\circ\, \img{sfigs/mats/antidiagonal} \right) \right)^2} \times \sqrt{\sum \left( \img{sfigs/mats/antidiagonal} \right) \times \sum \left( \img{sfigs/mats/weight-colsqu} \,\circ\, \img{sfigs/mats/antidiagonal} \right) - \left(\sum \left( \img{sfigs/mats/weight-col} \,\circ\, \img{sfigs/mats/antidiagonal} \right) \right)^2}}

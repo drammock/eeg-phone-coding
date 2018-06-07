@@ -1,7 +1,6 @@
 SHELL=/bin/bash
 
 draft:
-	source /opt/miniconda3/bin/deactivate; \
 	pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
@@ -9,3 +8,12 @@ draft:
 	--pdf-engine=xelatex \
 	--number-sections \
 	--output=draft.pdf
+
+supplement:
+	pandoc supplement.md \
+	--from markdown-smart \
+	--filter pandoc-citeproc \
+	--template=template-supplement.tex \
+	--pdf-engine=xelatex \
+	--number-sections \
+	--output=supplement.pdf
