@@ -548,13 +548,13 @@ def simulate_confmat(feature_matrix, accuracy, sparsity_value=0.5):
 
 
 def plot_segmented_wav(df, wav, fs, pad=0., offset=0., t_lims=None, ax=None,
-                       **kwargs):
+                       ann_talker=True, **kwargs):
     if ax is None:
         fig, ax = plt.subplots(**kwargs)
     else:
         fig = ax.get_figure()
     if t_lims is None:
-        beg, end = (df['eeg_tmin'].iloc[0], df['eeg.tmax'].iloc[-1])
+        beg, end = (df['eeg_tmin'].iat[0], df['eeg.tmax'].iat[-1])
     else:
         beg, end = t_lims
     # plot (silent) audio spans between epochs and at beginning/end
@@ -587,9 +587,11 @@ def plot_segmented_wav(df, wav, fs, pad=0., offset=0., t_lims=None, ax=None,
         ax.annotate('ɑ', xy=(time, maximum), xytext=(0, 4), ha='left',
                     **ann_kwargs)
         # talker
-        talker = talker.split('-')[1].upper()
-        ann_kwargs.update(ha='left', va='top', size=10, fontweight='bold')
-        ax.annotate(talker, xy=(tmin, minimum), xytext=(4, 0), **ann_kwargs)
+        if ann_talker:
+            talker = talker.split('-')[1].upper()
+            ann_kwargs.update(ha='left', va='top', size=10, fontweight='bold')
+            ax.annotate(talker, xy=(tmin, minimum), xytext=(4, 0),
+                        **ann_kwargs)
     ax.set_ylim(minimum - 0.01, maximum + 0.01)
     ax.axis('off')
     return fig, ax

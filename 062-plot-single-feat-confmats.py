@@ -27,7 +27,6 @@ from aux_functions import plot_confmat
 paramdir = 'params'
 indir = op.join('processed-data', 'single-feat-confmats')
 outdir = op.join('figures', 'single-feat-confmats')
-feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
 

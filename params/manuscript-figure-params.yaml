@@ -17,8 +17,8 @@ vio: '#AA4499'
 brn: '#999933'
 
 colordict:
-    f1:  '#CC6677'  # red
-    f2:  '#DDCC77'  # yel
+    f1:  '#DDCC77'  # yel
+    f2:  '#CC6677'  # red
     m1:  '#44AA99'  # grn
     m2:  '#88CCEE'  # blu
     hin: '#AA4499'  # vio
