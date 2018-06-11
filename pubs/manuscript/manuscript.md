@@ -6,19 +6,33 @@ author:
 - name: Adrian K. C. Lee
   email: akclee@uw.edu
   affiliation:
-  - Institute for Learning and Brain Sciences, University of Washington
-documentclass: article
-classoption: oneside
+  - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
+documentclass: interact
+classoption: largeformat
 fontsize: 12pt
-geometry:
-- letterpaper
-- margin=1in
 bibliography: bib/eeg-phone-coding.bib
 csl: bib/taylor-and-francis-apa.csl
 abstract: >
   This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds, and the patterns of similarity encoded in phonological feature systems. The technique is applied to three published phonological feature systems, which are found to differ in their ability to recover certain speech sound contrasts from the neural data.
+keywords:
+- neurolinguistics
+- phonology
+- phonological features
+- speech perception
+- EEG
 ---
 <!-- biblio-style: jasasty-ay-web -->
+<!--
+documentclass: article
+geometry:
+- letterpaper
+- margin=1in
+classoption: oneside
+-->
+
+<!-- ORDER: title page; abstract (150 words); keywords (4-8); main text introduction, materials and methods, results, discussion; acknowledgments; declaration of interest statement; references; appendices (as appropriate); table(s) with caption(s) (on individual pages); figures; figure captions (as a list) -->
+
+<!-- FIGURES: 3.25 in (single column width); 6.75 in (full-width); 9.5 in (page height) -->
 
 # Introduction
 
@@ -128,7 +142,7 @@ these experiments assess the fit between neural recordings during speech
 perception and several different feature systems drawn directly from the
 phonological literature.
 
-# Methods
+# Materials and Methods
 
 An overview of the analysis pipeline is given in figure \ref{fig-methods}.
 Briefly, syllables were presented auditorily while recording EEG from the

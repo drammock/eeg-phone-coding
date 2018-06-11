@@ -6,16 +6,20 @@ author:
 - name: Adrian K. C. Lee
   email: akclee@uw.edu
   affiliation:
-  - Institute for Learning and Brain Sciences, University of Washington
-documentclass: article
-classoption: oneside
+  - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
+documentclass: interact
+classoption: suppldata
+bibliography: bib/supplement.bib
+---
+<!--
+documentclass: interact
+classoption: suppldata
 fontsize: 12pt
 geometry:
 - letterpaper
 - margin=2cm
 biblio-style: jasasty-ay-web
-bibliography: bib/supplement.bib
----
+-->
 
 # Matrix diagonality
 
