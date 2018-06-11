@@ -173,5 +173,5 @@ for featsys in feature_systems:
     ax.set_ylabel('matrix diagonality', labelpad=7)
     # savefig
     fig.subplots_adjust(bottom=0.28, top=0.98, left=0.09, right=right_margin)
-    fname = f'fig-loo-diag-{feature_abbrevs[featsys]}.pdf'
+    fname = f'fig-loo-{feature_abbrevs[featsys]}.pdf'
     fig.savefig(op.join(outdir, fname))
