@@ -576,6 +576,26 @@ reflects the maximal diagonality possible for each subject’s matrix. -->
 
 ![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}A, \ref{fig-spe-confmat}A, and \ref{fig-phoible-confmat}A. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](../../figures/manuscript/fig-diagonality-barplot-individ.pdf){width=65%}
 
+To determine which features contributed most to this measure of diagonality, we
+performed a leave-one-out analysis, in which each feature was excluded in turn
+from the computation of the confusion matrix, heirarchical clustering with
+optimal leaf ordering was performed, and the resulting diagonality was
+calculated. This analysis was done on the individual listeners’ confusion
+matrices, rather than on the average confusion matrix across listeners, in
+order to assess cross-subject agreement in the rank ordering of feature
+importance. Results of this analysis for the PHOIBLE feature system are shown
+in figure \ref{fig-loo}<!--; similar figures for the other two phonological
+feature systems can be found in the supplementary material (figures SXXX and
+SXXX)-->. There appears to be considerable heterogeneity in the
+rank ordering of feature importance across subjects, evidenced by the lack of
+monotonicity in the connecting lines for several of the subjects in figure
+\ref{fig-loo}.  Nonetheless, most subjects (7 of 12) showed the greatest
+decrease in diagonality when omitting the “strident” feature, which
+distinguishes /s z ʃ ʒ tʃ dʒ/ from the rest of the coronal consonants (/t d θ
+ð l ɹ n/).
+
+![Leave-one-out analysis of feature influence on the diagonality measure, for the PHOIBLE feature system. Abscissa labels indicate which feature was excluded; connected points reflect diagonality values for a given listener. For each listener, the lowest diagonality is indicated by a large dot; 7 of the 12 listeners showed the greatest decline in diagonality when omitting the “strident” feature. \label{fig-loo}](../../figures/manuscript/fig-loo-PHOIBLE.pdf)
+
 # Discussion
 
 This paper describes a technique for comparing theoretical accounts of
