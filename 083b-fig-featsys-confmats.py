@@ -40,7 +40,7 @@ binarycmap = LinearSegmentedColormap.from_list(name='binary', N=3,
 binarycmap.set_bad('1')
 
 if show_voting:
-    figsize = (7, 4.5)
+    figsize = (6.75, 4.5)
     gridspec_args = (2, 2)
     gridspec_kwargs = dict(left=0.09, right=0.97, bottom=0.1, top=0.83,
                            wspace=0.22, hspace=0., height_ratios=[1, 19])
@@ -66,6 +66,7 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
 
     # init figure
     plt.style.use([op.join(paramdir, 'matplotlib-style-confmats.yaml'),
+                   op.join(paramdir, 'matplotlib-font-myriad.yaml'),
                    {'xtick.labelsize': 10, 'ytick.labelsize': 10}])
     fig = plt.figure(figsize=figsize)
     gs = GridSpec(*gridspec_args, **gridspec_kwargs)

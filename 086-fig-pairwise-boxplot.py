@@ -65,9 +65,11 @@ boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
 # init figure
+# plt.style.use(op.join(paramdir, 'matplotlib-font-myriad.yaml'))
+plt.style.use(op.join(paramdir, 'matplotlib-font-libertine.yaml'))
 height_ratios = (11, 5)
-fig = plt.figure(figsize=(7, 5))
-gs = GridSpec(2, 1, left=0.12, right=0.97, bottom=0.06, top=0.97, hspace=0.05,
+fig = plt.figure(figsize=(6.75, 3))
+gs = GridSpec(2, 1, left=0.1, right=0.97, bottom=0.06, top=0.97, hspace=0.05,
               height_ratios=height_ratios)
 
 ax0 = fig.add_subplot(gs[0])
@@ -93,7 +95,7 @@ ax0.set_yticks([0.8, 0.85, 0.9, 0.95, 1.])
 ax1.set_yticks([0.45, 0.5])
 
 # garnish
-ax0.set_ylabel('Accuracy', size=axislabelsize, labelpad=12)
+ax0.set_ylabel('Accuracy', size=axislabelsize, labelpad=6)
 ax.tick_params(axis='y', labelsize=ticklabelsize + 2)
 ax.tick_params(axis='x', length=0, labelsize=ticklabelsize + 2)
 

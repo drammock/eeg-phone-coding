@@ -30,6 +30,9 @@ else:
              'nonan-eer.tsv')
 fpath = op.join('processed-data-logistic', 'matrix-correlations', fname)
 
+# STYLES
+myriad = op.join(paramdir, 'matplotlib-font-myriad.yaml')
+
 # figure params
 with open(op.join(paramdir, figure_paramfile), 'r') as f:
     figure_params = yaml.load(f)
@@ -68,8 +71,9 @@ boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
 # init figure
-fig, ax = plt.subplots(figsize=(5, 6))
-fig.subplots_adjust(left=0.15, bottom=0.05, top=0.95, right=0.95)
+plt.style.use(myriad)
+fig, ax = plt.subplots(figsize=(3.25, 4))
+fig.subplots_adjust(left=0.2, bottom=0.06, top=0.98, right=0.98)
 
 # plot
 ax = sns.boxplot(ax=ax, data=data, **boxp)
@@ -116,7 +120,7 @@ for _, a, b, s, p in stats[['a', 'b', 'signif', 'p_corr']].itertuples():
 
 # garnish
 sns.despine(ax=ax)
-ax.set_ylabel('Matrix diagonality', size=axislabelsize, labelpad=12)
+ax.set_ylabel('Matrix diagonality', size=axislabelsize, labelpad=10)
 ylims = (0.42, 0.88) if individual else (0.22, 0.76)
 yticks = np.linspace(0.5, 0.8, 4) if individual else np.linspace(0.3, 0.7, 5)
 ax.set_ylim(*ylims)

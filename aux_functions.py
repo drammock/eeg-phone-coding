@@ -398,15 +398,16 @@ def plot_confmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
         fig, ax = plt.subplots(**kwargs)
     with plt.style.context(join('params', 'matplotlib-style-confmats.yaml')):
         ax.imshow(df, origin=origin, norm=norm, cmap=cmap)
+        charis = 'Charis SIL'
         # garnish
         ax.set_xticks(np.arange(df.shape[1])[1::2], minor=False)
         ax.set_xticks(np.arange(df.shape[1])[::2], minor=True)
         ax.set_yticks(np.arange(df.shape[0])[1::2], minor=False)
         ax.set_yticks(np.arange(df.shape[0])[::2], minor=True)
-        ax.set_xticklabels(df.columns[1::2], minor=False)
-        ax.set_xticklabels(df.columns[::2], minor=True)
-        ax.set_yticklabels(df.index[1::2], minor=False)
-        ax.set_yticklabels(df.index[::2], minor=True)
+        ax.set_xticklabels(df.columns[1::2], minor=False, fontname=charis)
+        ax.set_xticklabels(df.columns[::2], minor=True, fontname=charis)
+        ax.set_yticklabels(df.index[1::2], minor=False, fontname=charis)
+        ax.set_yticklabels(df.index[::2], minor=True, fontname=charis)
         xt = ax.get_xticklabels(which='both')
         yt = ax.get_yticklabels(which='both')
         try:
@@ -435,7 +436,7 @@ def plot_featmat(df, ax=None, origin='upper', norm=None, cmap=None, title='',
     ax.set_xticks(np.arange(df.shape[1]), minor=False)
     ax.set_yticks(np.arange(df.shape[0])[:-1] + 0.5, minor=True)
     ax.set_xticks(np.arange(df.shape[1])[:-1] + 0.5, minor=True)
-    ax.set_xticklabels(df.columns, minor=False)
+    ax.set_xticklabels(df.columns, minor=False, fontname='Charis SIL')
     ax.set_yticklabels(df.index, minor=False)
     # annotate
     if len(title):

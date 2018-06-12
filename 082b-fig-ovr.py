@@ -74,8 +74,9 @@ cmaps = [('viridis', dict(vmin=1e-5, vmax=1)),
 
 # init figure
 plt.style.use([op.join(paramdir, 'matplotlib-style-confmats.yaml'),
+               op.join(paramdir, 'matplotlib-font-myriad.yaml'),
                {'xtick.labelsize': 10, 'ytick.labelsize': 10}])
-fig = plt.figure(figsize=(7, 4.5))
+fig = plt.figure(figsize=(6.75, 4.5))
 gs = GridSpec(2, 2, left=0.09, right=0.97, bottom=0.1, top=0.83,
               wspace=0.22, hspace=0., height_ratios=[1, 19])
 

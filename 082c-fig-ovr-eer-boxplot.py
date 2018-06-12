@@ -65,7 +65,9 @@ boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
 # init figure
-fig, ax = plt.subplots(figsize=(7, 5))
+plt.style.use(op.join(paramdir, 'matplotlib-font-myriad.yaml'))
+fig, ax = plt.subplots(figsize=(6.75, 3))
+fig.subplots_adjust(left=0.1, right=0.98, bottom=0.15, top=0.95)
 
 # plot
 ax = sns.boxplot(ax=ax, data=acc, **boxp)

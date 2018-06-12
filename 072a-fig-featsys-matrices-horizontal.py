@@ -51,17 +51,19 @@ feat_sys_names = dict(jfh_sparse='PSA', spe_sparse='SPE',
 
 # load plot style
 plt.style.use([op.join(paramdir, 'matplotlib-style-confmats.yaml'),
+               op.join(paramdir, 'matplotlib-font-myriad.yaml'),
                {'xtick.major.size': 0, 'xtick.minor.size': 0,
                 'ytick.major.size': 0, 'ytick.minor.size': 0,
+                'xtick.labelsize': 11, 'ytick.labelsize': 11,
                 'xtick.color': '0.3', 'ytick.color': '0.3'}])
 cmap = LinearSegmentedColormap.from_list(name='tol', N=2,
                                          colors=['0.8', '0.5'])
 cmap.set_bad('1')
 
 # init figure
-fig = plt.figure(figsize=(6, 8))
+fig = plt.figure(figsize=(6.75, 9))
 axs = ImageGrid(fig, 111, nrows_ncols=(3, 1), axes_pad=0.7, label_mode='all')
-fig.subplots_adjust(hspace=0.5, left=0.05, right=1, bottom=0.05, top=0.95)
+fig.subplots_adjust(hspace=0.5, left=0.1, right=1, bottom=0.04, top=0.96)
 
 # loop over feature systems
 for ax, featsys in zip(axs, feature_systems):

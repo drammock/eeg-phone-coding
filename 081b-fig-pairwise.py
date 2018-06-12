@@ -71,7 +71,7 @@ confmat_tri = pd.DataFrame(np.tril(confmat), index=confmat.index,
 # init figure
 plt.style.use([op.join(paramdir, 'matplotlib-style-confmats.yaml'),
                {'xtick.labelsize': 10, 'ytick.labelsize': 10}])
-fig = plt.figure(figsize=(4, 5))
+fig = plt.figure(figsize=(3.25, 4))
 gs = GridSpec(2, 1, left=0.11, right=0.92, bottom=0.1, top=0.86,
               height_ratios=[1, 19])
 # plot confmat
@@ -79,7 +79,8 @@ ax = fig.add_subplot(gs[1])
 ax = plot_confmat(confmat_tri, ax=ax, norm=LogNorm(vmin=1e-5, vmax=1))
 
 # colorbar
-plt.style.use({'xtick.color': '0.5', 'xtick.major.size': 4})
+plt.style.use([op.join(paramdir, 'matplotlib-font-myriad.yaml'),
+               {'xtick.color': '0.5', 'xtick.major.size': 4}])
 cax = fig.add_subplot(gs[0])
 cbar = fig.colorbar(ax.images[0], cax=cax, orientation='horizontal')
 cbar.outline.set_linewidth(0.2)
