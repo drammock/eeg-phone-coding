@@ -1,0 +1,120 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8
+% interactapasample.tex
+% v1.05 - August 2017
+
+\documentclass[]{interact}
+
+\usepackage{epstopdf}% To incorporate .eps illustrations using PDFLaTeX, etc.
+\usepackage[caption=false]{subfig}% Support for small, `sub' figures and tables
+%\usepackage[nolists,tablesfirst]{endfloat}% To `separate' figures and tables from text if required
+%\usepackage[doublespacing]{setspace}% To produce a `double spaced' document if required
+%\setlength\parindent{24pt}% To increase paragraph indentation when line spacing is doubled
+
+\usepackage[longnamesfirst,sort]{natbib}% Citation support using natbib.sty
+\bibpunct[, ]{(}{)}{;}{a}{,}{,}% Citation support using natbib.sty
+\renewcommand\bibfont{\fontsize{10}{12}\selectfont}% To set the list of references in 10 point font using natbib.sty
+
+%\usepackage[natbibapa,nodoi]{apacite}% Citation support using apacite.sty. Commands using natbib.sty MUST be deactivated first!
+%\setlength\bibhang{12pt}% To set the indentation in the list of references using apacite.sty. Commands using natbib.sty MUST be deactivated first!
+%\renewcommand\bibliographytypesize{\fontsize{10}{12}\selectfont}% To set the list of references in 10 point font using apacite.sty. Commands using natbib.sty MUST be deactivated first!
+
+%\theoremstyle{plain}% Theorem-like structures provided by amsthm.sty
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{proposition}[theorem]{Proposition}
+
+%\theoremstyle{definition}
+%\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{example}[theorem]{Example}
+
+%\theoremstyle{remark}
+%\newtheorem{remark}{Remark}
+%\newtheorem{notation}{Notation}
+
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
+%% MY ADDITIONS
+\usepackage[math]{mathspec}
+\setmainfont[Numbers={Lining}]{Myriad Pro}  % or Minion Pro
+\setmathfont(Digits,Latin)[Uppercase=Regular]{Minion Pro}
+\newfontfamily\ipafont[Scale=MatchLowercase]{Charis SIL}
+\newcommand{\ipa}[1]{{\ipafont #1}}
+
+%% hyperref (pandoc compatibility)
+\usepackage{hyperref}
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor="Daniel McCloy",
+            pdftitle={$title-meta$},
+            colorlinks=false,
+            pdfborder={0 0 0}}
+
+%% tightlist (pandoc compatibility)
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
+
+\begin{document}
+
+% Specify the article type or omit as appropriate
+$if(articletype)$\articletype{$articletype$}$endif$
+
+$if(title)$
+\title{$title$$if(titlenote)$\thanks{$titlenote$}$endif$}
+$endif$
+
+\author{%
+\name{$for(author)$$author.name$$if(author.email)$\thanks{CONTACT $author.name$. Email: $author.email$}$endif$$sep$ \& $endfor$}
+$for(author)$$if(author.affiliation)$\affil{$for(author.affiliation)$$author.affiliation$$sep$ \& $endfor$}$endif$$endfor$
+}
+
+\maketitle
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+
+$if(graphicalabstract)$
+\resizebox{25pc}{!}{\includegraphics{$graphicalabstract$}}
+$endif$
+\end{abstract}
+$endif$
+
+$if(abbreviations)$
+\begin{abbreviations}
+$for(abbreviations)$$abbreviations$$sep$; $endfor$
+\end{abbreviations}
+$endif$
+
+$if(keywords)$
+\begin{keywords}
+$for(keywords)$$keywords$$sep$; $endfor$
+\end{keywords}
+$endif$
+
+$if(amscode)$
+\begin{amscode}
+$for(amscode)$$amscode$$sep$; $endfor$
+\end{amscode}
+$endif$
+
+$if(jelcode)$
+\begin{jelcode}
+$for(jelcode)$$jelcode$$sep$; $endfor$
+\end{jelcode}
+$endif$
+
+$if(pacscode)$
+\begin{pacscode}
+$for(pacscode)$$pacscode$$sep$; $endfor$
+\end{pacscode}
+$endif$
+
+
+$body$
+
+%\processdelayedfloats
+%\appendix
+
+\end{document}

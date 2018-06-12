@@ -6,18 +6,19 @@ author:
 - name: Adrian K. C. Lee
   email: akclee@uw.edu
   affiliation:
-  - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
-documentclass: interact
-classoption: suppldata
-bibliography: bib/supplement.bib
----
-<!--
-documentclass: interact
-classoption: suppldata
+  - Institute for Learning and Brain Sciences, University of Washington, 1715 NE Columbia Rd., Seattle, WA 98195-7988
+documentclass: article
+classoption: oneside
 fontsize: 12pt
 geometry:
 - letterpaper
 - margin=2cm
+bibliography: bib/supplement.bib
+csl: bib/taylor-and-francis-apa.csl
+---
+<!--
+documentclass: interact
+classoption: suppldata
 biblio-style: jasasty-ay-web
 -->
 
@@ -302,35 +303,63 @@ and after cancelling the $\frac{1}{n}$ terms, we have reached the form of equati
 
 ## Signal-to-noise ratio
 
-One potential pitfall when analyzing neurophysiological data is variability in signal-to-noise ratio (SNR) across subjects (this can be especially problematic for group comparisons between patient and control populations).  To ensure that SNR was not the driving factor in our measure of matrix diagonality, we performed some basic analyses of SNR in our data.
+One potential pitfall when analyzing neurophysiological data is variability in
+signal-to-noise ratio (SNR) across subjects (this can be especially problematic
+for group comparisons between patient and control populations).  To ensure that
+SNR was not the driving factor in our measure of matrix diagonality, we
+performed some basic analyses of SNR in our data. Figure \ref{snr-blink-epoch}
+shows the SNR, blink detection performance, and trial retention rate for each
+subject; figure \ref{snr-regression} shows the (lack of) relationship between
+SNR and the computed “matrix diagonality” values for each subject in each
+phonological feature system.
 
-\begin{SCfigure}[5][h]
-\includegraphics[width=0.75\textwidth]{sfigs/subject-summary}
-\caption{Plots of SNR, blink detection, and retained epochs for each subject.  The total number of trials varies slightly for each subject due to additional (unanalyzed) trials from foreign talkers; each listener heard only 2 of the 4 foreign talkers, and the languages represented by the foreign talkers did not necessarily have equal numbers of consonants.}
-\end{SCfigure}
+\begin{figure}
+\includegraphics{sfigs/subject-summary}
+\caption{Plots of SNR, blink detection, and retained epochs for each subject.  The total number of trials varies slightly for each subject due to additional (unanalyzed) trials from foreign talkers; each listener heard only 2 of the 4 foreign talkers, and the languages represented by the foreign talkers did not necessarily have equal numbers of consonants.\label{snr-blink-epoch}}
+\end{figure}
 
 \phantom{x}
 
 \begin{figure}
 \includegraphics{sfigs/snr-vs-matrix-diagonality}
-\caption{SNR versus matrix diagonality for each phonological feature system. There is no evidence to support a correlation between SNR and matrix diagonality in any of the three feature systems (all p-values > 0.05, uncorrected).}
+\caption{SNR versus matrix diagonality for each phonological feature system. Two-letter codes are unique subject identifiers. There is no evidence to support a correlation between SNR and matrix diagonality in any of the three feature systems (all p-values > 0.05, uncorrected).\label{snr-regression}}
 \end{figure}
+
+
+## Accuracy of individual pairwise classifiers
+
+The mean accuracy across subjects for any given pairwise comparison was
+generally above 90%.  Figure \ref{pairwise-violin} shows the accuracy of each
+individual pairwise comparison, along with the distribution of values for each
+subject.
+
+\begin{figure}
+\includegraphics{sfigs/fig-pairwise-boxplot}
+\caption{Violin plot of accuracy scores for pairwise classifiers, with overlaid strip plots (jittered along the horizontal dimension). The outlier point for subject IT is the pairwise classifier for /n/ versus /p/.\label{pairwise-violin}}
+\end{figure}
+
 
 ## Confusion matrices for individual subjects
 
+Here we present confusion matrices for each of the three phonological feature
+systems, computed separately for each subject. Cross-subject similarity is
+good; confusion matrices for two subjects for a given phonological feature
+system are generally more similar than confusion matrices for a single subject
+for two different phonological feature systems.
+
 \begin{figure}
 \includegraphics{sfigs/fig-psa}
-\caption{Confusion matrices for each subject for the PSA phonological feature system classifiers.}
+\caption{Confusion matrices for each subject for the PSA phonological feature system classifiers.\label{psa}}
 \end{figure}
 
 \begin{figure}
 \includegraphics{sfigs/fig-spe}
-\caption{Confusion matrices for each subject for the SPE phonological feature system classifiers.}
+\caption{Confusion matrices for each subject for the SPE phonological feature system classifiers.\label{spe}}
 \end{figure}
 
 \begin{figure}
 \includegraphics{sfigs/fig-phoible}
-\caption{Confusion matrices for each subject for the PHOIBLE phonological feature system classifiers.}
+\caption{Confusion matrices for each subject for the PHOIBLE phonological feature system classifiers.\label{phoible}}
 \end{figure}
 
 # References
