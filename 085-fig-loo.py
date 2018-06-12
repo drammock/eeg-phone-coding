@@ -32,12 +32,20 @@ swarm = False
 
 if target == 'presentation':
     outdir = op.join('figures', 'jobtalk')
+    figure_paramfile = 'jobtalk-figure-params.yaml'
     plt.style.use('dark_background')
 else:
     outdir = op.join('figures', 'manuscript')
+    figure_paramfile = 'manuscript-figure-params.yaml'
 
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
+with open(op.join(paramdir, figure_paramfile), 'r') as f:
+    figure_params = yaml.load(f)
+    boxplot_color = figure_params['boxplot']
+    median_color = figure_params['median']
+    swarm_color = figure_params['swarm']
+
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -58,10 +66,10 @@ datadir = 'processed-data-logistic'
 indir = op.join(datadir, 'single-feat-confmats')
 
 # plot params
-qrtp = dict(color='none', facecolor='0.8')                    # quartile box
+qrtp = dict(color='none', facecolor=boxplot_color)            # quartile box
 whsp = dict(linewidth=0)                                      # whisker
-medp = dict(color='w', linewidth=2)                           # median line
-ptsp = dict(size=4, color='k', linewidth=0)                   # data pts
+medp = dict(color=median_color, linewidth=2)                  # median line
+ptsp = dict(size=4, color=swarm_color, linewidth=0)           # data pts
 boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
@@ -170,7 +178,8 @@ for featsys in feature_systems:
                            edgecolor='none')
     # garnish
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-    ax.set_ylabel('matrix diagonality', labelpad=7)
+    ax.set_ylabel('Matrix diagonality', labelpad=7)
+    sns.despine(ax=ax)
     # savefig
     fig.subplots_adjust(bottom=0.28, top=0.98, left=0.09, right=right_margin)
     fname = f'fig-loo-{feature_abbrevs[featsys]}.pdf'

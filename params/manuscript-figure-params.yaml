@@ -16,6 +16,11 @@ blu: '#88CCEE'
 vio: '#AA4499'
 brn: '#999933'
 
+# plot-specific colors
+boxplot: '0.75'
+median: 'w'
+swarm: 'k'
+
 colordict:
     f1:  '#DDCC77'  # yel
     f2:  '#CC6677'  # red

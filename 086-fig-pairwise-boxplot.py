@@ -31,7 +31,7 @@ if target == 'presentation':
     plt.style.use('dark_background')
 else:
     figure_paramfile = 'manuscript-figure-params.yaml'
-    outdir = op.join('figures', 'manuscript')
+    outdir = op.join('figures', 'supplement')
 
 # BASIC FILE I/O
 paramdir = 'params'
@@ -40,15 +40,11 @@ datadir = 'processed-data-pairwise'
 # figure params
 with open(op.join(paramdir, figure_paramfile), 'r') as f:
     figure_params = yaml.load(f)
-    col = figure_params['yel']
-    bad_color = figure_params['baddatacolor']
-    good_color = figure_params['gooddatacolor']
-    colordict = figure_params['colordict']
+    boxplot_color = figure_params['boxplot']
+    median_color = figure_params['median']
+    swarm_color = figure_params['swarm']
     axislabelsize = figure_params['axislabelsize']
     ticklabelsize = figure_params['ticklabelsize']
-    ticklabelcolor = figure_params['ticklabelcolor']
-    datacolor = figure_params['datacolor']
-    bgcolor = figure_params['bgcolor']
 
 # load EERs
 fname = 'eers.tsv'
@@ -56,11 +52,10 @@ eers = pd.read_csv(op.join(datadir, fname), sep='\t', index_col=0)
 acc = 1 - eers
 
 # plot params
-qrtp = dict(color='none', facecolor=bad_color)                # quartile box
-whsp = dict(linewidth=0)                                      # whisker
-medp = dict(color=bgcolor, linewidth=2)                       # median line
-sigp = dict(color=col, linewidth=2)                           # signif. bracket
-ptsp = dict(size=2, color=datacolor, alpha=0.3, linewidth=0)  # data pts
+qrtp = dict(color='none', facecolor=boxplot_color)              # quartile box
+whsp = dict(linewidth=0)                                        # whisker
+medp = dict(color=median_color, linewidth=2)                    # median line
+ptsp = dict(size=1, color=swarm_color, linewidth=0)             # data pts
 boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
@@ -78,9 +73,9 @@ ax1 = fig.add_subplot(gs[1], sharex=ax0)
 # plot
 for ax in (ax0, ax1):
     ax = sns.violinplot(ax=ax, data=acc, cut=0, scale='area', inner=None,
-                        linewidth=0.25, color='0.9')
+                        linewidth=0.5, color=boxplot_color)
     #ax = sns.boxplot(ax=ax, data=acc, **boxp)
-    ax = sns.stripplot(ax=ax, jitter=0.2, data=acc, **ptsp)
+    ax = sns.stripplot(ax=ax, jitter=0.125, data=acc, **ptsp)
     #ax = sns.swarmplot(ax=ax, data=acc, **ptsp)
     sns.despine(ax=ax)
 

@@ -46,6 +46,9 @@ with open(op.join(paramdir, figure_paramfile), 'r') as f:
     ticklabelcolor = figure_params['ticklabelcolor']
     datacolor = figure_params['datacolor']
     bgcolor = figure_params['bgcolor']
+    boxplot_color = figure_params['boxplot']
+    median_color = figure_params['median']
+    swarm_color = figure_params['swarm']
 
 # load data
 diag_data = pd.read_csv(fpath, sep='\t', index_col=0)
@@ -62,11 +65,11 @@ avg_data = data.loc['average']
 data.drop('average', axis='index', inplace=True)
 
 # plot params
-qrtp = dict(color='none', facecolor=bad_color)                # quartile box
+qrtp = dict(color='none', facecolor=boxplot_color)            # quartile box
 whsp = dict(linewidth=0)                                      # whisker
-medp = dict(color=bgcolor, linewidth=2)                       # median line
-sigp = dict(color=col, linewidth=2)                           # signif. bracket
-ptsp = dict(size=6, color=datacolor, linewidth=0)             # data pts
+medp = dict(color=median_color, linewidth=2)                  # median line
+sigp = dict(color=col, linewidth=1.5)                         # signif. bracket
+ptsp = dict(size=4.5, color=swarm_color, linewidth=0)         # data pts
 boxp = dict(showcaps=False, showfliers=False, boxprops=qrtp, medianprops=medp,
             width=0.4, whiskerprops=whsp)
 
