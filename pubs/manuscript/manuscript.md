@@ -3,7 +3,9 @@ title: >
   Learning phonological features from EEG recordings during speech perception: three feature systems compared
 author:
 - name: Daniel R. McCloy
+  orcid: 0000-0002-7572-3241
 - name: Adrian K. C. Lee
+  orcid: 0000-0002-7611-0500
   email: akclee@uw.edu
   affiliation:
   - Institute for Learning and Brain Sciences, University of Washington, 1715 NE Columbia Rd., Seattle, WA 98195-7988
@@ -156,7 +158,7 @@ create a confusion matrix summarizing the similarity of neural responses to the
 different consonants, as well as the degree to which the phonological features
 defined by the given system capture those patterns of similarity.
 
-![Methods overview. **A:** portion of a stimulus waveform presented to one subject, with one stimulus highlighted; layout of EEG sensors is shown at right. **B:** corresponding EEG recording with middle epoch highlighed. Light-colored channels are “bad” channels for this subject, and are excluded from processing (hence they show large deflections due to blinks, which have been regressed out of the “good” channels). **C:** the highlighted epoch from panel B after Denoising Source Separation (DSS) to reduce dimensionality across channels. **D:** phonological feature matrix, with heavy boxes indicating values for the three syllables shonw in panel A for a given feature (“voiced”). **E:** DSS signals after concatenation, labelled with the “voiced” feature values from panel D and ready for classification. The process is repeated for each of the phonological features (rows) in panel D. **F:** confusion matrix made by aggregating classification results across all phonological features in the phonological system.\label{fig-methods}](../../figures/manuscript/fig-methods-diagram.pdf)
+![Methods overview. **A:** portion of a stimulus waveform presented to one subject, with one stimulus highlighted; layout of EEG sensors is shown at right. **B:** corresponding EEG recording with middle epoch highlighed. Light-colored channels are “bad” channels for this subject, and are excluded from processing (hence they show large deflections due to blinks, which have been regressed out of the “good” channels). **C:** the highlighted epoch from panel B after Denoising Source Separation (DSS) to reduce dimensionality across channels. **D:** phonological feature matrix, with heavy boxes indicating values for the three syllables shonw in panel A for a given feature (“voiced”). **E:** DSS signals after concatenation, labelled with the “voiced” feature values from panel D and ready for classification. The process is repeated for each of the phonological features (rows) in panel D. **F:** confusion matrix made by aggregating classification results across all phonological features in the phonological system.\label{fig-methods}](fig-methods-diagram.eps)
 
 ## Stimulus design
 
@@ -354,7 +356,7 @@ a smaller number of binary classification problems. Feature value assignments
 in the three feature systems are illustrated in figure
 \ref{fig-feature-matrices}.
 
-![Feature matrices for the three feature systems used in Experiment 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](../../figures/manuscript/fig-featsys-matrices.pdf)
+![Feature matrices for the three feature systems used in Experiment 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](fig-featsys-matrices.eps)
 
 In all three experiments, logistic regression classifiers were used, as
 implemented in `scikit-learn` [@sklearn]. Stratified 5-fold cross-validation
@@ -458,7 +460,7 @@ imposed an equal-error-rate constraint, there is no difference between, e.g.,
 proportion of \ipa{/p/} trials mistaken for \ipa{/b/} and proportion of
 \ipa{/b/} trials mistaken for \ipa{/p/}, so the upper triangle is omitted.
 
-![Across-subject average accuracy/error for pairwise classifiers. Off-diagonal cells represent the error rates for the pairwise classifier indicated by that cell’s row/column labels; diagonal cells represent the mean accuracy for all pairs in which that consonant is one element.\label{fig-pairwise-confmat}](../../figures/manuscript/fig-pairwise.pdf)
+![Across-subject average accuracy/error for pairwise classifiers. Off-diagonal cells represent the error rates for the pairwise classifier indicated by that cell’s row/column labels; diagonal cells represent the mean accuracy for all pairs in which that consonant is one element.\label{fig-pairwise-confmat}](fig-pairwise.eps)
 
 In general, the mean accuracy across subjects for a given pairwise comparison
 was always above 90%; individual accuracy scores for each subject were generally above 80% and are shown in
@@ -485,7 +487,7 @@ consonants from the EEG data; accuracies ranged from below chance to
 near-perfect on individual subject data, with first quartiles between 74% and
 82% and third quartiles between 83% and 92% (see figure \ref{fig-ovr-boxplot}).
 
-![Within-subject distributions of accuracy for one-versus-rest classifiers. Boxes show quartiles; dots are individual classifier accuracies.\label{fig-ovr-boxplot}](../../figures/manuscript/fig-ovr-boxplot.pdf)
+![Within-subject distributions of accuracy for one-versus-rest classifiers. Boxes show quartiles; dots are individual classifier accuracies.\label{fig-ovr-boxplot}](fig-ovr-boxplot.eps)
 
 Moreover, despite passable accuracy scores, the classifiers don’t actually
 learn much, classifying both non-target and target trials as the target
@@ -510,7 +512,7 @@ underscoring the impression that a bank of OVR classifiers is probably a poor
 model of the information extraction carried out by the brain during speech
 perception.
 
-![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. **A:** cells on the diagonal represent the ratio of true positive classifications to total targets (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive classifications to total non-targets (“false alarm rate”) for the consonant given by the row label. **B:** most frequent classification of each stimulus consonant, emulating across-classifier voting. Consonants that are correctly identified are indicated by dark gray cells along the main diagonal; consonants that are most frequently incorrectly identified are medium-gray cells.\label{fig-ovr-confmat}](../../figures/manuscript/fig-ovr.pdf)
+![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. **A:** cells on the diagonal represent the ratio of true positive classifications to total targets (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive classifications to total non-targets (“false alarm rate”) for the consonant given by the row label. **B:** most frequent classification of each stimulus consonant, emulating across-classifier voting. Consonants that are correctly identified are indicated by dark gray cells along the main diagonal; consonants that are most frequently incorrectly identified are medium-gray cells.\label{fig-ovr-confmat}](fig-ovr.eps)
 
 ## Experiment 3: Phonological feature classifiers
 
@@ -533,7 +535,7 @@ Therefore, the row and column orders do not necessarily match across the three
 figures, so attention to the row and column labels is necessary when visually
 comparing the matrices.
 
-![Results for the PSA feature system. **A:** Confusion matrix derived from the PSA phonological feature classifiers. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}). **B:** most frequent classification of each stimulus consonant.\label{fig-psa-confmat}](../../figures/manuscript/fig-psa.pdf)
+![Results for the PSA feature system. **A:** Confusion matrix derived from the PSA phonological feature classifiers. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}). **B:** most frequent classification of each stimulus consonant.\label{fig-psa-confmat}](fig-psa.eps)
 
 Compared to the confusion matrices for pairwise (figure
 \ref{fig-pairwise-confmat}A) and OVR (figure \ref{fig-ovr-confmat}A)
@@ -559,7 +561,7 @@ information from all the phonological feature classifiers in the PSA system
 still results in the correct classification being the dominant one, for all
 consonants except \ipa{/n/} (figure \ref{fig-psa-confmat}B).
 
-![Results for the SPE feature system. **A:** Confusion matrix derived from the SPE phonological feature classifiers.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}). **B:** most frequent classification of each stimulus consonant.\label{fig-spe-confmat}](../../figures/manuscript/fig-spe.pdf)
+![Results for the SPE feature system. **A:** Confusion matrix derived from the SPE phonological feature classifiers.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}). **B:** most frequent classification of each stimulus consonant.\label{fig-spe-confmat}](fig-spe.eps)
 
 Looking across feature systems, similar 2×2 submatrices of poorly discriminated
 consonant pairs are seen in figure \ref{fig-spe-confmat}A (e.g., \ipa{/ɹ l/}
@@ -575,7 +577,7 @@ systems, although the distinction is encoded by different features in each:
 PHOIBLE system show a large block in the lower right quadrant corresponding to
 \ipa{/t d θ ð s z l n/} (the “+anterior” consonants in that system).
 
-![Confusion matrices for the PHOIBLE feature system. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left,  the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices /s z/ and /ð θ/ within it), and the relative distinctiveness of /j w/ from all other consonants, but not from each other.\label{fig-phoible-confmat}](../../figures/manuscript/fig-phoible.pdf)
+![Confusion matrices for the PHOIBLE feature system. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left,  the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices /s z/ and /ð θ/ within it), and the relative distinctiveness of /j w/ from all other consonants, but not from each other.\label{fig-phoible-confmat}](fig-phoible.eps)
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
@@ -596,7 +598,7 @@ against the signal-to-noise ratio of their epoched EEG data, and found no
 evidence to support a correlation (see supplementary material, figures S2 and
 S3).
 
-![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}A, \ref{fig-spe-confmat}A, and \ref{fig-phoible-confmat}A. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](../../figures/manuscript/fig-diagonality-barplot-individ.pdf)
+![Matrix diagonality measures for each of the three feature systems tested. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}A, \ref{fig-spe-confmat}A, and \ref{fig-phoible-confmat}A. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](fig-diagonality-barplot-individ.eps)
 
 To determine which features contributed most to this measure of diagonality, we
 performed a leave-one-out analysis, in which each feature was excluded in turn
@@ -616,7 +618,7 @@ decrease in diagonality when omitting the “strident” feature, which
 distinguishes \ipa{/s z ʃ ʒ tʃ dʒ/} from the rest of the coronal consonants
 (\ipa{/t d θ ð l ɹ n/}).
 
-![Leave-one-out analysis of feature influence on the diagonality measure, for the PHOIBLE feature system. Abscissa labels indicate which feature was excluded; connected points reflect diagonality values for a given listener; boxes show quartiles across listeners for each left-out feature. For each listener, the lowest diagonality is indicated by a large dot; 7 of the 12 listeners showed the greatest decline in diagonality when omitting the “strident” feature. \label{fig-loo}](../../figures/manuscript/fig-loo-PHOIBLE.pdf)
+![Leave-one-out analysis of feature influence on the diagonality measure, for the PHOIBLE feature system. Abscissa labels indicate which feature was excluded; connected points reflect diagonality values for a given listener; boxes show quartiles across listeners for each left-out feature. For each listener, the lowest diagonality is indicated by a large dot; 7 of the 12 listeners showed the greatest decline in diagonality when omitting the “strident” feature. \label{fig-loo}](fig-loo-PHOIBLE.eps)
 
 # Discussion
 
@@ -797,7 +799,7 @@ The authors report no conflict of interest.
 
 # Funding {-}
 
-Funding for this work comes in part from NIH grant T32DC005361.
+This work was supported in part by the NIH under grant T32DC005361.
 
 # References {-}
 

@@ -34,3 +34,10 @@ latex:
 	--template=template-taylor-francis.tex \
 	--number-sections \
 	--output=submission.tex
+
+eps:
+	while read f; do inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"; done <auto-convertible-figure-list.txt
+	echo "fig-methods-diagram.pdf and fig-pairwise.pdf must be converted manually using Illustrator"
+	# inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"
+	# pdftops -eps "figures/$$f" "$$(basename $$f pdf)eps"
+	# gs -q -dNOCACHE -dNOPAUSE -dBATCH -dSAFER -sDEVICE=epswrite -sOutputFile=output.eps "$$(basename $$f pdf)eps" "figures/$$f"
