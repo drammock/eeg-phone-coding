@@ -60,8 +60,8 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
 
 # init figure
 plt.ioff()
-plt.style.use({'font.serif': 'Charis SIL', 'font.family': 'serif'})
-fig = plt.figure(figsize=(7.5, 6))
+plt.style.use(op.join(paramdir, 'matplotlib-font-myriad.yaml'))
+fig = plt.figure(figsize=(6.75, 6))
 
 
 # # # # # # # # # # # #
@@ -150,7 +150,7 @@ ch_colors = [bad_color if ch in raw.info['bads'] else good_color
 if include_stim_channel:
     ch_colors[-1] = blu
 # init figure
-eeg_axes = fig.add_axes((0, 0, 0.4, 0.95))
+eeg_axes = fig.add_axes((0, 0, 0.35, 0.95))
 # plot EEG
 for channel, color in zip(data, ch_colors):
     eeg_axes.plot(times, channel, color=color, linewidth=0.5)
@@ -205,8 +205,8 @@ head = np.fliplr(head)  # put ear on left
 aspect = head.shape[1] / head.shape[0]
 width = 0.16
 height = width / aspect
-x = eeg_axes.get_position().x1 - 0.05
-head_axes = fig.add_axes((x, 1 - height, width, height))
+left = eeg_axes.get_position().x1 - 0.04
+head_axes = fig.add_axes((left, 0.99 - height, width, height))
 head_axes.imshow(head)
 head_axes.axis(onoff)
 eeg_axes.set_zorder(2)
@@ -284,8 +284,8 @@ arrow_axes.axis(onoff)
 # # # #
 # DSS #
 # # # #
-top = feat_axes.get_position().y0 - 0.1
-left = eeg_axes.get_position().x1 + 0.03
+top = feat_axes.get_position().y0 - 0.08
+left = eeg_axes.get_position().x1 + 0.06
 height = eeg_axes.get_position().height / 5
 width = 0.2
 dss_axes = fig.add_axes((left, top - height, width, height))
@@ -324,7 +324,7 @@ dss_axes.axis(onoff)
 bottom = dss_axes.get_position().y0
 width = dss_axes.get_position().width
 height = dss_axes.get_position().height / 2
-left = 1 - width
+left = 0.99 - width
 trial_axes = fig.add_axes((left, bottom + 0.4 * height, width, height))
 # plot unrolled DSS
 y_offsets = np.arange(data.shape[0])[::-1, np.newaxis]
@@ -396,9 +396,9 @@ for ix, (ipa, conn1, conn2, arrowstyle) in enumerate(zip(df['ipa'], conns1,
 # # # # # # # # # # #
 arrow_dict = dict(arrowstyle='simple', fc=arrowcolor, ec='none')
 dss_axes.annotate('', xy=(0, 0.5), xycoords='axes fraction',
-                  xytext=(-0.2, 0.5), textcoords='axes fraction',
+                  xytext=(-0.36, 0.5), textcoords='axes fraction',
                   arrowprops=arrow_dict)
-dss_axes.annotate('DSS', xy=(-0.1, 0.5), xycoords='axes fraction',
+dss_axes.annotate('DSS', xy=(-0.18, 0.5), xycoords='axes fraction',
                   xytext=(0, 5), textcoords='offset points', ha='center',
                   va='baseline')
 
@@ -408,14 +408,14 @@ dss_axes.annotate('DSS', xy=(-0.1, 0.5), xycoords='axes fraction',
 # # # # # # # # # # # #
 from_data = dss_axes.transData.transform
 to_axes = dss_axes.transAxes.inverted().transform
-conns = ('arc3,rad=0.2', 'arc3,rad=0.15', 'arc3,rad=0.05', 'arc3,rad=-0.05',
+conns = ('arc3,rad=0.23', 'arc3,rad=0.15', 'arc3,rad=0.05', 'arc3,rad=-0.05',
          'arc3,rad=-0.15')
 arrowstyles = ('-', '-', '-', '-', '-|>')
 for y, conn, arrowstyle in zip(dss_y_offsets, conns, arrowstyles):
     yA = to_axes(from_data((1, y)))[1]
     p = ConnectionPatch(axesA=dss_axes, axesB=trial_axes,
                         coordsA='axes fraction', coordsB='axes fraction',
-                        xyA=(1, yA), xyB=(-0.11, 0.5),
+                        xyA=(1, yA), xyB=(-0.12, 0.5),
                         arrowstyle=arrowstyle, color=arrowcolor,
                         connectionstyle=conn)
     trial_axes.add_artist(p)
@@ -425,10 +425,11 @@ for y, conn, arrowstyle in zip(dss_y_offsets, conns, arrowstyles):
 # confusion matrix  #
 # # # # # # # # # # #
 right = 0.95
-bottom = 0.08
-top = dss_axes.get_position().y0 - 0.05
+bottom = 0.07
+top = dss_axes.get_position().y0 - 0.07
 height = top - bottom
-conf_axes = fig.add_axes((right - height, bottom, height, height))
+cbar_width = height / 5
+conf_axes = fig.add_axes((right - cbar_width - height, bottom, height, height))
 fname = ('row-ordered-eer-confusion-matrix-nonan-eng-cvalign-dss5-'
          '{}-average.tsv'.format(featsys))
 fpath = op.join('processed-data-logistic', 'ordered-confusion-matrices', fname)
@@ -438,25 +439,25 @@ ax = plot_confmat(confmat, ax=conf_axes, cmap='viridis',
 # axis labels
 ax.set_ylabel('Stimulus phoneme')
 ax.set_xlabel('Predicted phoneme')
-conf_axes.yaxis.tick_right()
-conf_axes.yaxis.set_label_position('right')
-conf_axes.tick_params(which='both', labelsize=7)
+#conf_axes.yaxis.tick_right()
+#conf_axes.yaxis.set_label_position('right')
+conf_axes.tick_params(which='both', labelsize=7, length=0)
 
 
 # # # # # # #
 # colorbar  #
 # # # # # # #
-right = conf_axes.get_position().x0 + 0.01
+left = conf_axes.get_position().x1 + 0.005
 bottom = conf_axes.get_position().y0
 top = conf_axes.get_position().y1
 width = conf_axes.get_position().width / 18
-cbar_axes = fig.add_axes((right - width, bottom, width, top - bottom))
+cbar_axes = fig.add_axes((left, bottom, width, top - bottom))
 cbar = fig.colorbar(conf_axes.images[0], cax=cbar_axes,
                     orientation='vertical')
 cbar.outline.set_linewidth(0.2)
 # scale on left
-cbar_axes.yaxis.tick_left()
-cbar_axes.yaxis.set_label_position('left')
+#cbar_axes.yaxis.tick_left()
+#cbar_axes.yaxis.set_label_position('left')
 cbar_axes.tick_params(which='both', labelsize=7, width=0.2, colors='0.5')
 # colorbar ticks
 cuts = np.array([1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1])
