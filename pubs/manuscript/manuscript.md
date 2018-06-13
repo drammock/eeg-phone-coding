@@ -1,6 +1,6 @@
 ---
 title: >
-  Learning phonological features from EEG recordings during speech perception: three feature systems compared
+  EEG-derived phoneme confusion matrices show fit between phonological feature systems and brain responses to speech
 author:
 - name: Daniel R. McCloy
   orcid: 0000-0002-7572-3241
@@ -14,7 +14,8 @@ classoption: largeformat
 bibliography: bib/eeg-phone-coding.bib
 csl: bib/taylor-and-francis-apa.csl
 abstract: >
-  This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds, and the patterns of similarity encoded in phonological feature systems. The technique is applied to three published phonological feature systems, which are found to differ in their ability to recover certain speech sound contrasts from the neural data.
+  This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds and the patterns of similarity encoded in phonological feature systems, by quantifying the recoverability of phonological features from the neural data using supervised learning. The technique is applied to EEG recordings collected during passive listening to consonant-vowel syllables. Three published phonological feature systems are compared, and are shown to differ in their ability to recover certain speech sound contrasts from the neural data. For the phonological feature system that best reflects patterns of similarity in the neural data, a leave-one-out analysis indicates some consistency across subjects in which features have greatest impact on the fit, but considerable across-subject heterogeneity remains in the rank ordering of features in this regard.
+articletype: research article
 keywords:
 - neurolinguistics
 - phonology
@@ -445,9 +446,9 @@ derivation of this measure is provided in the Supplementary Material.
 
 This notion of diagonality requires that adjacent rows be relatively similar
 and distant rows be relatively dissimilar (and likewise for columns);
-otherwise, the formula’s notion of distance between rows (or columns) is
-unjustified.  Therefore, before computing diagonality, the matrices were
-submitted to a heirarchical clustering of the rows with the optimal leaf
+otherwise, the formula’s notion of distance between rows (or columns) cannot
+be justifiably applied.  Therefore, before computing diagonality, the matrices
+were submitted to a heirarchical clustering of the rows using the optimal leaf
 ordering algorithm [@BarJosephEtAl2001].
 
 # Results
