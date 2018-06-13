@@ -433,7 +433,7 @@ matrix, a measure of relative diagonality was computed as in Equation
 @eq-diagonality, where $A$ is the matrix, $i$ is an integer vector of
 row or column indices (starting at 1 in the upper-left corner), and $w$ is a vector of ones of the same length as $i$.
 
-(@eq-diagonality) $$\mathrm{diagonality} = \frac{wAw^T \times iAi^T - iAw^T \times wAi^T}{\sqrt{wAw^T \times i^2Aw^T - (iAw^T)^2} \times \sqrt{wAw^T \times wA(i^2)^T - (wAi^T)^2}} $$
+(@eq-diagonality) $$\text{diagonality} = \frac{wAw^T \times iAi^T - iAw^T \times wAi^T}{\sqrt{wAw^T \times i^2Aw^T - (iAw^T)^2} \times \sqrt{wAw^T \times wA(i^2)^T - (wAi^T)^2}}$$
 
 
 Briefly, this is an adaptation of the Pearson correlation for samples. It
