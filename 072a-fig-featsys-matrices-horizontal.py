@@ -61,7 +61,7 @@ cmap = LinearSegmentedColormap.from_list(name='tol', N=2,
 cmap.set_bad('1')
 
 # init figure
-fig = plt.figure(figsize=(6.75, 9))
+fig = plt.figure(figsize=(6, 8))
 axs = ImageGrid(fig, 111, nrows_ncols=(3, 1), axes_pad=0.7, label_mode='all')
 fig.subplots_adjust(hspace=0.5, left=0.1, right=1, bottom=0.04, top=0.96)
 
