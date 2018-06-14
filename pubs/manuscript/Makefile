@@ -13,7 +13,6 @@ draft:
 	--variable fontsize=12pt \
 	--csl bib/taylor-and-francis-apa.csl \
 	--output=draft.pdf
-	#--variable biblio-style=jasasty-ay-web \
 
 supplement:
 	pandoc supplement.md \
@@ -56,3 +55,19 @@ eps:
 	# inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"
 	# pdftops -eps "figures/$$f" "$$(basename $$f pdf)eps"
 	# gs -q -dNOCACHE -dNOPAUSE -dBATCH -dSAFER -sDEVICE=epswrite -sOutputFile=output.eps "$$(basename $$f pdf)eps" "figures/$$f"
+
+coverletter:
+	cd cover-letter; \
+	pandoc cover-letter.md \
+	--from markdown-smart \
+	--template=template-ilabs-letterhead.tex \
+	--pdf-engine=xelatex \
+	--output=cover-letter.pdf
+
+wordcount:
+	pandoc manuscript-nofigs.md \
+	--from markdown-smart \
+	--filter pandoc-citeproc \
+	--csl bib/taylor-and-francis-apa.csl \
+	--standalone \
+	--output=for-wordcount.html
