@@ -46,7 +46,7 @@ for another; @Jones1957].  Within any given language, the set of  phonemes is
 widely held to be structured in terms of *phonological distinctive features*
 (hereafter “phonological features”) — properties common to some subset of the
 phoneme inventory.  For example, in some phonological feature systems, all
-phonemes characterized by sounds made with complete occlusion of the oral tract
+phonemes characterised by sounds made with complete occlusion of the oral tract
 share the feature “non-continuant.”  There are a number of competing hypotheses
 regarding the particular details of what the features are, and whether there is
 a single universal feature system or a separate feature system for each
@@ -57,8 +57,8 @@ theory of the 20th century, for their descriptive power in capturing sound
 patterns, and for their potential to capture the structure of phonological
 knowledge as represented in the brain [@MielkeHume2006].  Few linguists would
 dispute the first of these claims; as every first-year phonology student
-learns, descriptions of how a phoneme is realized differently in different
-contexts can be readily generalized to other phonemes undergoing similar
+learns, descriptions of how a phoneme is realised differently in different
+contexts can be readily generalised to other phonemes undergoing similar
 pronunciation changes if the change is expressed in terms of phonological
 features rather than individual sounds. To give a common example, English
 voiceless stops \ipa{/p t k/} are aspirated in word-initial position or before
@@ -155,7 +155,7 @@ dimensionality reduction, and were labelled with the phonological feature
 values of each syllable‘s consonant. Those labels were used to train a set of
 phonological feature classifiers (one for each phonological feature in the
 system), and the performance of the system of classifiers was combined to
-create a confusion matrix summarizing the similarity of neural responses to the
+create a confusion matrix summarising the similarity of neural responses to the
 different consonants, as well as the degree to which the phonological features
 defined by the given system capture those patterns of similarity.
 
@@ -182,7 +182,7 @@ each CV syllable, as well as the consonant-vowel transition.  Recordings were
 then highpass filtered using a fourth-order Butterworth filter with a cutoff
 frequency of 50 Hz (to remove very low frequency background noise present in
 some of the recordings).  The segmented syllables were then excised into
-separate WAV files, and root-mean-square normalized to equate loudness across
+separate WAV files, and root-mean-square normalised to equate loudness across
 talkers and stimulus identities.  Final duration of stimuli ranged from 311 ms
 (female 2 \ipa{/tɑ/}) to 677 ms (female 1 \ipa{/θɑ/}).
 
@@ -222,7 +222,7 @@ auditory stimuli.  The cartoons were episodes of *Shaun the Sheep*
 [@ShaunTheSheep; 6-7 minutes in duration] edited to remove the opening and
 closing credits, and presented without audio or subtitles (the cartoon does not
 normally include any dialog, so the plots are easy to follow without subtitles
-or sound).  Cartoon episode order was randomized for each participant.
+or sound).  Cartoon episode order was randomised for each participant.
 Auditory stimulus blocks were timed to correspond to the duration of the
 cartoons.  Listeners were given the chance to take breaks between each block,
 and encouraged to sit still during each block to reduce motion artifacts in the
@@ -240,7 +240,7 @@ binary identifier of stimulus identity was sent from the presentation computer
 to the EEG acquisition computer via TTL;<!-- (carried on the third and fourth
 bits) and recorded alongside the EEG signal.  A-->
 a second TTL signal <!--(a single least-significant bit)-->
-was sent from the TDT RP2 to the acquisition computer, synchronized to the
+was sent from the TDT RP2 to the acquisition computer, synchronised to the
 stimulus onset.  This allowed reliable confirmation of stimulus identity and
 timing during post-processing.
 
@@ -297,7 +297,7 @@ consonant or for each consonant token, there would be potentially different
 numbers of trials being averaged for the different consonants / tokens.  This
 could lead to different SNRs for the different consonants, in a way that might
 bias the classifiers or make certain classifiers’ tasks easier that others.  An
-alternative approach would have been to equalize the trial counts for each
+alternative approach would have been to equalise the trial counts for each
 consonant prior to DSS analysis, but this was rejected due to the exploratory
 nature of this research (i.e., since the overall amount of data needed was not
 known, more trials with processing akin to “shrinkage toward the mean” was
@@ -362,7 +362,7 @@ in the three feature systems are illustrated in figure
 In all three experiments, logistic regression classifiers were used, as
 implemented in `scikit-learn` [@sklearn]. Stratified 5-fold cross-validation
 was employed at each point in a grid search for hyperparameter $C$
-(regularization parameter; small $C$ yields smoother decision boundary)
+(regularisation parameter; small $C$ yields smoother decision boundary)
 <!-- and $\gamma$ (kernel variance parameter, controlling how far from the
 decision boundary a data point can be and still count as a support vector;
 small $\gamma$ yields fewer support vectors, which often leads to smoother
@@ -378,14 +378,14 @@ predictions were phonological feature values.
 Because many phonological feature values are unevenly distributed (e.g., of the
 23 consonants in the stimuli, only 6 are “+strident”), a custom score function
 was written for the classifiers that moved the decision boundary threshold from
-0.5 to a value that equalized the *ratios* of incorrect classifications (i.e.,
-equalized false positive and false negative *rates*), minimized this value
+0.5 to a value that equalised the *ratios* of incorrect classifications (i.e.,
+equalised false positive and false negative *rates*), minimised this value
 (called the “equal error rate”), and returned a score of 1 − equal error rate.
 This precludes the situation where high accuracy scores are achieved by simply
 guessing the more numerous class in most or all cases.  Since such class
 imbalance can occur in any of the experiments (and is virtually guaranteed to
 happen for the one-versus-rest classifiers in experiment 2), a score function
-that minimized equal error rate was used for all experiments.
+that minimised equal error rate was used for all experiments.
 
 Additionally, many phonological feature systems involve some sparsity (i.e.,
 some features are undefined for certain phonemes; for example, in the PSA
@@ -641,7 +641,7 @@ only a subset of the attested contrasts in the world’s languages, and another
 natural extension would be to apply these techniques to modeling the brain
 activity of native listeners of a variety of languages (to explore the
 representation of lexical tone, voice quality contrasts, ejective and implosive
-consonants, etc., and to characterize any differences in representation that
+consonants, etc., and to characterise any differences in representation that
 emerge across different languages). Finally, a true test of *abstract*
 phonological representation should at least account for patterns of allophony
 (e.g., the differing pronunciations of \ipa{/t/} in different positions in a
@@ -742,7 +742,7 @@ found no evidence of abstract representation after accounting for stimulus
 acoustics in this way (though with a fairly limited stimulus set).  For our
 purposes, the question of whether the representations are fully abstract is not
 crucial, since our goal is not to prove that the brain carries out such
-abstractions nor to localize such representations in the cortex. Rather, we set
+abstractions nor to localise such representations in the cortex. Rather, we set
 out to assess whether this technique can tell us which published phonological
 feature system best reflects the patterns of similarity seen in the neural
 data. Thus even if the information learned by the classifiers is partially
@@ -782,7 +782,7 @@ Finally, our earliest application of this technique was actually as a model of
 how speech sounds from an unfamiliar language are filtered through native
 phonological categories [@HasegawaJohnsonEtAl2016-UnderresourcedASR], as part
 of a larger project involving non-traditional approaches to automatic speech
-recognition.  Much work remains to realize the potential of that application as
+recognition.  Much work remains to realise the potential of that application as
 well.
 
 
