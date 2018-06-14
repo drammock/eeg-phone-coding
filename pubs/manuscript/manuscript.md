@@ -14,10 +14,7 @@ abstract: >
   This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds and the patterns of similarity encoded in phonological feature systems, by quantifying the recoverability of phonological features from the neural data using supervised learning. The technique is applied to EEG recordings collected during passive listening to consonant-vowel syllables. Three published phonological feature systems are compared, and are shown to differ in their ability to recover certain speech sound contrasts from the neural data. For the phonological feature system that best reflects patterns of similarity in the neural data, a leave-one-out analysis indicates some consistency across subjects in which features have greatest impact on the fit, but considerable across-subject heterogeneity remains in the rank ordering of features in this regard.
 articletype: research article
 keywords:
-- neurolinguistics
-- phonology
 - phonological features
-- speech perception
 - EEG
 ---
 
@@ -27,7 +24,8 @@ declaration of interest statement; references; appendices (as appropriate);
 table(s) with caption(s) (on individual pages); figures; figure captions (as a
 list) -->
 
-<!-- FIGURES: 3.25 in (single column width); 6.75 in (full-width); 9.5 in (page height) -->
+<!-- FIGURES: 3.25 in (single column width); 6.75 in (two-column-width); 9.5 in
+(page height) -->
 
 # Introduction
 
@@ -792,7 +790,7 @@ The authors report no conflict of interest.
 
 # Funding {-}
 
-This work was supported in part by the NIH under grant T32DC005361.
+This work was supported in part by the NIDCD under grant T32DC005361.
 
 # References {-}
 
