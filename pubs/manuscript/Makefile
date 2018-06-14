@@ -6,7 +6,6 @@ draft:
 	--filter pandoc-citeproc \
 	--template=template-draft.tex \
 	--pdf-engine=xelatex \
-	--number-sections \
 	--variable documentclass=article \
 	--variable classoption=oneside \
 	--variable geometry=letterpaper \
@@ -38,11 +37,17 @@ submission:
 	--output=submission.pdf
 
 latex:
-	pandoc manuscript.md \
+	pandoc manuscript-nofigs.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-taylor-francis.tex \
-	--number-sections \
+	--pdf-engine=xelatex \
+	--variable documentclass=article \
+	--variable classoption=oneside \
+	--variable geometry=letterpaper \
+	--variable geometry=margin=1in \
+	--variable fontsize=12pt \
+	--csl bib/taylor-and-francis-apa.csl \
 	--output=submission.tex
 
 eps:

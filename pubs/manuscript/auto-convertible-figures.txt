@@ -1,0 +1,8 @@
+fig-featsys-matrices.pdf
+fig-ovr-boxplot.pdf
+fig-ovr.pdf
+fig-psa.pdf
+fig-spe.pdf
+fig-phoible.pdf
+fig-diagonality-barplot-individ.pdf
+fig-loo-PHOIBLE.pdf

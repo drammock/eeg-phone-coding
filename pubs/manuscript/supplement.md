@@ -1,12 +1,12 @@
 ---
 title: >
-  Supplement to “Learning phonological features from EEG recordings during speech perception: three feature systems compared”
+  Supplement to “EEG-derived phoneme confusion matrices show the fit between phonological feature systems and brain responses to speech”
 author:
 - name: Daniel R. McCloy
 - name: Adrian K. C. Lee
   email: akclee@uw.edu
   affiliation:
-  - Institute for Learning and Brain Sciences, University of Washington, 1715 NE Columbia Rd., Seattle, WA 98195-7988
+  - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
 documentclass: article
 classoption: oneside
 fontsize: 12pt

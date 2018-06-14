@@ -8,7 +8,7 @@ author:
   orcid: 0000-0002-7611-0500
   email: akclee@uw.edu
   affiliation:
-  - Institute for Learning and Brain Sciences, University of Washington, 1715 NE Columbia Rd., Seattle, WA 98195-7988
+  - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
 bibliography: bib/eeg-phone-coding.bib
 abstract: >
   This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds and the patterns of similarity encoded in phonological feature systems, by quantifying the recoverability of phonological features from the neural data using supervised learning. The technique is applied to EEG recordings collected during passive listening to consonant-vowel syllables. Three published phonological feature systems are compared, and are shown to differ in their ability to recover certain speech sound contrasts from the neural data. For the phonological feature system that best reflects patterns of similarity in the neural data, a leave-one-out analysis indicates some consistency across subjects in which features have greatest impact on the fit, but considerable across-subject heterogeneity remains in the rank ordering of features in this regard.
@@ -570,7 +570,7 @@ systems, although the distinction is encoded by different features in each:
 PHOIBLE system show a large block in the lower right quadrant corresponding to
 \ipa{/t d θ ð s z l n/} (the “+anterior” consonants in that system).
 
-![Confusion matrices for the PHOIBLE feature system. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left,  the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices /s z/ and /ð θ/ within it), and the relative distinctiveness of /j w/ from all other consonants, but not from each other.\label{fig-phoible-confmat}](fig-phoible.eps)
+![Confusion matrices for the PHOIBLE feature system. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left,  the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices \ipa{/s z/} and \ipa{/ð θ/} within it), and the relative distinctiveness of \ipa{/j w/} from all other consonants, but not from each other.\label{fig-phoible-confmat}](fig-phoible.eps)
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
