@@ -4,10 +4,17 @@ draft:
 	pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
-	--template=template-plain.tex \
+	--template=template-draft.tex \
 	--pdf-engine=xelatex \
 	--number-sections \
+	--variable documentclass=article \
+	--variable classoption=oneside \
+	--variable geometry=letterpaper \
+	--variable geometry=margin=1in \
+	--variable fontsize=12pt \
+	--csl bib/taylor-and-francis-apa.csl \
 	--output=draft.pdf
+	#--variable biblio-style=jasasty-ay-web \
 
 supplement:
 	pandoc supplement.md \
@@ -25,6 +32,9 @@ submission:
 	--template=template-taylor-francis.tex \
 	--pdf-engine=xelatex \
 	--number-sections \
+	--variable documentclass=interact \
+	--variable classoption=largeformat \
+	--csl bib/taylor-and-francis-apa.csl \
 	--output=submission.pdf
 
 latex:

@@ -1,6 +1,6 @@
 ---
 title: >
-  EEG-derived phoneme confusion matrices show fit between phonological feature systems and brain responses to speech
+  EEG-derived phoneme confusion matrices show the fit between phonological feature systems and brain responses to speech
 author:
 - name: Daniel R. McCloy
   orcid: 0000-0002-7572-3241
@@ -9,10 +9,7 @@ author:
   email: akclee@uw.edu
   affiliation:
   - Institute for Learning and Brain Sciences, University of Washington, 1715 NE Columbia Rd., Seattle, WA 98195-7988
-documentclass: interact
-classoption: largeformat
 bibliography: bib/eeg-phone-coding.bib
-csl: bib/taylor-and-francis-apa.csl
 abstract: >
   This paper describes a technique to assess the correspondence between patterns of similarity in the brain’s response to speech sounds and the patterns of similarity encoded in phonological feature systems, by quantifying the recoverability of phonological features from the neural data using supervised learning. The technique is applied to EEG recordings collected during passive listening to consonant-vowel syllables. Three published phonological feature systems are compared, and are shown to differ in their ability to recover certain speech sound contrasts from the neural data. For the phonological feature system that best reflects patterns of similarity in the neural data, a leave-one-out analysis indicates some consistency across subjects in which features have greatest impact on the fit, but considerable across-subject heterogeneity remains in the rank ordering of features in this regard.
 articletype: research article
@@ -23,17 +20,12 @@ keywords:
 - speech perception
 - EEG
 ---
-<!-- biblio-style: jasasty-ay-web -->
-<!--
-documentclass: article
-classoption: oneside
-geometry:
-- letterpaper
-- margin=1in
-fontsize: 12pt
--->
 
-<!-- ORDER: title page; abstract (150 words); keywords (4-8); main text introduction, materials and methods, results, discussion; acknowledgments; declaration of interest statement; references; appendices (as appropriate); table(s) with caption(s) (on individual pages); figures; figure captions (as a list) -->
+<!-- ORDER: title page; abstract (150 words); keywords (4-8); main text
+introduction, materials and methods, results, discussion; acknowledgments;
+declaration of interest statement; references; appendices (as appropriate);
+table(s) with caption(s) (on individual pages); figures; figure captions (as a
+list) -->
 
 <!-- FIGURES: 3.25 in (single column width); 6.75 in (full-width); 9.5 in (page height) -->
 
@@ -152,7 +144,7 @@ An overview of the analysis pipeline is given in figure \ref{fig-methods}.
 Briefly, syllables were presented auditorily while recording EEG from the
 listener. EEG data were epoched around each presented syllable, underwent
 dimensionality reduction, and were labelled with the phonological feature
-values of each syllable‘s consonant. Those labels were used to train a set of
+values of each syllable’s consonant. Those labels were used to train a set of
 phonological feature classifiers (one for each phonological feature in the
 system), and the performance of the system of classifiers was combined to
 create a confusion matrix summarising the similarity of neural responses to the

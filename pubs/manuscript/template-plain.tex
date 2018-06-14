@@ -31,9 +31,9 @@ $endif$
 \providecommand{\tightlist}{%
 \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 $if(numbersections)$
-%\setcounter{secnumdepth}{5}
+\setcounter{secnumdepth}{5}
 $else$
-%\setcounter{secnumdepth}{0}
+\setcounter{secnumdepth}{0}
 $endif$
 $if(verbatim-in-note)$
 %\VerbatimFootnotes % allows verbatim text in footnotes
@@ -64,17 +64,20 @@ $endif$
 \usepackage[compact]{titlesec}
 \titlespacing*{\section}{0pt}{\parskip}{-0.5\parskip}
 \titlespacing*{\subsection}{0pt}{0pt}{-0.75\parskip}
-\titleformat*{\section}{\bfseries\uppercase}
+\titleformat*{\section}{\bfseries}
 \titleformat*{\subsection}{\bfseries\itshape}
+\titleformat*{\subsubsection}{\itshape}
 %\makeatletter\renewcommand{\section}{\@startsection {section}{1}{0mm}{0.2\baselineskip}{0.1\baselineskip}{\bfseries\uppercase}}\makeatother %{name}{level}{indent}{beforeskip}{afterskip}{style}
 %\makeatletter\renewcommand{\subsection}{\@startsection {subsection}{2}{0mm}{0.2\baselineskip}{0.1\baselineskip}{\bfseries\itshape}}\makeatother %{name}{level}{indent}{beforeskip}{afterskip}{style}
 %\makeatletter\renewcommand{\subsubsection}{\@startsection {subsubsection}{3}{0mm}{0.2\baselineskip}{0.1\baselineskip}{\bfseries}}\makeatother %{name}{level}{indent}{beforeskip}{afterskip}{style}
-%\renewcommand{\thesection}{\Roman{section}.}
-%\renewcommand{\thesubsection}{\Alph{subsection}.}
-%\renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\thesection.\thesubsection.\arabic{subsubsection}.}
 %\renewcommand*\thetable{\Roman{table}}
 % format various headings to match the style of section headings
 \renewcommand{\refname}{\bfseries\uppercase{references}}
+\renewcommand{\abstractname}{\bfseries\uppercase{abstract}}
+
 \usepackage{caption}
 \captionsetup{font=footnotesize}
 
@@ -86,6 +89,8 @@ $endif$
 \setmainfont[Numbers={Lining}]{Linux Libertine O}
 \setmathfont(Digits,Latin)[Uppercase=Regular]{Linux Libertine O}
 \setmonofont[ItalicFont={M+ 1m}]{M+ 1m}
+\newfontfamily\ipafont[Scale=MatchLowercase]{Charis SIL}
+\newcommand{\ipa}[1]{{\ipafont #1}}
 \renewcommand{\url}{\begingroup \def\UrlLeft{}\def\UrlRight{}\urlstyle{same}\Url} % set URLs in whatever font surrounding text uses
 \thickmuskip=5mu plus 3mu minus 1mu % adjust equation spacing around =
 
@@ -129,16 +134,33 @@ $if(date)$\date{$date$}$else$\date{}$endif$
 \setlength{\headsep}{0pt}
 
 \begin{document}
-%\onehalfspacing
+\doublespacing
 %\begin{spacing}{1.1}
 \raggedright
 
-$if(title)$\maketitle$endif$
+$if(title)$\textbf{\maketitle}$endif$
 \thispagestyle{empty}
 
 $for(include-before)$
 $include-before$
 $endfor$
+
+$if(abstract)$
+\begin{abstract}
+\noindent $abstract$
+
+$if(graphicalabstract)$
+\resizebox{25pc}{!}{\includegraphics{$graphicalabstract$}}
+$endif$
+
+$if(keywords)$
+\noindent{\bfseries\uppercase{keywords}} \\
+$for(keywords)$$keywords$$sep$; $endfor$
+$endif$
+
+\end{abstract}
+$endif$
+
 
 $body$
 
