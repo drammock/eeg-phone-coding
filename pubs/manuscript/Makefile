@@ -8,19 +8,24 @@ draft:
 	--pdf-engine=xelatex \
 	--variable documentclass=article \
 	--variable classoption=oneside \
-	--variable geometry=letterpaper \
-	--variable geometry=margin=1in \
+	--variable geometry:letterpaper \
+	--variable geometry:margin=2.5cm \
 	--variable fontsize=12pt \
-	--csl bib/taylor-and-francis-apa.csl \
+	--csl bib/apa.csl \
 	--output=draft.pdf
 
 supplement:
 	pandoc supplement.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
-	--template=template-supplement.tex \
+	--template=template-draft.tex \
 	--pdf-engine=xelatex \
-	--number-sections \
+	--variable documentclass=article \
+	--variable classoption=oneside \
+	--variable geometry:letterpaper \
+	--variable geometry:margin=2cm \
+	--variable fontsize=12pt \
+	--csl bib/apa.csl \
 	--output=supplement.pdf
 
 submission:
@@ -32,21 +37,37 @@ submission:
 	--number-sections \
 	--variable documentclass=interact \
 	--variable classoption=largeformat \
-	--csl bib/taylor-and-francis-apa.csl \
+	--variable natbib \
+	--variable doublespace \
+	--variable endfloat \
+	--variable linenumbers \
+	--csl bib/apa.csl \
 	--output=submission.pdf
 
-latex:
-	pandoc manuscript-nofigs.md \
+preprint:
+	pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-taylor-francis.tex \
 	--pdf-engine=xelatex \
-	--variable documentclass=article \
-	--variable classoption=oneside \
-	--variable geometry=letterpaper \
-	--variable geometry=margin=1in \
-	--variable fontsize=12pt \
-	--csl bib/taylor-and-francis-apa.csl \
+	--number-sections \
+	--variable documentclass=interact \
+	--variable classoption=largeformat \
+	--variable natbib \
+	--csl bib/apa.csl \
+	--output=preprint.pdf
+
+latex:
+	pandoc manuscript.md \
+	--from markdown-smart \
+	--filter pandoc-citeproc \
+	--template=template-taylor-francis.tex \
+	--pdf-engine=xelatex \
+	--number-sections \
+	--variable documentclass=interact \
+	--variable classoption=largeformat \
+	--variable natbib \
+	--csl bib/apa.csl \
 	--output=submission.tex
 
 eps:
@@ -66,8 +87,9 @@ coverletter:
 
 wordcount:
 	pandoc manuscript-nofigs.md \
-	--from markdown-smart \
+	--from markdown-smart+tex_math_dollars \
 	--filter pandoc-citeproc \
-	--csl bib/taylor-and-francis-apa.csl \
+	--csl bib/apa.csl \
 	--standalone \
-	--output=for-wordcount.html
+	--mathml \
+	| wc -w

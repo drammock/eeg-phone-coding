@@ -7,14 +7,7 @@ author:
   email: akclee@uw.edu
   affiliation:
   - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
-documentclass: article
-classoption: oneside
-fontsize: 12pt
-geometry:
-- letterpaper
-- margin=2cm
 bibliography: bib/supplement.bib
-csl: bib/taylor-and-francis-apa.csl
 ---
 <!--
 documentclass: interact

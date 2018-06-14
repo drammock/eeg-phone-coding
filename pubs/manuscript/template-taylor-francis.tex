@@ -2,36 +2,54 @@
 % !TEX encoding = UTF-8
 % interactapasample.tex
 % v1.05 - August 2017
+% modified for use with pandoc by Daniel McCloy, June 2018
 
 \documentclass[]{interact}
 
-\usepackage{epstopdf}% To incorporate .eps illustrations using PDFLaTeX, etc.
-%\usepackage[caption=false]{subfig}% Support for small, `sub' figures and tables
-%\usepackage[nolists,tablesfirst]{endfloat}% To `separate' figures and tables from text if required
-%\usepackage[doublespacing]{setspace}% To produce a `double spaced' document if required
-%\setlength\parindent{24pt}% To increase paragraph indentation when line spacing is doubled
+%% To incorporate .eps illustrations using PDFLaTeX, etc.
+\usepackage{epstopdf}
 
-\usepackage[longnamesfirst,sort]{natbib}% Citation support using natbib.sty
-\bibpunct[, ]{(}{)}{;}{a}{,}{,}% Citation support using natbib.sty
-\renewcommand\bibfont{\fontsize{10}{12}\selectfont}% To set the list of references in 10 point font using natbib.sty
+%% Support for small, `sub' figures and tables
+$if(subfig)$\usepackage[caption=false]{subfig}$endif$
 
-%\usepackage[natbibapa,nodoi]{apacite}% Citation support using apacite.sty. Commands using natbib.sty MUST be deactivated first!
-%\setlength\bibhang{12pt}% To set the indentation in the list of references using apacite.sty. Commands using natbib.sty MUST be deactivated first!
-%\renewcommand\bibliographytypesize{\fontsize{10}{12}\selectfont}% To set the list of references in 10 point font using apacite.sty. Commands using natbib.sty MUST be deactivated first!
+%% To `separate' figures and tables from text if required
+$if(endfloat)$\usepackage[nolists,tablesfirst]{endfloat}$endif$
 
-%\theoremstyle{plain}% Theorem-like structures provided by amsthm.sty
-%\newtheorem{theorem}{Theorem}[section]
-%\newtheorem{lemma}[theorem]{Lemma}
-%\newtheorem{corollary}[theorem]{Corollary}
-%\newtheorem{proposition}[theorem]{Proposition}
+%% To produce a `double spaced' document if required
+$if(doublespace)$
+\usepackage[doublespacing]{setspace}
+\setlength\parindent{24pt}
+$endif$
 
-%\theoremstyle{definition}
-%\newtheorem{definition}[theorem]{Definition}
-%\newtheorem{example}[theorem]{Example}
+%% to add line numbers
+\usepackage{lineno}
 
-%\theoremstyle{remark}
-%\newtheorem{remark}{Remark}
-%\newtheorem{notation}{Notation}
+%% citation support: natbib or apacite
+$if(natbib)$
+\usepackage[longnamesfirst,sort]{natbib}
+\bibpunct[, ]{(}{)}{;}{a}{,}{,}
+\renewcommand\bibfont{\fontsize{10}{12}\selectfont}
+$else$
+\usepackage[natbibapa,nodoi]{apacite}
+\setlength\bibhang{12pt}
+\renewcommand\bibliographytypesize{\fontsize{10}{12}\selectfont}
+$endif$
+
+%% additional styles for lemmas, definitions, corollaries, propositions
+%% Theorem-like structures provided by amsthm.sty
+$if(theorem)$
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{notation}{Notation}
+$endif$
 
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
 %% AUTHOR'S ADDITIONS
@@ -57,7 +75,9 @@
 
 \begin{document}
 
-% Specify the article type or omit as appropriate
+$if(linenumbers)$\linenumbers$endif$
+
+%% Specify the article type or omit as appropriate
 $if(articletype)$\articletype{$articletype$}$endif$
 
 $if(title)$
@@ -111,10 +131,10 @@ $for(pacscode)$$pacscode$$sep$; $endfor$
 \end{pacscode}
 $endif$
 
-
 $body$
 
-%\processdelayedfloats
-%\appendix
+$if(endfloat)$\processdelayedfloats$endif$
+
+$if(appendix)$\appendix$endif$
 
 \end{document}
