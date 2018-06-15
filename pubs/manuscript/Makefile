@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
 draft:
-	pandoc manuscript.md \
+	@pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-draft.tex \
@@ -15,7 +15,7 @@ draft:
 	--output=draft.pdf
 
 supplement:
-	pandoc supplement.md \
+	@pandoc supplement.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-draft.tex \
@@ -25,11 +25,12 @@ supplement:
 	--variable geometry:letterpaper \
 	--variable geometry:margin=2cm \
 	--variable fontsize=12pt \
+	--variable nofloat \
 	--csl bib/apa.csl \
 	--output=supplement.pdf
 
 submission:
-	pandoc manuscript.md \
+	@pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-taylor-francis.tex \
@@ -45,7 +46,7 @@ submission:
 	--output=submission.pdf
 
 preprint:
-	pandoc manuscript.md \
+	@pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-taylor-francis.tex \
@@ -58,7 +59,7 @@ preprint:
 	--output=preprint.pdf
 
 latex:
-	pandoc manuscript.md \
+	@pandoc manuscript.md \
 	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--template=template-taylor-francis.tex \
@@ -73,23 +74,27 @@ latex:
 eps:
 	while read f; do inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"; done <auto-convertible-figures.txt
 	echo "fig-methods-diagram.pdf and fig-pairwise.pdf must be converted manually using Illustrator"
-	# inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"
-	# pdftops -eps "figures/$$f" "$$(basename $$f pdf)eps"
-	# gs -q -dNOCACHE -dNOPAUSE -dBATCH -dSAFER -sDEVICE=epswrite -sOutputFile=output.eps "$$(basename $$f pdf)eps" "figures/$$f"
+	@# inkscape "figures/$$f" --export-eps="$$(basename $$f pdf)eps"
+	@# pdftops -eps "figures/$$f" "$$(basename $$f pdf)eps"
+	@# gs -q -dNOCACHE -dNOPAUSE -dBATCH -dSAFER -sDEVICE=epswrite -sOutputFile=output.eps "$$(basename $$f pdf)eps" "figures/$$f"
 
 coverletter:
-	cd cover-letter; \
-	pandoc cover-letter.md \
+	@cd cover-letter; \
+	@pandoc cover-letter.md \
 	--from markdown-smart \
 	--template=template-ilabs-letterhead.tex \
 	--pdf-engine=xelatex \
 	--output=cover-letter.pdf
 
 wordcount:
-	pandoc manuscript-nofigs.md \
-	--from markdown-smart+tex_math_dollars \
+	@pandoc manuscript.md \
+	--from markdown-smart \
 	--filter pandoc-citeproc \
 	--csl bib/apa.csl \
 	--standalone \
 	--mathml \
+	--quiet \
 	| wc -w
+
+arxivpreprint:
+	pdftk draft.pdf supplement.pdf cat output ~/Desktop/draft.pdf

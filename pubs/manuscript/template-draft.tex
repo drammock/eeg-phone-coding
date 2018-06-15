@@ -29,6 +29,7 @@ $if(graphics)$
 $endif$
 
 %% force figures to not float
+$if(nofloat)$
 \usepackage{float}
 \let\origfigure\figure
 \let\endorigfigure\endfigure
@@ -37,6 +38,7 @@ $endif$
 } {
     \endorigfigure
 }
+$endif$
 
 %% allow figures with side captions (\begin{SCfigure}[integerwidth][h])
 \usepackage[rightcaption,raggedright]{sidecap}
