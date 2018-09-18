@@ -34,7 +34,7 @@ Scripts that are ancillary (not precursors to the next step in the pipeline) are
     - `050c-make-theoretical-confusion-matrices.py`: Make confusion matrices based on a fixed error rate across all features, for simulating robustness of feature systems to varying levels of noise.
 - Two scripts to order the rows/columns of the confusion matrices in informative ways:
     - `052a-optimal-matrix-sorting.py`: Re-orders the rows/columns of confusion matrices using hierarchical clustering with “optimal leaf ordering”.
-    - `052b-featural-matrix.sorting.py`: Re-orders the rows/columns of confusion matrices using hierarchical clustering with “optimal leaf ordering”.
+    - `052b-featural-matrix.sorting.py`: Re-orders the rows/columns of confusion matrices using hierarchical clustering, with a custom implementation that constrains clustering based on across-subject mean EER for each feature.
     - Some scripts for measuring the diagonality of the resulting matrices:
         - `055-measure-diagonality.py`: Compute how much of the weight of each matrix lies near the diagonal.
         - `056-plot-diagonality.py`: Plot diagonality values for each subject.
