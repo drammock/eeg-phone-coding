@@ -26,7 +26,8 @@ Scripts that are ancillary (not precursors to the next step in the pipeline) are
     - `038-check-trial-counts.py`: sanity check that dropping noisy epochs did not cause too great an imbalance across phone types.
 - `039-make-parallel-jobfile.py`: generates the Bash lines that call the classification script with command line args for each subject and feature.
 - `040-classify.py`: The machine learning workhorse that runs the grid search / cross validation.
-    - `042-rank-classifier-performance.py`: generates sorted EER tables and generates plots comparing classifier performance for each feature system.
+    - `041a-aggregate-eers.py`: aggregates classifier EERs across features and subjects.
+    - `042-rank-classifier-performance.py`: Makes plots comparing classifier performance (EER) for each feature system.
 - Three scripts to convert classifier output into various kinds of confusion matrices:
     - `050a-make-eer-confusion-matrices.py`: Make confusion matrices based on a fixed error rate for each feature, determined by that feature’s classifier’s “equal error rate” (EER).
     - `050b-make-phone-confusion-matrices.py`: Make confusion matrices based on the phone-level error rates from classifying the held-out data.
