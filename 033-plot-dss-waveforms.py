@@ -22,10 +22,6 @@ from aux_functions import merge_features_into_df
 
 td_redux = True
 
-# BASIC FILE I/O
-indir = 'eeg-data-clean'
-outdir = op.join('figures', 'dss')
-
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -36,11 +32,17 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     feature_fnames = analysis_params['feature_fnames']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
+
+# BASIC FILE I/O
+indir = 'eeg-data-clean'
+outdir = op.join('figures', f'dss{trunc}')
 
 # LOAD PARAMS FROM CSV
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx', 'wav_path']
@@ -57,13 +59,14 @@ for ix, (subj_code, subj_num) in enumerate(subjects.items()):
     basename = '{0:03}-{1}-{2}'.format(subj_num, subj_code, cv)
     if td_redux:
         datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')
-        dss_data = np.load(op.join(indir, 'time-domain-redux',
+        dss_data = np.load(op.join(indir, f'time-domain-redux{trunc}',
                            basename + datafile_suffix))
     else:
         datafile_suffix = 'dss-data.npy'
-        dss_data = np.load(op.join(indir, 'dss', basename + datafile_suffix))
-    epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
-                             verbose=False)
+        dss_data = np.load(op.join(indir, f'dss{trunc}',
+                                   basename + datafile_suffix))
+    epochs = mne.read_epochs(op.join(indir, f'epochs{trunc}',
+                                     basename + 'epo.fif.gz'), verbose=False)
     event_ids = epochs.events[:, -1]
     epochs_keys = list(epochs.event_id)
 

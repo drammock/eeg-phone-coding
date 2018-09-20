@@ -47,17 +47,25 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-is_pw = scheme == 'pairwise'
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+cv = 'cvalign-' if align_on_cv else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+eer = 'eer-' if use_eer else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 indir = op.join(datadir, 'ordered-confusion-matrices')
 outdir = op.join('figures', 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 if not op.isdir(outdir):
     mkdir(outdir)
+
+is_pw = (scheme == 'pairwise')
 
 if not is_pw:
     # load accuracy info, and compute most appropriate simulation accuracy.
@@ -82,12 +90,6 @@ del feature_systems['phoible_sparse']
 
 feat_sys_names = dict(jfh_sparse='PSA', spe_sparse='SPE',
                       phoible_redux='PHOIBLE', pairwise='Pairwise logistic')
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-eer = 'eer-' if use_eer else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load plot style; make colormap with NaN data (from log(0)) mapped as gray
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -239,7 +241,7 @@ else:
 
 if savefig:
     fname = 'cross-subj-row-ordered-confusion-matrices-'
-    suffix = '{}-eng-{}.pdf'.format(sfn, scheme)
+    suffix = f'{sfn}-eng-{scheme}{trunc}.pdf'
     fig.savefig(op.join(outdir, fname + suffix))
 else:
     plt.ion()

@@ -4,6 +4,7 @@ eeg:
   interpolate: false
   ref_channel: ['Ch17']
   n_blink_projectors: 4
+  truncate: true
 
 dss:
   use: true

@@ -8,7 +8,11 @@ Script 'make-epochs.py'
 This script processes EEG data from mne.io.Raw format into epochs. Baseline
 correction is done on the 100ms preceding each stimulus onset; after baseline
 correction the epochs are temporally shifted to place time-0 at the
-consonant-vowel boundary of each stimulus syllable.
+consonant-vowel boundary of each stimulus syllable. Finally, epochs are
+(optionally) truncated to begin 100ms after the CV transition, to limit the
+available consonant information to later stages of processing (i.e., no
+information from cortical representations of acoustic/spectrotemporal
+properties, instead just cortical representations of abstract category).
 """
 # @author: drmccloy
 # Created on Tue Nov 15 12:32:11 2016
@@ -21,12 +25,6 @@ from os import mkdir
 import os.path as op
 from pandas import read_csv
 
-# BASIC FILE I/O
-indir = 'eeg-data-clean'
-outdir = op.join(indir, 'epochs')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS
 paramdir = 'params'
 global_paramfile = 'global-params.yaml'
@@ -34,21 +32,31 @@ analysis_paramfile = 'current-analysis-settings.yaml'
 # global params
 with open(op.join(paramdir, global_paramfile), 'r') as f:
     global_params = yaml.load(f)
-isi_range = np.array(global_params['isi_range'])
-stim_fs = global_params['stim_fs']
+    isi_range = np.array(global_params['isi_range'])
+    stim_fs = global_params['stim_fs']
 
 # analysis params
 with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
-subjects = analysis_params['subjects']
-reject = analysis_params['eeg']['reject']
-bad_channels = analysis_params['bad_channels']
-# align_on_cv = analysis_params['align_on_cv']  # always generate both
-n_jobs = analysis_params['n_jobs']
-skip = analysis_params['skip']
-# how long a time of brain response do we care about?
-brain_resp_dur = analysis_params['brain_resp_dur']
+    subjects = analysis_params['subjects']
+    reject = analysis_params['eeg']['reject']
+    bad_channels = analysis_params['bad_channels']
+    # align_on_cv = analysis_params['align_on_cv']  # always generate both
+    n_jobs = analysis_params['n_jobs']
+    skip = analysis_params['skip']
+    # how long a time of brain response do we care about?
+    brain_resp_dur = analysis_params['brain_resp_dur']
+    truncate = analysis_params['eeg']['truncate']
 del global_params, analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = 'eeg-data-clean'
+outdir = op.join(indir, f'epochs{trunc}')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # LOAD DURATION DATA...
 wav_params = read_csv(op.join(paramdir, 'wav-properties.tsv'), sep='\t')
@@ -141,6 +149,10 @@ for subj_code, subj in subjects.items():
         # insert baselined data, shifted to have C-V alignment
         epochs._data[ix, :, st_cvalign:nd_cvalign] = \
             epochs_baseline._data[ix, :, st_onsetalign:nd_onsetalign]
+
+    # truncate to 100ms after CV transition
+    if truncate:
+        epochs = epochs.crop(tmin=0.1)
 
     # downsample
     epochs = epochs.resample(100, npad=0, n_jobs='cuda')

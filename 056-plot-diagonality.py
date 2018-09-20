@@ -35,12 +35,16 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     legend_names = analysis_params['pretty_legend_names']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
 
 phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 indir = op.join(datadir, 'matrix-correlations')
 outdir = op.join('figures', 'matrix-correlations')
 if not op.isdir(outdir):
@@ -128,6 +132,6 @@ for order_type in order_types:
     new_bbox = Bbox(np.array([[bbox.xmin, bbox.ymin], [new_xmax, bbox.ymax]]))
     axs[0].set_position(new_bbox)
     axs[0].legend(bbox_to_anchor=(1.07, 1.), loc=2, borderaxespad=0.)
-    args = (order_type, ordered, sfn, scheme)
-    out_fname = '{}{}matrix-correlations-{}-{}.pdf'.format(*args)
+    args = (order_type, ordered, sfn, scheme, trunc)
+    out_fname = '{}{}matrix-correlations-{}-{}{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, out_fname))

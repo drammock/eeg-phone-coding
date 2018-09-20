@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_eers(df, ax, marker='o', legend=False, title='', ylim=(-0.05, 1.05),
-              legend_bbox=(1.1, 1.), markersize=4, linewidth=0.5):
+              legend_bbox=(1.1, 1.), markersize=4, linewidth=0.):
     x = np.tile(np.arange(df.shape[0]), (df.shape[1], 1))
     x = x + 0.4 * (0.5 - np.random.rand(*x.shape))
     lines = ax.plot(x.T, df, marker=marker, markersize=markersize, alpha=0.6,
@@ -55,10 +55,14 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     methods = analysis_params['methods']
     scheme = analysis_params['classification_scheme']
     skip = analysis_params['skip']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 rankdir = op.join(datadir, 'feature-rankings')
 if scheme in ['svm', 'logistic']:
     makedirs(rankdir, exist_ok=True)
@@ -144,7 +148,7 @@ else:
                         hspace=0.8, wspace=0.3)
 
 if savefig:
-    fname = 'eer-by-feat-sys-{}.pdf'.format(scheme)
+    fname = f'eer-by-feat-sys-{scheme}{trunc}.pdf'
     fig.savefig(op.join('figures', fname))
 else:
     plt.ion()

@@ -32,13 +32,17 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     accuracies = analysis_params['theoretical_accuracies']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
 
 if scheme in ['pairwise', 'OVR', 'multinomial']:
     raise RuntimeError('This script unnecessary for non-feature analysis')
 
 # BASIC FILE I/O
-indir = 'processed-data-{}'.format(scheme)
+indir = f'processed-data-{scheme}{trunc}'
 outdir = op.join(indir, 'confusion-matrices')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):

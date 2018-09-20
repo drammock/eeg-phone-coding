@@ -25,12 +25,6 @@ pd.set_option('display.width', None)
 np.set_printoptions(linewidth=130)
 plt.ioff()
 
-# BASIC FILE I/O
-indir = op.join('eeg-data-clean')
-outdir = op.join('figures', 'erps')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -39,10 +33,18 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     subjects = analysis_params['subjects']
     align_on_cv = analysis_params['align_on_cv']
     feature_fnames = analysis_params['feature_fnames']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
 cv = 'cvalign-' if align_on_cv else ''
+
+# BASIC FILE I/O
+indir = op.join('eeg-data-clean')
+outdir = op.join('figures', f'erps{trunc}')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # LOAD PARAMS FROM CSV
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx', 'wav_path']
@@ -57,8 +59,8 @@ df = merge_features_into_df(df, paramdir, feature_sys_fname)
 for subj_code, subj_num in subjects.items():
     # read epochs
     basename = '{0:03}-{1}-{2}'.format(subj_num, subj_code, cv)
-    epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
-                             verbose=False)
+    epochs = mne.read_epochs(op.join(indir, f'epochs{trunc}',
+                                     basename + 'epo.fif.gz'), verbose=False)
     epochs.apply_proj()
     epochs_keys = list(epochs.event_id)
     # deal with dropped epochs

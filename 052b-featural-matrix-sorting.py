@@ -43,10 +43,10 @@ def order_featmat_rows(featmat, return_intermediates=True):
     # clean up dendrogram to be YAML-friendly
     for coord in ['dcoord', 'icoord']:
         dg[coord] = np.array(dg[coord], dtype=float).tolist()
-    returns = featmat.iloc[dg['leaves']]
+    result = featmat.iloc[dg['leaves']]
     if return_intermediates:
-        returns = (returns, dg, z)
-    return returns
+        result = (result, dg, z)
+    return result
 
 
 # LOAD PARAMS FROM YAML
@@ -68,13 +68,20 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     methods = analysis_params['methods']
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+cv = 'cvalign-' if align_on_cv else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 if scheme == 'pairwise':
     raise RuntimeError("This script unnecessary for 'pairwise' data")
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 indir = op.join(datadir, 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 rankdir = op.join(datadir, 'feature-rankings')
@@ -82,11 +89,6 @@ outdir = op.join(datadir, 'ordered-confusion-matrices')
 for _dir in [outdir, dgdir, rankdir]:
     if not op.isdir(_dir):
         mkdir(_dir)
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load EERs
 eers = pd.read_csv(op.join(datadir, 'eers.tsv'), sep='\t', index_col=0)

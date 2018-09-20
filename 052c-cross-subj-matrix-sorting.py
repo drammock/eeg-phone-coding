@@ -36,13 +36,19 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     skip = analysis_params['skip']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-scheme = 'logistic'
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+cv = 'cvalign-' if align_on_cv else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
+
 phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 indir = op.join(datadir, 'confusion-matrices')
 dgdir = op.join(datadir, 'dendrograms')
 outdir = op.join(datadir, 'ordered-confusion-matrices')
@@ -54,11 +60,6 @@ for _dir in [outdir, dgdir]:
 del feature_systems['jfh_dense']
 del feature_systems['spe_dense']
 del feature_systems['phoible_sparse']
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 subj_avg = copy.copy(subjects)
 subj_avg.update(dict(average=0))

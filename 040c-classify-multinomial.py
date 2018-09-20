@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-Script 'classify-logistic.py'
+Script 'classify-multinomial.py'
 ===============================================================================
 
 This script runs EEG data through a classifier, and stores the classifier
@@ -29,10 +29,30 @@ rand = np.random.RandomState(seed=15485863)  # the one millionth prime
 # command line args
 subj_code = sys.argv[1]     # IJ, IQ, etc
 
+# load params
+paramdir = 'params'
+analysis_param_file = 'current-analysis-settings.yaml'
+with open(op.join(paramdir, analysis_param_file), 'r') as f:
+    analysis_params = yaml.load(f)
+    subjects = analysis_params['subjects']
+    do_dss = analysis_params['dss']['use']
+    n_comp = analysis_params['dss']['n_components']
+    align_on_cv = analysis_params['align_on_cv']
+    n_jobs = analysis_params['n_jobs']
+    truncate = analysis_params['eeg']['truncate']
+pre_dispatch = '2*n_jobs'
+
+# FILE NAMING VARIABLES
+cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+basename = '{0:03}-{1}-{2}'.format(subjects[subj_code], subj_code, cv)
+datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')
+fname_suffix = cv + nc
+
 # basic file I/O
 indir = 'eeg-data-clean'
-outdir = op.join('processed-data-multinomial', 'classifiers')
-paramdir = 'params'
+outdir = op.join(f'processed-data-multinomial{trunc}', 'classifiers')
 feature_sys_fname = 'all-features.tsv'
 makedirs(outdir, exist_ok=True)
 
@@ -42,28 +62,11 @@ if not op.isdir(subj_outdir):
     makedirs(subj_outdir, exist_ok=True)
 classifiers = dict()
 
-# load params
-analysis_param_file = 'current-analysis-settings.yaml'
-with open(op.join(paramdir, analysis_param_file), 'r') as f:
-    analysis_params = yaml.load(f)
-    subjects = analysis_params['subjects']
-    do_dss = analysis_params['dss']['use']
-    n_comp = analysis_params['dss']['n_components']
-    align_on_cv = analysis_params['align_on_cv']
-    n_jobs = analysis_params['n_jobs']
-pre_dispatch = '2*n_jobs'
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-basename = '{0:03}-{1}-{2}'.format(subjects[subj_code], subj_code, cv)
-datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')
-fname_suffix = cv + nc
-
 # load the data
-epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
-                         verbose=False)
-data = np.load(op.join(indir, 'time-domain-redux', basename + datafile_suffix))
+epochs = mne.read_epochs(op.join(indir, f'epochs{trunc}',
+                                 basename + 'epo.fif.gz'), verbose=False)
+data = np.load(op.join(indir, f'time-domain-redux{trunc}',
+                       basename + datafile_suffix))
 event_ids = epochs.events[:, -1]
 
 # load the trial params

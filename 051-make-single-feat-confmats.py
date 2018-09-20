@@ -36,20 +36,24 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     skip = analysis_params['skip']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
 if scheme in ['pairwise', 'OVR', 'multinomial']:
     raise RuntimeError('This script unnecessary for non-feature analysis')
 
+# FILE NAMING VARIABLES
+cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+
 # BASIC FILE I/O
-indir = 'processed-data-{}'.format(scheme)
+indir = f'processed-data-{scheme}{trunc}'
 outdir = op.join(indir, 'single-feat-confmats')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
-
-# file naming variables
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train']
@@ -70,10 +74,6 @@ ground_truth.columns.name = 'features'
 # load equal error rates (EERs)
 eers = pd.read_csv(op.join(indir, 'eers.tsv'), sep='\t', index_col=0)
 eng_phones = canonical_phone_order['eng']
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
 
 # loop over subjects
 for subj_code in subjects:

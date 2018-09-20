@@ -29,16 +29,8 @@ savefig = True
 svm = False
 plt.ioff()
 
-# BASIC FILE I/O
-paramdir = 'params'
-datadir = 'processed-data' if svm else 'processed-data-logistic'
-dgdir = op.join(datadir, 'dendrograms')
-# indir defined below, after loading YAML parameters
-outdir = op.join('figures', 'dendrograms')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -55,17 +47,26 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     feat_sys_names = analysis_params['pretty_legend_names']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     skip = analysis_params['skip']
+    scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
-logistic = '' if svm else '-logistic'
+
+# BASIC FILE I/O
+datadir = f'processed-data{scheme}{trunc}'
 indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
 outdir = op.join('figures', 'dendrograms')
+dgdir = op.join(datadir, 'dendrograms')
+outdir = op.join('figures', 'dendrograms')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # load matrix maxima (to set color scale max)
 maxima = pd.read_csv(op.join(datadir, 'matrix-maxima.tsv'), sep='\t',
@@ -170,7 +171,7 @@ for subj_code in subjects:
             ax.set_xlim(new_xlim)
             # annotate dendrogram
             order = np.argsort([y[1] for y in dg['dcoord']])[::-1]
-            if svm:
+            if scheme == 'svm':
                 names = ([('− continuant +', False),
                           ('− dorsal +', False),
                           ('+ dorsal −', False),
@@ -220,8 +221,8 @@ for subj_code in subjects:
                 ax.annotate(n, xy, **kwargs)
 
         if savefig:
-            args = [sorting, subj_code, logistic]
-            figname = '{}ordered-confmat-dgram-{}{}.pdf'.format(*args)
+            args = [sorting, subj_code, scheme, trunc]
+            figname = '{}ordered-confmat-dgram-{}-{}{}.pdf'.format(*args)
             fig.savefig(op.join(outdir, figname))
 
 if not savefig:

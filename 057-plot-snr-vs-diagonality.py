@@ -35,17 +35,19 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     legend_names = analysis_params['pretty_legend_names']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+ordered = 'ordered-' if use_ordered else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
+
 # BASIC FILE I/O
-indir = 'processed-data-{}'.format(scheme)
+indir = f'processed-data-{scheme}{trunc}'
 outdir = op.join('figures', 'snr-vs-diagonality')
 if not op.isdir(outdir):
     mkdir(outdir)
-
-# file naming variables
-ordered = 'ordered-' if use_ordered else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load SNR data
 fname = op.join('processed-data-logistic', 'blinks-epochs-snr.tsv')
@@ -112,8 +114,8 @@ for ordering in ['row-', 'col-', 'feat-']:
     else:
         fig.subplots_adjust(left=0.05, right=0.95, wspace=0.8, hspace=0.4)
     fig.suptitle('SNR vs. matrix diagonality (empirical accuracies)')
-    args = [ordering, ordered, sfn, method, scheme]
-    fname = 'snr-vs-matrix-diagonality-{}{}{}-{}-{}.pdf'.format(*args)
+    args = [ordering, ordered, sfn, method, scheme, trunc]
+    fname = 'snr-vs-matrix-diagonality-{}{}{}-{}-{}{}.pdf'.format(*args)
     fig.savefig(op.join(outdir, fname))
 
 # supplementary figure
@@ -163,4 +165,5 @@ for ax, featsys in zip(axs, feature_systems):
 
 fig.subplots_adjust(left=0.1, right=0.95, bottom=0.2, top=0.8, wspace=0.4)
 fig.suptitle('SNR versus matrix diagonality')
-fig.savefig(op.join('figures', 'supplement', 'snr-vs-matrix-diagonality.pdf'))
+fig.savefig(op.join('figures', 'supplement',
+                    f'snr-vs-matrix-diagonality{trunc}.pdf'))

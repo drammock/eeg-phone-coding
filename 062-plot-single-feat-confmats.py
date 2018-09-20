@@ -23,14 +23,8 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import Normalize  # LogNorm
 from aux_functions import plot_confmat
 
-# BASIC FILE I/O
-paramdir = 'params'
-indir = op.join('processed-data', 'single-feat-confmats')
-outdir = op.join('figures', 'single-feat-confmats')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -41,8 +35,22 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     feature_systems = analysis_params['feature_systems']
     canonical_phone_order = analysis_params['canonical_phone_order']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
+    scheme = analysis_params['classification_scheme']
     skip = analysis_params['skip']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
+
+# BASIC FILE I/O
+indir = op.join(f'processed-data-{scheme}{trunc}', 'single-feat-confmats')
+outdir = op.join('figures', 'single-feat-confmats')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # only do the 3 original feature systems
 del feature_systems['jfh_dense']
@@ -58,11 +66,6 @@ dg_file = ('cross-subj-row-ordered-dendrogram-nonan-eng-'
 with open(op.join('processed-data', 'dendrograms', dg_file), 'r') as f:
     dg = yaml.load(f)
     phone_order = dg['ivl']
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load plot style; make colormap with NaN data (from log(0)) mapped as gray
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -105,5 +108,6 @@ for this_sys, this_feats in feature_systems.items():
     fig.suptitle(feat_sys_names[this_sys])
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95,
                         wspace=0.2, hspace=0.2)
-    fig.savefig(op.join(outdir, '{}.pdf'.format(feat_sys_names[this_sys])))
+    fig.savefig(op.join(outdir,
+                        f'{feat_sys_names[this_sys]}-{scheme}{trunc}.pdf'))
     plt.close(fig)

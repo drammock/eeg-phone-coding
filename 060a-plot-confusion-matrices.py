@@ -47,19 +47,21 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
-indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
-outdir = op.join('figures', 'confusion-matrices', scheme)
+datadir = f'processed-data-{scheme}{trunc}'
+indir = op.join(datadir, f'{ordered}confusion-matrices')
+outdir = op.join('figures', 'confusion-matrices', f'{scheme}{trunc}')
 if not op.isdir(outdir):
     mkdir(outdir)
 

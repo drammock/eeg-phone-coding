@@ -31,11 +31,6 @@ plt.ioff()
 pd.set_option('display.width', 800)
 pd.set_option('display.max_columns', 30)
 
-# BASIC FILE I/O
-outdir = op.join('figures', 'manuscript')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -55,7 +50,20 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+nc = 'dss{}-'.format(n_comp) if do_dss else ''
+eer = 'eer-' if use_eer else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
+
+# BASIC FILE I/O
+outdir = op.join('figures', 'manuscript')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # only do the 3 original feature systems (not the dense ones)
 del feature_systems['jfh_dense']
@@ -68,12 +76,6 @@ feat_sys_names = dict(jfh_sparse='PSA', spe_sparse='SPE',
 # init containers. Must be done as nested dict and converted afterwards;
 # creating as pd.Panel converts embedded DataFrames to ndarrays.
 confmats_dict = dict()
-
-# file naming variables
-cv = 'cvalign-' if align_on_cv else ''
-nc = 'dss{}-'.format(n_comp) if do_dss else ''
-eer = 'eer-' if use_eer else ''
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load plot style; make colormap with NaN data (from log(0)) mapped as gray
 plt.style.use(op.join(paramdir, 'matplotlib-style-confmats.yaml'))
@@ -90,8 +92,8 @@ for sch in scheme_order:
     phone_level = sch in ['pairwise', 'OVR', 'multinomial']
 
     # FILE I/O
-    datadir = ('processed-data-{}'.format(sch) if phone_level else
-               'processed-data-logistic')
+    datadir = (f'processed-data-{sch}{trunc}' if phone_level else
+               f'processed-data-logistic{trunc}')
     indir = op.join(datadir, 'ordered-confusion-matrices')
 
     prefix = 'cross-subj-row-ordered-eer-confusion-matrix-'
@@ -151,7 +153,7 @@ cbar.set_label('Probability', rotation=270, labelpad=16, size=11)
 cbar.outline.set_linewidth(0.2)
 
 if savefig:
-    fig.savefig(op.join(outdir, 'fig-avg-confmats.pdf'))
+    fig.savefig(op.join(outdir, f'fig-avg-confmats{trunc}.pdf'))
 else:
     plt.ion()
     plt.show()

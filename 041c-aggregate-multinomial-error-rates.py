@@ -24,13 +24,18 @@ analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
+scheme = 'multinomial'
 if scheme != 'multinomial':
     raise RuntimeError('this script is only for multinomial classifiers')
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 fname = 'classifier-probabilities-eng-*.tsv'
 files = glob(op.join(datadir, 'classifiers', '??', fname))
 files.sort()
@@ -44,4 +49,4 @@ for f in files:
     accuracy = this_probs[subj_code].groupby(this_probs.index).mean()
     errors = pd.concat([errors, 1 - accuracy], axis=1)
 
-errors.to_csv(op.join(datadir, 'error_rates.tsv'), sep='\t')
+errors.to_csv(op.join(datadir, 'error-rates.tsv'), sep='\t')

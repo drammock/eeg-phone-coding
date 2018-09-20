@@ -22,14 +22,8 @@ from os import mkdir
 from time import time
 from aux_functions import time_domain_pca, print_elapsed
 
-# BASIC FILE I/O
-indir = 'eeg-data-clean'
-outdir = op.join(indir, 'time-domain-redux')
-paramdir = 'params'
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -39,9 +33,17 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     n_comp = analysis_params['dss']['n_components']
     pca_truncate = analysis_params['pca']['truncate_to_n_timepts']
     skip = analysis_params['skip']
+    truncate = analysis_params['eeg']['truncate']
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = 'eeg-data-clean'
+outdir = op.join(indir, f'time-domain-redux{trunc}')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # iterate over subjects
 for subj_code, subj in subjects.items():
@@ -51,10 +53,11 @@ for subj_code, subj in subjects.items():
     # load data
     print('loading data for subject {}'.format(subj_code), end=': ')
     _st = time()
-    epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
-                             verbose=False)
+    epochs = mne.read_epochs(op.join(indir, f'epochs{trunc}',
+                                     basename + 'epo.fif.gz'), verbose=False)
     if do_dss:
-        data = np.load(op.join(indir, 'dss', basename + 'dss-data.npy'))
+        data = np.load(op.join(indir, f'dss{trunc}',
+                               basename + 'dss-data.npy'))
         data = data[:, :n_comp, :]
     else:
         data = epochs.get_data()

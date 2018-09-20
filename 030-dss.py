@@ -20,12 +20,6 @@ from os import mkdir
 from os import path as op
 
 
-# BASIC FILE I/O
-indir = op.join('eeg-data-clean', 'epochs')
-outdir = op.join('eeg-data-clean', 'dss')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -33,7 +27,17 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     align_on_cv = analysis_params['align_on_cv']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = op.join('eeg-data-clean', f'epochs{trunc}')
+outdir = op.join('eeg-data-clean', f'dss{trunc}')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''

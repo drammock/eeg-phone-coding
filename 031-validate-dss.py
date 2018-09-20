@@ -13,6 +13,7 @@ same data, for interactive inspection and plotting.
 # License: BSD (3-clause)
 
 from os import path as op
+from os import mkdir
 import yaml
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,10 +21,6 @@ import mne
 from aux_functions import dss
 
 np.set_printoptions(linewidth=130)
-
-# BASIC FILE I/O
-indir = 'eeg-data-clean'
-outdir = op.join('figures', 'dss')
 
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
@@ -34,10 +31,19 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     align_on_cv = analysis_params['align_on_cv']
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = 'eeg-data-clean'
+outdir = op.join('figures', f'dss{trunc}')
+if not op.isdir(outdir):
+    mkdir(outdir)
+
 
 # iterate over subjects
 fig, axs = plt.subplots(3, 4, figsize=(12, 9), sharex=True, sharey=True)

@@ -24,14 +24,18 @@ analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
 
 if scheme == 'multinomial':
     raise RuntimeError('no EERs with multinomial method')
 varname = dict(OVR='consonant', pairwise='contrast').get(scheme, 'feature')
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 eer_files = glob(op.join(datadir, 'classifiers', '??', 'eer-threshold-*.tsv'))
 eer_files.sort()
 eers = pd.DataFrame()

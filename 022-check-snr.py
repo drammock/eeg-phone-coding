@@ -27,13 +27,6 @@ plt.rc('font', family='serif', serif='Linux Libertine O')
 plt.rc('mathtext', fontset='custom', rm='Linux Libertine O',
        it='Linux Libertine O:italic', bf='Linux Libertine O:bold')
 
-# BASIC FILE I/O
-indir = op.join('eeg-data-clean', 'epochs')
-outdir = 'processed-data-logistic'
-plotdir = op.join('figures', 'snr')
-if not op.isdir(plotdir):
-    mkdir(plotdir)
-
 # LOAD PARAMS
 paramdir = 'params'
 analysis_paramfile = 'current-analysis-settings.yaml'
@@ -41,7 +34,18 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     n_jobs = analysis_params['n_jobs']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = op.join('eeg-data-clean', f'epochs{trunc}')
+outdir = f'processed-data-logistic{trunc}'
+plotdir = op.join('figures', 'snr')
+if not op.isdir(plotdir):
+    mkdir(plotdir)
 
 # load master dataframe
 master_df = pd.read_csv(op.join(paramdir, 'master-dataframe.tsv'), sep='\t')
@@ -120,7 +124,8 @@ for ax, ymax in zip(axs, [9, 2500, 5000]):
     ax.set_ylim([0, ymax])
 plt.tight_layout()
 plt.subplots_adjust(right=0.9)
-plt.savefig(op.join(plotdir, 'subject-summary.png'))
+plt.savefig(op.join(plotdir, f'subject-summary{trunc}.png'))
 
 # supplementary figure
-plt.savefig(op.join('figures', 'supplement', 'subject-summary.pdf'))
+if not truncate:
+    plt.savefig(op.join('figures', 'supplement', 'subject-summary.pdf'))

@@ -38,18 +38,20 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     skip = analysis_params['skip']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
 
 phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
 
 # file naming variables
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 ordered = 'ordered-' if use_ordered else ''
 sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # BASIC FILE I/O
-datadir = 'processed-data-{}'.format(scheme)
+datadir = f'processed-data-{scheme}{trunc}'
 outdir = op.join(datadir, 'matrix-correlations')
 indir = op.join(datadir, '{}confusion-matrices'.format(ordered))
 if not op.isdir(outdir):

@@ -23,12 +23,8 @@ from aux_functions import merge_features_into_df
 np.set_printoptions(precision=6, linewidth=160)
 pd.set_option('display.width', 160)
 
-# BASIC FILE I/O
-indir = 'eeg-data-clean'
-outdir = 'processed-data'
-paramdir = 'params'
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
@@ -38,9 +34,17 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     align_on_cv = analysis_params['align_on_cv']
     feature_fnames = analysis_params['feature_fnames']
     skip = analysis_params['skip']
+    scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
+del analysis_params
 
-# file naming variables
+# FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+indir = 'eeg-data-clean'
+outdir = 'processed-data-{scheme}{trunc}'
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx']
@@ -61,8 +65,8 @@ for subj_code, subj in subjects.items():
         continue
     basename = '{0:03}-{1}-{2}'.format(subj, subj_code, cv)
     # load the data
-    epochs = mne.read_epochs(op.join(indir, 'epochs', basename + 'epo.fif.gz'),
-                             verbose=False)
+    epochs = mne.read_epochs(op.join(indir, f'epochs{trunc}',
+                                     basename + 'epo.fif.gz'), verbose=False)
     # reduce to just this subject (NB: df['subj'] 0-indexed, subj dict is not)
     this_df = df.loc[df['subj'] == (subjects[subj_code] - 1)]
     # convert epochs selection indices to dataframe row indices
@@ -77,8 +81,8 @@ for column, fname in zip(['ipa', 'syll'], ['phone-counts', 'stim-counts']):
     table = reduced_df.groupby([column, 'subj_code']).count()['subj'].unstack()
     table['min'] = table.apply(np.nanmin, axis=1)
     table['max'] = table.apply(np.nanmax, axis=1)
-    table.to_csv(op.join(outdir, '{}.tsv'.format(fname)), sep='\t',
-                 na_rep='', float_format='%.0f')
+    table.to_csv(op.join(outdir, f'{fname}.tsv'), sep='\t', na_rep='',
+                 float_format='%.0f')
 
 # split into training-validation-testing
 train_mask = reduced_df['train']

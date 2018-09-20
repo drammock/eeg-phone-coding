@@ -29,10 +29,6 @@ savefig = True
 logarithmic_cmap = True
 plt.ioff()
 
-# BASIC FILE I/O
-feature_sys_fname = 'all-features.tsv'
-outdir = op.join('figures', 'confusion-matrices')
-
 # LOAD PARAMS FROM YAML
 paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
@@ -46,7 +42,15 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     canonical_phone_order = analysis_params['canonical_phone_order']
     use_eer = analysis_params['use_eer_in_plots']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
+    truncate = analysis_params['eeg']['truncate']
 del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
+
+# BASIC FILE I/O
+feature_sys_fname = 'all-features.tsv'
+outdir = op.join('figures', 'confusion-matrices')
 
 # only do the 3 original feature systems (not the dense ones)
 del feature_systems['jfh_dense']
@@ -94,8 +98,8 @@ for sch in scheme_order:
     phone_level = sch in ['pairwise', 'OVR', 'multinomial']
 
     # FILE I/O
-    datadir = ('processed-data-{}'.format(sch) if phone_level else
-               'processed-data-logistic')
+    datadir = (f'processed-data-{sch}{trunc}' if phone_level else
+               f'processed-data-logistic{trunc}')
     indir = op.join(datadir, 'ordered-confusion-matrices')
     dgdir = op.join(datadir, 'dendrograms')
     if not op.isdir(outdir):
@@ -270,7 +274,7 @@ cbar = fig.colorbar(axs[-1, -2].images[0], cax=cax)
 
 if savefig:
     fname = 'cross-subj-row-ordered-confusion-matrices-'
-    suffix = '{}-eng-{}.pdf'.format(sfn, 'all')
+    suffix = f'{sfn}-eng-all{trunc}.pdf'
     fig.savefig(op.join(outdir, fname + suffix))
 else:
     plt.ion()

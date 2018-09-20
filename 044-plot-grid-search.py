@@ -40,14 +40,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     align_on_cv = analysis_params['align_on_cv']
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
+    truncate = analysis_params['eeg']['truncate']
+del analysis_params
 
-# basic file I/O
-indir = 'processed-data-{}'.format(scheme)
-outdir = op.join('figures', 'grid-search')
-if not op.isdir(outdir):
-    mkdir(outdir)
-
-# file naming variables
+# FILE NAMING VARIABLES
+trunc = '-truncated' if truncate else ''
 cv = 'cvalign-' if align_on_cv else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 if scheme == 'svm':
@@ -64,6 +61,12 @@ elif scheme in ['svm', 'logistic']:
 else:
     raise NotImplementedError
     # TODO: if pairwise, key is "b_vs_p" (or "p_vs_b", but not both)
+
+# basic file I/O
+indir = f'processed-data-{scheme}{trunc}'
+outdir = op.join('figures', 'grid-search')
+if not op.isdir(outdir):
+    mkdir(outdir)
 
 # init container
 classifiers = dict()
@@ -136,4 +139,4 @@ for i, subj_code in enumerate(_subjects):
             ax.set_title(key, fontsize=24)
 fig.suptitle('validation accuracy')
 fig.subplots_adjust(left=0.04, right=0.98, bottom=0.04, top=0.98)
-fig.savefig(op.join(outdir, 'grid-search-params-{}.pdf'.format(suffix)))
+fig.savefig(op.join(outdir, f'grid-search-params-{suffix}{trunc}.pdf'))
