@@ -1,13 +1,15 @@
 # directories
 videos
+figures
 recordings
 montage
 expyfun
+eeg-data-raw
 expyfun-data-raw
 expyfun-data-clean
+miller-nicely
 admin/flyers
 old-stuff
-eeg-data-raw
 params/master-feature-tables
 params/old-stuff
 __pycache__
