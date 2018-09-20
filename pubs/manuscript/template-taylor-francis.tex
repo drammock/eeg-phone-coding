@@ -4,7 +4,11 @@
 % v1.05 - August 2017
 % modified for use with pandoc by Daniel McCloy, June 2018
 
+$if(documentclass)$
+\documentclass[$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+$else$
 \documentclass[]{interact}
+$endif$
 
 %% To incorporate .eps illustrations using PDFLaTeX, etc.
 \usepackage{epstopdf}
