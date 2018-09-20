@@ -12,6 +12,7 @@ admin/flyers
 old-stuff
 params/master-feature-tables
 params/old-stuff
+cachedir
 __pycache__
 
 # files
