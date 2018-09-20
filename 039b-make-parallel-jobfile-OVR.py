@@ -17,20 +17,19 @@ from 1 subject.
 import yaml
 import os.path as op
 
-# BASIC FILE I/O
-paramdir = 'params'
-outfile = op.join(paramdir, 'parallel-jobfile-OVR.txt')
-analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
-
 # load params
+paramdir = 'params'
+analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
 with open(analysis_param_file, 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     phones = analysis_params['canonical_phone_order']['eng']
 
+# BASIC FILE I/O
+outfile = op.join('jobfiles', 'parallel-jobfile-OVR.txt')
+
 with open(outfile, 'w') as f:
     for subj_code in subjects:
         for phone in phones:
-            line = ('python 040c-classify-OVR.py {} {}\n'
-                    .format(subj_code, phone))
+            line = (f'python 040d-classify-OVR.py {subj_code} {phone}\n')
             f.write(line)

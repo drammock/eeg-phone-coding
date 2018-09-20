@@ -17,17 +17,16 @@ with data from 1 subject.
 import yaml
 import os.path as op
 
-
-# BASIC FILE I/O
-paramdir = 'params'
-outfile = op.join(paramdir, 'parallel-jobfile-pairwise.txt')
-analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
-
 # load params
+paramdir = 'params'
+analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
 with open(analysis_param_file, 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     canonical_phone_order = analysis_params['canonical_phone_order']
+
+# BASIC FILE I/O
+outfile = op.join('jobfiles', 'parallel-jobfile-pairwise.txt')
 
 with open(outfile, 'w') as f:
     for subj_code in subjects:

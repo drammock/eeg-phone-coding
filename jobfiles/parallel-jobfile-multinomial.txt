@@ -1,0 +1,12 @@
+python 040c-classify-multinomial.py IJ
+python 040c-classify-multinomial.py IL
+python 040c-classify-multinomial.py FA
+python 040c-classify-multinomial.py IM
+python 040c-classify-multinomial.py ID
+python 040c-classify-multinomial.py CQ
+python 040c-classify-multinomial.py IP
+python 040c-classify-multinomial.py FV
+python 040c-classify-multinomial.py IA
+python 040c-classify-multinomial.py IV
+python 040c-classify-multinomial.py IQ
+python 040c-classify-multinomial.py IT

@@ -3,15 +3,15 @@
 
 """
 ===============================================================================
-Script 'make-parallel-jobfile-multinomial.py'
+Script 'make-parallel-jobfile.py'
 ===============================================================================
 
-This script generates the command-line calls to classify-multinomial.py. Each
-call will train (with GridSearchCV) 1 classifier for 1 consonant (one-vs-rest)
+This script generates the command-line calls to classify.py. Each call will
+train (with GridSearchCV) 1 classifier for 1 feature from 1 feature-system and
 with data from 1 subject.
 """
 # @author: drmccloy
-# Created on Thu Jan 11 15:08:36 PST 2018
+# Created on Mon Aug 14 15:28:54 PDT 2017
 # License: BSD (3-clause)
 
 import yaml
@@ -23,11 +23,13 @@ analysis_param_file = op.join(paramdir, 'current-analysis-settings.yaml')
 with open(analysis_param_file, 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
+    features = analysis_params['features']
 
 # BASIC FILE I/O
-outfile = op.join('jobfiles', 'parallel-jobfile-multinomial.txt')
+outfile = op.join('jobfiles', 'parallel-jobfile.txt')
 
 with open(outfile, 'w') as f:
     for subj_code in subjects:
-        line = f'python 040c-classify-multinomial.py {subj_code}\n'
-        f.write(line)
+        for feat in features:
+            line = f'python 040e-classify-svm.py {subj_code} {feat}\n'
+            f.write(line)
