@@ -41,11 +41,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     align_on_cv = analysis_params['align_on_cv']
     n_jobs = analysis_params['n_jobs']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 pre_dispatch = '2*n_jobs'
 
 # FILE NAMING VARIABLES
-trunc = '-truncated' if truncate else ''
 cv = 'cvalign-' if align_on_cv else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 basename = '{0:03}-{1}-{2}'.format(subjects[subj_code], subj_code, cv)
 datafile_suffix = 'redux-{}data.npy'.format(nc if do_dss else 'epoch-')

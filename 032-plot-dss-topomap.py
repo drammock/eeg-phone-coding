@@ -27,11 +27,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'

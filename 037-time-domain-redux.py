@@ -34,10 +34,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     pca_truncate = analysis_params['pca']['truncate_to_n_timepts']
     skip = analysis_params['skip']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
+del analysis_params
 
 # FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'

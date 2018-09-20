@@ -32,11 +32,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     do_dss = analysis_params['dss']['use']
     n_comp = analysis_params['dss']['n_components']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'
@@ -71,6 +72,6 @@ for ix, (subj_code, subj_num) in enumerate(subjects.items()):
 # finish plots
 #axs.ravel()[-1].legend(handles=dss_line)
 ax.annotate('smallest\nretained\ncomponent', xy=(n_comp-1, dss_pow[n_comp-1]),
-            xytext=(15, 15), textcoords='offset points', ha='left', va='bottom',
-            arrowprops=dict(arrowstyle='->'))
+            xytext=(15, 15), textcoords='offset points', ha='left',
+            va='bottom', arrowprops=dict(arrowstyle='->'))
 fig.savefig(op.join(outdir, 'dss-component-power.pdf'))

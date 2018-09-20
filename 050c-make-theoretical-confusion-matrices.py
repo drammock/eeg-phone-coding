@@ -33,10 +33,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     scheme = analysis_params['classification_scheme']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
+sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 if scheme in ['pairwise', 'OVR', 'multinomial']:
     raise RuntimeError('This script unnecessary for non-feature analysis')
@@ -47,9 +49,6 @@ outdir = op.join(indir, 'confusion-matrices')
 feature_sys_fname = 'all-features.tsv'
 if not op.isdir(outdir):
     mkdir(outdir)
-
-# file naming variables
-sfn = 'nan' if sparse_feature_nan else 'nonan'
 
 # load features
 ground_truth = pd.read_csv(op.join(paramdir, feature_sys_fname), sep='\t',

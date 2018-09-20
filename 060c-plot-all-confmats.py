@@ -43,10 +43,11 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     use_eer = analysis_params['use_eer_in_plots']
     sparse_feature_nan = analysis_params['sparse_feature_nan']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 feature_sys_fname = 'all-features.tsv'

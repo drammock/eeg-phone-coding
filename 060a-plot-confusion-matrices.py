@@ -48,11 +48,12 @@ with open(op.join(paramdir, analysis_param_file), 'r') as f:
     skip = analysis_params['skip']
     scheme = analysis_params['classification_scheme']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
 cv = 'cvalign-' if align_on_cv else ''
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 nc = 'dss{}-'.format(n_comp) if do_dss else ''
 eer = 'eer-' if use_eer else ''
 ordered = 'ordered-' if use_ordered else ''

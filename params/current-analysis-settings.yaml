@@ -5,6 +5,7 @@ eeg:
   ref_channel: ['Ch17']
   n_blink_projectors: 4
   truncate: true
+  trunc_dur: 0.1  # seconds post-CV transition to use as tmin
 
 dss:
   use: true

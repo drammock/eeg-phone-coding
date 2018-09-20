@@ -35,10 +35,11 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     subjects = analysis_params['subjects']
     n_jobs = analysis_params['n_jobs']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
 
 # FILE NAMING VARIABLES
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = op.join('eeg-data-clean', f'epochs{trunc}')

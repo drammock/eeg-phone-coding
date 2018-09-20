@@ -47,10 +47,11 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     # how long a time of brain response do we care about?
     brain_resp_dur = analysis_params['brain_resp_dur']
     truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
 del global_params, analysis_params
 
 # FILE NAMING VARIABLES
-trunc = '-truncated' if truncate else ''
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'
@@ -150,9 +151,9 @@ for subj_code, subj in subjects.items():
         epochs._data[ix, :, st_cvalign:nd_cvalign] = \
             epochs_baseline._data[ix, :, st_onsetalign:nd_onsetalign]
 
-    # truncate to 100ms after CV transition
+    # truncate after CV transition
     if truncate:
-        epochs = epochs.crop(tmin=0.1)
+        epochs = epochs.crop(tmin=trunc_dur)
 
     # downsample
     epochs = epochs.resample(100, npad=0, n_jobs='cuda')
