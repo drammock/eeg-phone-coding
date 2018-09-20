@@ -40,7 +40,8 @@ dfs = pd.concat(dfs, axis=1)
 results = dict()
 for ix, col in enumerate(dfs.columns.tolist()):
     key = ','.join(col)
-    result = np.where(np.all(dfs.values == dfs[col].values[:, np.newaxis], axis=0))
+    result = np.where(np.all(dfs.values == dfs[col].values[:, np.newaxis],
+                             axis=0))
     # ignore equality to self
     result = (np.array(list(set(result[0]) - set([ix]))),)
     if len(result) and len(result[0]):

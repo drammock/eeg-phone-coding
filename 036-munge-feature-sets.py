@@ -21,10 +21,8 @@ import pandas as pd
 np.set_printoptions(precision=4, linewidth=160)
 pd.set_option('display.width', 250)
 
-# BASIC FILE I/O
-paramdir = 'params'
-
 # LOAD PARAMS FROM YAML
+paramdir = 'params'
 analysis_param_file = 'current-analysis-settings.yaml'
 with open(op.join(paramdir, analysis_param_file), 'r') as f:
     analysis_params = yaml.load(f)
