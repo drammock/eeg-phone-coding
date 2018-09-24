@@ -331,6 +331,8 @@ def _dist(matrix, metric=_symmetric_kl_divergence, fixup=True):
     if fixup:
         valid = np.where(np.isfinite(dists))
         eps = np.finfo(dists.dtype).eps
+        # NaN → 0
+        dists[np.isnan(dists)] = 0.
         # make near-0 values actually 0 (or else tiny negatives may sneak in)
         dists[np.abs(dists) < eps] = 0.
         # make ∞ finite, but at least 1 order of magnitude bigger than the
