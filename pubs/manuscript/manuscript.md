@@ -675,7 +675,7 @@ complementary information to behavioral studies of phoneme confusion [e.g., the
 classic study of @MillerNicely1955].  In such studies,
 confusions are induced by degrading the stimuli (usually by adding background
 noise), which has unequal effects on different speech sounds due to variations
-in their cue robustness [@Wright2001, @Wright2004].  In contrast, this
+in their cue robustness [@Wright2001; @Wright2004].  In contrast, this
 technique estimates phoneme confusion based on brain responses to unmodified
 natural speech, not speech-in-noise, thereby removing biases related to cue
 robustness.  Of course, the nature of the auditory system, the brain, and EEG
