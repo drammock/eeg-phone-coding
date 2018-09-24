@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd..
+cd ..
 
 while read f; do
 	$f
