@@ -19,6 +19,8 @@ del analysis_params
 # FILE NAMING VARIABLES
 trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
+phone_level = ['pairwise', 'OVR', 'multinomial']
+
 # BASIC FILE I/O
 indir = f'processed-data-{scheme}{trunc}'
 outdir = op.join(indir, 'ordered-confusion-matrices')
@@ -29,8 +31,8 @@ feature_systems = ['phoible_redux', 'jfh_sparse', 'spe_sparse']
 
 for featsys in feature_systems:
     # load the data
-    fname = ('eer-confusion-matrix-nonan-eng-cvalign-dss5-'
-             '{}-average.tsv'.format(featsys))
+    infix = '' if phone_level else (featsys + '-')
+    fname = f'eer-confusion-matrix-nonan-eng-cvalign-dss5-{infix}average.tsv'
     fpath = op.join(indir, 'confusion-matrices', fname)
     confmat = pd.read_csv(fpath, sep='\t', index_col=0)
     # compute the optimal ordering

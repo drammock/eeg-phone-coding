@@ -181,8 +181,8 @@ for row, sch in enumerate(rows):
     phone_level = sch in ['pairwise', 'OVR', 'multinomial']
 
     # FILE I/O
-    datadir = ('processed-data-{}'.format(sch) if phone_level else
-               'processed-data-logistic')
+    datadir = (f'processed-data-{sch}{trunc}' if phone_level else
+               f'processed-data-logistic{trunc}')
     indir = op.join(datadir, 'ordered-confusion-matrices')
     dgdir = op.join(datadir, 'dendrograms')
 

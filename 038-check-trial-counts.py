@@ -45,7 +45,7 @@ trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = 'eeg-data-clean'
-outdir = 'processed-data-{scheme}{trunc}'
+outdir = f'processed-data-{scheme}{trunc}'
 
 # load the trial params
 df_cols = ['subj', 'talker', 'syll', 'train', 'wav_idx']

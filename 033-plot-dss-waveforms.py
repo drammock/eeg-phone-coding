@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import mne
 from aux_functions import merge_features_into_df
 
-td_redux = True
+td_redux = False
 
 # LOAD PARAMS FROM YAML
 paramdir = 'params'

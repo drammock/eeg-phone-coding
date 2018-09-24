@@ -21,19 +21,8 @@ else:
     figure_paramfile = 'manuscript-figure-params.yaml'
     outdir = op.join('figures', 'manuscript')
 
-# I/O
-paramdir = 'params'
-if individual:
-    fname = 'individually-row-ordered-matrix-diagonality-nonan-eer.tsv'
-else:
-    fname = ('cross-featsys-cross-subj-row-ordered-matrix-diagonality-'
-             'nonan-eer.tsv')
-fpath = op.join('processed-data-logistic', 'matrix-correlations', fname)
-
-# STYLES
-myriad = op.join(paramdir, 'matplotlib-font-myriad.yaml')
-
 # figure params
+paramdir = 'params'
 with open(op.join(paramdir, figure_paramfile), 'r') as f:
     figure_params = yaml.load(f)
     col = figure_params['yel']
@@ -49,6 +38,28 @@ with open(op.join(paramdir, figure_paramfile), 'r') as f:
     boxplot_color = figure_params['boxplot']
     median_color = figure_params['median']
     swarm_color = figure_params['swarm']
+# analysis params
+analysis_param_file = 'current-analysis-settings.yaml'
+with open(op.join(paramdir, analysis_param_file), 'r') as f:
+    analysis_params = yaml.load(f)
+    truncate = analysis_params['eeg']['truncate']
+    trunc_dur = analysis_params['eeg']['trunc_dur']
+del analysis_params
+
+# FILE NAMING VARIABLES
+trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
+
+# STYLES
+myriad = op.join(paramdir, 'matplotlib-font-myriad.yaml')
+
+# I/O
+if individual:
+    fname = 'individually-row-ordered-matrix-diagonality-nonan-eer.tsv'
+else:
+    fname = ('cross-featsys-cross-subj-row-ordered-matrix-diagonality-'
+             'nonan-eer.tsv')
+fpath = op.join(f'processed-data-logistic{trunc}', 'matrix-correlations',
+                fname)
 
 # load data
 diag_data = pd.read_csv(fpath, sep='\t', index_col=0)
@@ -126,11 +137,18 @@ sns.despine(ax=ax)
 ax.set_ylabel('Matrix diagonality', size=axislabelsize, labelpad=10)
 ylims = (0.42, 0.88) if individual else (0.22, 0.76)
 yticks = np.linspace(0.5, 0.8, 4) if individual else np.linspace(0.3, 0.7, 5)
+ylims = np.array(ylims)
+if trunc_dur == 0.1:
+    ylims -= 0.2
+    yticks -= 0.2
+elif trunc_dur == 0.15:
+    ylims -= np.array((0.9, 0.3))
+    yticks = np.linspace(-0.4, 0.5, 10)
 ax.set_ylim(*ylims)
 ax.set_yticks(yticks)
 ax.tick_params(axis='y', labelsize=ticklabelsize + 2)
 ax.tick_params(axis='x', length=0, labelsize=axislabelsize)
 
 individ = '-individ' if individual else ''
-fname = 'fig-diagonality-barplot{}.pdf'.format(individ)
+fname = f'fig-diagonality-barplot{individ}{trunc}.pdf'
 fig.savefig(op.join(outdir, fname))

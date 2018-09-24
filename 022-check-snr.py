@@ -34,6 +34,7 @@ with open(op.join(paramdir, analysis_paramfile), 'r') as f:
     analysis_params = yaml.load(f)
     subjects = analysis_params['subjects']
     n_jobs = analysis_params['n_jobs']
+    scheme = analysis_params['classification_scheme']
     truncate = analysis_params['eeg']['truncate']
     trunc_dur = analysis_params['eeg']['trunc_dur']
 del analysis_params
@@ -43,7 +44,7 @@ trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
 # BASIC FILE I/O
 indir = op.join('eeg-data-clean', f'epochs{trunc}')
-outdir = f'processed-data-logistic{trunc}'
+outdir = f'processed-data-{scheme}{trunc}'
 plotdir = op.join('figures', 'snr')
 if not op.isdir(plotdir):
     mkdir(plotdir)

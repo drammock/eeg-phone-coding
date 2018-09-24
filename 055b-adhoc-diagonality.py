@@ -23,6 +23,8 @@ subjects.update(average=0)
 # FILE NAMING VARIABLES
 trunc = f'-truncated-{int(trunc_dur * 1000)}' if truncate else ''
 
+phone_level = scheme in ['pairwise', 'OVR', 'multinomial']
+
 # BASIC FILE I/O
 indir = f'processed-data-{scheme}{trunc}'
 
@@ -38,8 +40,10 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
 
     for subj in subjects:
         # load confmat
-        fname = ('cross-featsys-cross-subj-row-ordered-eer-confusion-matrix-'
-                 'nonan-eng-cvalign-dss5-{}-{}.tsv'.format(featsys, subj))
+        prefix = '' if phone_level else 'cross-featsys-'
+        infix = '' if phone_level else f'{featsys}-'
+        fname = (f'{prefix}cross-subj-row-ordered-eer-confusion-matrix-nonan-'
+                 f'eng-cvalign-dss5-{infix}{subj}.tsv')
         confmat = pd.read_csv(op.join(indir, 'ordered-confusion-matrices',
                                       fname), sep='\t', index_col=0)
         # compute diagonality
@@ -59,8 +63,9 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
 
     for subj in subjects:
         # load confmat
-        fname = ('row-ordered-eer-confusion-matrix-'
-                 'nonan-eng-cvalign-dss5-{}-{}.tsv'.format(featsys, subj))
+        infix = '' if phone_level else f'{featsys}-'
+        fname = ('row-ordered-eer-confusion-matrix-nonan-eng-cvalign-dss5-'
+                 f'{infix}{subj}.tsv')
         confmat = pd.read_csv(op.join(indir, 'ordered-confusion-matrices',
                                       fname), sep='\t', index_col=0)
         # compute diagonality

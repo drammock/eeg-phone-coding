@@ -93,7 +93,7 @@ for method in methods:
             # loop over feature systems
             for feat_sys in feature_systems:
                 # load the data
-                fsys = '' if phone_level else feat_sys
+                fsys = '' if phone_level else feat_sys + '-'
                 middle_arg = fsys if simulating else cv + nc + fsys
                 args = [order_type, ordered, method, sfn, 'eng', middle_arg,
                         subj_code]
