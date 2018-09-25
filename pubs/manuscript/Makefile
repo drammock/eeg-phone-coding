@@ -42,6 +42,7 @@ submission:
 	--variable doublespace \
 	--variable endfloat \
 	--variable linenumbers \
+	--variable highlightchanges \
 	--csl bib/apa.csl \
 	--output=submission.pdf
 
@@ -94,7 +95,7 @@ wordcount:
 	--standalone \
 	--mathml \
 	--quiet \
-	| wc -w
+	| html2text | wc -w
 
 arxivpreprint:
 	pdftk draft.pdf supplement.pdf cat output ~/Desktop/draft.pdf

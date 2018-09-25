@@ -75,6 +75,17 @@ $endif$
 %% tightlist (pandoc compatibility)
 \providecommand{\tightlist}{%
 \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+%% track changes commands
+$if(highlightchanges)$
+\usepackage{xcolor}
+\usepackage{ulem}
+\newcommand{\add}[1]{\textcolor{red}{#1}}
+\newcommand{\del}[1]{\textcolor{gray}{\sout{#1}}}
+$else$
+\newcommand{\add}[1]{#1}
+\newcommand{\del}[1]{}
+$endif$
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
 
 \begin{document}
