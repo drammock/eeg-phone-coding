@@ -170,12 +170,19 @@ for featsys in feature_systems:
         for x, y, sid, c in zip(xvals, yvals, yvals.index, colors):
             ax.plot(x, y, '.', color=c, markersize=6, zorder=10)
             # fake data for legend
-            handles.append(Line2D([], [], color=c, marker='.', markersize=8,
+            handles.append(Line2D([], [], color=c,
                                   linewidth=1.5, linestyle='-', label=sid))
         labels = [h.get_label() for h in handles]
         legend = ax.legend(handles, labels, title='Listener', loc='upper left',
                            bbox_to_anchor=(1.02, 1), borderaxespad=0,
                            edgecolor='none')
+        # annotate
+        xy = (0, data.values.min() + 0.005)
+        col = '0.5'
+        ax.plot(*xy, '.', color=col, markersize=6, zorder=10)
+        ax.annotate('= largest decrease (per subject)', xy=xy, xytext=(6, 0),
+                    textcoords='offset points', va='center', ha='left',
+                    size=10, color=col)
     # garnish
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
     ax.set_ylabel('Matrix diagonality', labelpad=7)
