@@ -272,7 +272,8 @@ marked as “bad”) were dropped.  Across subjects, between 3.6% and 8.8% of th
 
 Retained epochs were time-shifted to align on the consonant-vowel transition
 time instead of the stimulus onset.  This was done because information about
-consonant identity is encoded in the first ~100 ms of following vowels, so
+consonant identity is encoded in the first ~100 ms of following vowels
+[@Ohman1965], so
 temporal alignment of this portion of the EEG response should hopefully improve
 the ability of classifiers to learn consonant features.  After this
 re-alignment, epochs had a temporal span from −335 ms (the onset of the longest
@@ -342,11 +343,14 @@ components of ~100 time points each).  Recall that ¾ of the total trials are
 from training talkers, so ~2500 trials are available to train classifiers,
 employing various labelling and partitioning strategies; the remaining ~900
 trials are then used to assess the information that can be recovered from the
-neural signals.
+neural signals. \add{Three approaches to classifying the neural data were
+used; for referential ease these are referred to as “experiments” 1-3, though
+all three analyses were performed on the same dataset.}
 
 In experiment 1, each trial is labelled with the consonant that was presented
 during that epoch, and a classifier was trained to discriminate between each
-pair of consonants (for 23 consonants, this yields 276 pairwise comparisions,
+pair of consonants (for 23 consonants, this yields \del{276}\add{253} pairwise
+comparisions,
 with each comparison having ~220 trials of training data). This initial
 experiment serves as a “sanity check” that sufficient information about the
 neural processing of consonant identity is picked up by EEG, and that the
@@ -449,7 +453,8 @@ dimension, yielding the joint probability that the input consonant (the
 stimulus) would be classified as any given output consonant (the percept).  For
 features involving sparsity, cells corresponding to undefined feature values
 were given a chance value of 0.5 (results were broadly similar when such cells
-were coded as `NaN` and excluded from the computation).  The resulting 23×23
+were \del{coded as `NaN` and}\add{simply} excluded from the computation).  The
+resulting 23×23
 matrices can be thought of as confusion matrices: each cell gives the
 probability that the bank of phonological feature classifiers in that feature
 system would classify a heard consonant (given by the row label) as a
@@ -470,14 +475,15 @@ computes the correlation between the matrix’s rows and columns, which reflects
 the fraction of the total mass of the matrix that lies on the main diagonal.
 This measure yields a value of 1 for an identity matrix, zero for a uniform
 matrix, and −1 for a matrix with all its mass on the minor diagonal.  A
-derivation of this measure is provided in the Supplementary Material.
+derivation of this measure is provided in the supplementary material.
 
 This notion of diagonality requires that adjacent rows be relatively similar
 and distant rows be relatively dissimilar (and likewise for columns);
 otherwise, the formula’s notion of distance between rows (or columns) cannot
 be justifiably applied.  Therefore, before computing diagonality, the matrices
 were submitted to a heirarchical clustering of the rows using the optimal leaf
-ordering algorithm [@BarJosephEtAl2001].
+ordering algorithm [@BarJosephEtAl2001]\add{, and the column order was
+permuted to match the optimal ordering of the rows}.
 
 # Results
 
@@ -492,7 +498,8 @@ proportion of \ipa{/p/} trials mistaken for \ipa{/b/} and proportion of
 ![Across-subject average accuracy/error for pairwise classifiers. Off-diagonal cells represent the error rates for the pairwise classifier indicated by that cell’s row/column labels; diagonal cells represent the mean accuracy for all pairs in which that consonant is one element.\label{fig-pairwise-confmat}](fig-pairwise.eps)
 
 In general, the mean accuracy across subjects for a given pairwise comparison
-was always above 90%; individual accuracy scores for each subject were generally above 80% and are shown in
+was always above 90%; individual accuracy scores for each subject were
+generally above 80% and are shown in
 the supplementary material, figure S4.  These plots indicate that consonant
 identity can be recovered fairly well from brain responses to the stimuli.
 However, a suite of pairwise classifiers is not a particularly realistic model
@@ -530,7 +537,7 @@ is also some indication that classifiers for fricative consonants (especially
 \ipa{/f s z ʃ ʒ/}) tended to make more misclassifications to trials with
 (non-target) fricative stimuli, compared to trials with non-fricative stimuli
 (the broad vertical stripe near the middle of the matrix, which is darker in
-its upper and lower thirds). However, the classifiers’ ability to make these
+its upper and lower thirds). However, the classifiers’ abilities to make these
 basic discriminations of voiced versus voiceless stop consonants or fricatives
 versus non-fricatives is still rather poor (e.g., the \ipa{/b/} classifier
 marks 19% of \ipa{/p/} trials as \ipa{/b/}, and only 41% of \ipa{/b/} trials as
@@ -613,7 +620,7 @@ rather than the full temporal span of the neural response to each syllable
 matrix is reduced by roughly an order of magnitude:
 $\log_{10}(\frac{\max(\text{full})}{\min(\text{full})}) - \log_{10}(\frac{\max(\text{trunc})}{\min(\text{trunc})}) = 0.92$.} Nonetheless, combining
 information from all the phonological feature classifiers in the PSA system
-still usually results in the correct classification being the dominant one
+still \add{usually} results in the correct classification being the dominant one
 \add{(the highest classification score in each row is the diagonal element)},
 for all consonants except \ipa{/n/} \add{when using the full epochs, and for
 all consonants except \ipa{/n/} and \ipa{/l/} when using the truncated
@@ -654,7 +661,8 @@ To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
 (the degree to which the mass of the matrix falls along the main diagonal).
 Matrix diagonality values for each subject’s data, along with the
-across-subject average matrices, are shown in figure \ref{fig-diag-boxplot}.
+across-subject average matrices, are shown in \add{F}\del{f}igure
+\ref{fig-diag-boxplot}.
 The PHOIBLE feature system fares considerably better than the PSA and SPE
 feature systems on this measure, suggesting that the contrasts encoded by the
 PHOIBLE system \add{as a whole} more closely reflect the kinds of information
@@ -905,7 +913,8 @@ well.
 # Acknowledgments {-}
 
 Special thanks to Mark Hasegawa-Johnson and Ed Lalor who were instrumental in
-the early development of this technique, and to Nick Foti, Alex Gramfort,
+the early development of this technique, and to Nick Foti, \add{Bryan Gick,}
+Alex Gramfort,
 Kathleen Hall, Eric Larson, Majid Mirbagheri, and Doug Pulleyblank for helpful
 and stimulating discussions about various aspects of the project along the way.
 
