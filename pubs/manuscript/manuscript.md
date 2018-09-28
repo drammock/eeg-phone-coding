@@ -302,23 +302,30 @@ electrode channels, constrained by a bias function (typically the average
 evoked response across trials of a given type) that orients the components to
 maximally recover the bias function.  In this case a single per-subject
 bias function was used, based on the average of all epochs for that subject.
-This was a more conservative strategy than is typically seen in the literature,
+This \del{was a more conservative}\add{is a different}
+strategy than is typically seen in the literature,
 where separate bias functions are used for each experimental condition.  The
-conservative strategy was chosen to eliminate a possible source of variability
+\del{conservative}
+strategy was chosen to eliminate a possible source of variability
 in classifier performance: if computing separate bias functions for each
 consonant or for each consonant token, there would be potentially different
 numbers of trials being averaged for the different consonants / tokens.  This
-could lead to different SNRs for the different consonants, in a way that might
+could lead to different SNRs for the \add{DSS components of} different
+consonants, in a way that might
 bias the classifiers or make certain classifiers’ tasks easier that others.  An
 alternative approach would have been to equalise the trial counts for each
 consonant prior to DSS analysis, but this was rejected due to the exploratory
 nature of this research (i.e., since the overall amount of data needed was not
 known, more trials with processing akin to “shrinkage toward the mean” was
-deemed preferable to fewer trials with less conservative processing).
+deemed preferable to fewer trials with \del{less conservative
+processing}\add{a potentially more powerful processing strategy}).
 
-Based on scree plots of the relative signal power in each DSS component, five
-components were retained for all subjects, replacing the 28-31 retained
-electrode channels with 5 orthogonal DSS components for each subject.  Temporal
+\del{Based on scree plots of the relative signal power in each DSS component,
+five}\add{Five DSS} components were retained\del{ for all subjects}, replacing
+the 28-31 retained electrode channels with 5 orthogonal DSS components for each
+subject. \add{The number of components retained was the largest number needed
+so as to include the “knee” point of a scree plot of the relative signal power
+the DSS components for each subject’s data.} Temporal
 dimensionality reduction was also applied using PCA, to reduce collinearity of
 (adjacent) temporal samples.  Such collinearity can make it difficult for a
 classifier to learn a decision boundary from the training data.  For 6 of the
