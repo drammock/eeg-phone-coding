@@ -5,4 +5,5 @@ fig-psa.pdf
 fig-spe.pdf
 fig-phoible.pdf
 fig-diagonality-barplot-individ.pdf
+fig-diagonality-boxplot-with-trunc.pdf
 fig-loo-PHOIBLE.pdf
