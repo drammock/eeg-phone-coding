@@ -87,6 +87,14 @@ coverletter:
 	--pdf-engine=xelatex \
 	--output=cover-letter.pdf
 
+response:
+	@pandoc R1/response-to-reviewers.md \
+	--from markdown-smart \
+	--template=template-response.tex \
+	--pdf-engine=xelatex \
+	--output=R1/response-to-reviewers.pdf
+
+
 wordcount:
 	@pandoc manuscript.md \
 	--from markdown-smart \
