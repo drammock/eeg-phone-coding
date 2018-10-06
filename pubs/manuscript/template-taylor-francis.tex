@@ -82,7 +82,7 @@ $if(highlightchanges)$
 \usepackage{xcolor}
 \usepackage{ulem}
 \newcommand{\add}[1]{\textcolor{red}{#1}}
-\newcommand{\del}[1]{\textcolor{gray}{\sout{#1}}}
+\newcommand{\del}[1]{\textcolor{gray}{\ifmmode\text{\sout{\ensuremath{#1}}}\else\sout{#1}\fi}}
 $else$
 \newcommand{\add}[1]{#1}
 \newcommand{\del}[1]{}
