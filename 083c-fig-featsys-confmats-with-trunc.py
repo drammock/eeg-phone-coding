@@ -24,7 +24,7 @@ from aux_functions import plot_confmat, format_colorbar_percent
 
 
 # FLAGS
-savefig = False
+savefig = True
 
 # analysis params
 paramdir = 'params'
@@ -70,9 +70,12 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
     # force same row/col order
     tconfmat = tconfmat.loc[confmat.index, confmat.columns]
     # dynamic range change
-    dynrange_diff = (np.log10(confmat.values.max() / confmat.values.min()) -
-                     np.log10(tconfmat.values.max() / tconfmat.values.min()))
-    print(f'{featsys:<15}{np.round(dynrange_diff, 3)}')
+    dynrange_full = np.round(np.log10(confmat.values.max() /
+                                      confmat.values.min()), 3)
+    dynrange_trunc = np.round(np.log10(tconfmat.values.max() /
+                                       tconfmat.values.min()), 3)
+    dynrange_diff = dynrange_full - dynrange_trunc
+    print(f'{featsys:<15}{dynrange_full} ({dynrange_full}-{dynrange_trunc})')
 
     # init figure
     plt.style.use([op.join(paramdir, 'matplotlib-style-confmats.yaml'),
@@ -92,7 +95,7 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
                           norm=LogNorm(vmin=1e-5, vmax=1))
         # subplot labels
         xpos = (0, 1)[ix]
-        label = ['A  Full epochs', 'Truncated  B'][ix]
+        label = ['A', 'B'][ix]
         kwargs = dict(ha='right') if ix else dict(ha='left')
         ax.text(xpos, 1.05, label, transform=ax.transAxes, fontsize=16,
                 fontweight='bold', va='baseline', **kwargs)
@@ -100,6 +103,12 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
         if not ix:
             ax.set_ylabel('Stimulus phoneme')
         ax.set_xlabel('Predicted phoneme')
+        # subplot titles
+        xpos = (0.1, 0.9)[ix]
+        label = [f'Full epochs ({dynrange_full:.3})',
+                 f'({dynrange_trunc:.3}) Truncated'][ix]
+        ax.text(xpos, 1.05, label, transform=ax.transAxes, fontsize=12,
+                va='baseline', **kwargs)
 
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
         # aside: rowmax plots (not saved to file; use savefig=False)
