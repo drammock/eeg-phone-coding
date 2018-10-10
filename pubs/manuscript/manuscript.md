@@ -297,7 +297,7 @@ the ability of classifiers to learn consonant features.  After this
 re-alignment, epochs had a temporal span from −335 ms (the onset of the longest
 consonant), to +733 ms (200 ms after the end of the longest vowel), with $t=0$
 fixed at the consonant-vowel transition point. \add{The duration and alignment
-of each stimulus are visualized in the supplementary material, Figure S2.}
+of each stimulus are visualised in the supplementary material, Figure S2.}
 
 \add{At this stage, an optional trucation of the epochs was performed. In one
 case, the remainder of the analysis was carried out with the entire temporal
@@ -785,7 +785,7 @@ consonantal information is concurrent with early-stage processing of incoming
 vowel information as the stimulus unfolds through time. Therefore, the
 influence of acoustic cues to consonant identity that are carried by the vowel
 cannot be entirely ruled out even in our truncated data. By truncating at 100
-ms after the consonant-vowel transition, we have hopefully minimized or
+ms after the consonant-vowel transition, we have hopefully minimised or
 eliminated the influence of formant transitions during the vowel onset, but
 other cues (such as vowel duration covarying with the voicing status of
 preceding stop consonants) cannot be fully ruled out by truncation alone.}
