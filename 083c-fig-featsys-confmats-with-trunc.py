@@ -92,7 +92,7 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
                           norm=LogNorm(vmin=1e-5, vmax=1))
         # subplot labels
         xpos = (0, 1)[ix]
-        label = ['A', 'B'][ix]
+        label = ['A  Full epochs', 'Truncated  B'][ix]
         kwargs = dict(ha='right') if ix else dict(ha='left')
         ax.text(xpos, 1.05, label, transform=ax.transAxes, fontsize=16,
                 fontweight='bold', va='baseline', **kwargs)
