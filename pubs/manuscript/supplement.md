@@ -8,6 +8,7 @@ author:
   affiliation:
   - University of Washington, Institute for Learning and Brain Sciences, 1715 NE Columbia Rd., Seattle, WA 98195-7988
 bibliography: bib/supplement.bib
+supplement: true
 ---
 <!--
 documentclass: interact
@@ -294,6 +295,20 @@ and after cancelling the $\frac{1}{n}$ terms, we have reached the form of equati
 
 # Supplementary figures
 
+## Stimulus duration and alignment
+
+To reduce the influence of early cortical representations of acoustic-phonetic
+information, we performed analyses on both the full temporal span of each epoch
+and on truncated epochs (beginning at 100 ms after the consonant-vowel
+transition of the stimulus syllable). Figure \ref{stim-align} shows the
+alignment and duration of each stimulus, grouped by onset consonant.
+
+\begin{figure}
+\includegraphics{sfigs/stimuli-alignments}
+\caption{Durations and alignments of all English syllables used as stimuli. The vertical white line marks the consonant-vowel transition point, and the dashed black line indicates the truncation point for the truncated-epoch analysis.\label{stim-align}}
+\end{figure}
+
+
 ## Signal-to-noise ratio
 
 One potential pitfall when analyzing neurophysiological data is variability in
@@ -311,7 +326,7 @@ phonological feature system.
 \caption{Plots of SNR, blink detection, and retained epochs for each subject.  The total number of trials varies slightly for each subject due to additional (unanalyzed) trials from foreign talkers; each listener heard only 2 of the 4 foreign talkers, and the languages represented by the foreign talkers did not necessarily have equal numbers of consonants.\label{snr-blink-epoch}}
 \end{figure}
 
-\phantom{x}
+<!--\phantom{x}-->
 
 \begin{figure}
 \includegraphics{sfigs/snr-vs-matrix-diagonality}
@@ -354,6 +369,19 @@ for two different phonological feature systems.
 \includegraphics{sfigs/fig-phoible}
 \caption{Confusion matrices for each subject for the PHOIBLE phonological feature system classifiers.\label{phoible}}
 \end{figure}
+
+## Jointly-ordered confusion matrices
+
+Here we present confusion matrices for each of the three phonological feature
+systems, with row order determined by hierarchical clustering of the rows
+performed jointly across the three matrices.  This allows direct comparison of
+particular rows or submatrices across the three plots.
+
+\begin{figure}
+\includegraphics{sfigs/fig-confmat-allthree}
+\caption{Confusion matrices for each feature system, with consistent row and column order across all three matrices.\label{allthree}}
+\end{figure}
+
 
 # References
 
