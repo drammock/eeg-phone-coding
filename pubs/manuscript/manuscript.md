@@ -294,7 +294,8 @@ consonant identity is encoded in the first ~100 ms of following vowels
 [@Ohman1965], so
 temporal alignment of this portion of the EEG response should hopefully improve
 the ability of classifiers to learn consonant features.  After this
-re-alignment, epochs had a temporal span from −335 ms (the onset of the longest
+re-alignment, epochs had a temporal span from −\add{258}\del{335} ms (the onset
+of the longest
 consonant), to +733 ms (200 ms after the end of the longest vowel), with $t=0$
 fixed at the consonant-vowel transition point. \add{The duration and alignment
 of each stimulus are visualised in the supplementary material, Figure S2.}
