@@ -17,7 +17,7 @@ import yaml
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
-# import seaborn as sns
+import seaborn as sns
 
 # FLAGS
 savefig = True
@@ -37,7 +37,7 @@ with open(os.path.join(paramdir, param_file), 'r') as f:
 # load colors
 with open(os.path.join(paramdir, 'colors.yaml'), 'r') as cf:
     colors = yaml.load(cf)
-plt.style.use(os.path.join(paramdir, 'font-charis.yaml'))
+plt.style.use(os.path.join(paramdir, 'font-libertine.yaml'))
 # load ASCII-IPA mapping
 with open(os.path.join(paramdir, 'ascii-to-ipa.json'), 'r') as _file:
     ipadict = json.load(_file)
@@ -99,6 +99,7 @@ ax.yaxis.set_visible(False)
 ax.set_xlabel('time (s)')
 ax.set_title('Stimuli alignment and duration')
 
+sns.despine(left=True)
 #sns.rugplot(0 - cvtimes['cvtime'], ax=ax)
 #sns.rugplot(cvtimes['dur'] - cvtimes['cvtime'], ax=ax)
 
