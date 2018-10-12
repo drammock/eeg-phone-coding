@@ -95,15 +95,17 @@ response:
 	--output=R1/response-to-reviewers.pdf
 
 
-wordcount:
-	@pandoc manuscript.md \
-	--from markdown-smart \
-	--filter pandoc-citeproc \
-	--csl bib/apa.csl \
-	--standalone \
-	--mathml \
-	--quiet \
-	| html2text | wc -w
+wordcount: preprint
+	@pdftotext preprint.pdf - | wc -w
+#	@pandoc manuscript.md \
+#	--from markdown-smart \
+#	--filter pandoc-citeproc \
+#	--csl bib/apa.csl \
+#	--standalone \
+#	--mathml \
+#	--quiet \
+#	| html2text | wc -w
+
 
 arxivpreprint:
 	pdftk draft.pdf supplement.pdf cat output ~/Desktop/draft.pdf
