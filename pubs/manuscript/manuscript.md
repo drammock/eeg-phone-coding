@@ -303,7 +303,7 @@ of each stimulus are visualised in the supplementary material, Figure S2.}
 \add{At this stage, an optional trucation of the epochs was performed. In one
 case, the remainder of the analysis was carried out with the entire temporal
 span of each epoch; in another case, the epochs were truncated to eliminate the
-brain response prior to $t=100$ (in other words, the truncated epochs began
+brain response prior to $t=100$ ms (in other words, the truncated epochs began
 100 ms after the consonant-vowel transition point of the stimulus).  Since the
 brain’s representation of spectrotemporal and acoustic-phonetic features of
 the stimulus is thought to occur in the first 50-100 ms after stimulus onset,
@@ -604,7 +604,7 @@ full-epochs confusion matrix for each feature system with consistent
 row/column order across feature systems is given in the supplementary
 material, Figure S9}.
 
-![\del{Results for the PSA feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the PSA phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix (in decibels); there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-psa-confmat}](fig-psa.eps)
+![\del{Results for the PSA feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the PSA phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-psa-confmat}](fig-psa.eps)
 
 Compared to the confusion matrices for pairwise (figure
 \ref{fig-pairwise-confmat}A) and OVR (figure \ref{fig-ovr-confmat}A)
@@ -656,7 +656,7 @@ for all consonants except \ipa{/n/} \add{when using the full epochs, and for
 all consonants except \ipa{/n/} and \ipa{/l/} when using the truncated
 epochs}\del{ (figure \ref{fig-psa-confmat}B)}.
 
-![\del{Results for the SPE feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the SPE phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix (in decibels); there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-spe-confmat}](fig-spe.eps)
+![\del{Results for the SPE feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the SPE phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-spe-confmat}](fig-spe.eps)
 
 
 Looking across feature systems, similar 2×2 submatrices of poorly discriminated
@@ -686,7 +686,7 @@ systems, although the distinction is encoded by different features in each:
 “grave” in PSA, “back” in SPE, and “labial” in PHOIBLE.
 <!-- (reductions of 0.85 for SPE and 1.02 for PHOIBLE)-->
 
-![Confusion matrices \del{for}\add{derived from} the PHOIBLE \del{feature system}\add{phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left, the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices \ipa{/s z/} and \ipa{/ð θ/} within it), and the relative distinctiveness of \ipa{/j w/} from all other consonants, but not from each other. \add{The dynamic ranges are given in parentheses above each matrix (in decibels); there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-phoible-confmat}](fig-phoible.eps)
+![Confusion matrices \del{for}\add{derived from} the PHOIBLE \del{feature system}\add{phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left, the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices \ipa{/s z/} and \ipa{/ð θ/} within it), and the relative distinctiveness of \ipa{/j w/} from all other consonants, but not from each other. \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-phoible-confmat}](fig-phoible.eps)
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
