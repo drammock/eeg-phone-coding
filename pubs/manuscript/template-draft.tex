@@ -57,6 +57,17 @@ $endif$
 \providecommand{\tightlist}{%
 \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+%% track changes commands
+$if(highlightchanges)$
+\usepackage{xcolor}
+\usepackage{ulem}
+\newcommand{\add}[1]{\textcolor{red}{#1}}
+\newcommand{\del}[1]{\textcolor{gray}{\ifmmode\text{\sout{\ensuremath{#1}}}\else\sout{#1}\fi}}
+$else$
+\newcommand{\add}[1]{#1}
+\newcommand{\del}[1]{}
+$endif$
+
 %% fonts
 \usepackage{mathspec}
 \setmainfont[Numbers={Lining}]{Linux Libertine O}
