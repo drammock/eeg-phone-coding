@@ -70,10 +70,10 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
     # force same row/col order
     tconfmat = tconfmat.loc[confmat.index, confmat.columns]
     # dynamic range change
-    dynrange_full = np.round(np.log10(confmat.values.max() /
-                                      confmat.values.min()), 3)
-    dynrange_trunc = np.round(np.log10(tconfmat.values.max() /
-                                       tconfmat.values.min()), 3)
+    dynrange_full = 10 * np.round(np.log10(confmat.values.max() /
+                                           confmat.values.min()), 2)
+    dynrange_trunc = 10 * np.round(np.log10(tconfmat.values.max() /
+                                            tconfmat.values.min()), 2)
     dynrange_diff = dynrange_full - dynrange_trunc
     print(f'{featsys:<15}{dynrange_full} ({dynrange_full}-{dynrange_trunc})')
 
@@ -104,10 +104,10 @@ for featsys, abbrev in zip(feature_systems, feature_abbrevs):
             ax.set_ylabel('Stimulus phoneme')
         ax.set_xlabel('Predicted phoneme')
         # subplot titles
-        xpos = (0.1, 0.9)[ix]
-        label = [f'Full epochs ({dynrange_full:.3})',
-                 f'({dynrange_trunc:.3}) Truncated'][ix]
-        ax.text(xpos, 1.05, label, transform=ax.transAxes, fontsize=12,
+        xpos = (0.08, 0.92)[ix]
+        label = [f'Full epochs ({dynrange_full:.1} dB)',
+                 f'({dynrange_trunc:.1} dB) Truncated'][ix]
+        ax.text(xpos, 1.05, label, transform=ax.transAxes, fontsize=11,
                 va='baseline', **kwargs)
 
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
