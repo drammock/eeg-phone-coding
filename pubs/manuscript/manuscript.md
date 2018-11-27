@@ -29,8 +29,7 @@ list) -->
 
 # Introduction
 
-Phonemes are \del{the} abstract representations of speech sounds that
-represent all
+Phonemes are abstract representations of speech sounds that represent all
 and only the contrastive relationships between sounds [i.e., the set of sounds
 different enough to change the identity of a word if one sound were substituted
 for another; @Jones1957].  Within any given language, the set of  phonemes is
@@ -51,50 +50,28 @@ dispute the first of these claims; as every first-year phonology student
 learns, descriptions of how a phoneme is realised differently in different
 contexts can be readily generalised to other phonemes undergoing similar
 pronunciation changes if the change is expressed in terms of phonological
-features rather than individual sounds. To give a common example, \del{English}
-\add{the} voiceless stops \ipa{/p t k/} are \del{aspirated in word-initial
-position or before
-a stressed vowel; a change that}\add{differentiated from all other
+features rather than individual sounds. To give a common example, 
+the voiceless stops \ipa{/p t k/} are differentiated from all other
 consonants of English by being the “−voiced, −continuant, −delayedRelease”
-sounds }[in the feature system of @Hayes2009]\add{. This allows contextual
+sounds }[in the feature system of @Hayes2009]. This allows contextual
 sound changes that apply only to the voiceless stops (such as aspiration
-before stressed vowels) to be succinctly described.}\del{can be expressed as:
-$\begin{bmatrix}\textrm{−voiced, −continuant, −delayedRelease}\end{bmatrix}
-\rightarrow \begin{bmatrix}\textrm{+spreadGlottis}\end{bmatrix} / \left\{
-\begin{matrix}
-\textrm{\#}\underline{\hspace{9pt}}\phantom{\begin{bmatrix}\textrm{+stress, +vocalic}\end{bmatrix}} \\
-\phantom{\textrm\#}\underline{\hspace{9pt}}\begin{bmatrix}\textrm{+stress, +vocalic}\end{bmatrix}
-\end{matrix}
-\right.$
-where the term left of the arrow captures the class undergoing contextual
-change, the term between the arrow and the slash describes the change that
-occurs, and the term right of the slash describes the context(s) in which the
-change occurs. Phonological features are equally useful for describing sound
-change over time, such as Grimm’s law describing parallel changes of
-reconstructed proto-Indo-European stops \ipa{/bʱ dʱ ɡʱ ɡʷʱ/} into the
-fricatives \ipa{/ɸ θ x xʷ/} of proto-Germanic}\add{Phonological features work
+before stressed vowels) to be succinctly described. Phonological features work
 equally well for describing changes that occur over long periods of time as
-languages evolve} [e.g., Grimm’s law: @BrombergerHalle1989].
+languages evolve [e.g., Grimm’s law: @BrombergerHalle1989].
 
 In contrast, the promise of phonological features as a model of speech sound
 representation or processing in the human brain is far from being conclusively
-established<!--, in part because the epistemic basis of phonological features
-is still unclear-->.  There is growing evidence \del{for particular brain
-regions representing} \add{that the superior temporal gyrus represents}
-*acoustic-phonetic* features \add{— the spectrotemporal correlates of
-articulatory postures and gestures —} such as voice onset time, vowel
+established.  There is growing evidence that the superior temporal gyrus represents
+*acoustic-phonetic* features — the spectrotemporal correlates of
+articulatory postures and gestures — such as voice onset time, vowel
 formant frequency, or other spectrotemporal properties of speech
-[@MesgaraniEtAl2014; @LeonardEtAl2015]\add{.}
-<!--; that the response properties of
-these populations are often non-linear with respect to acoustic properties of
-the input, which would support a transformation from continuous to categorical
-representations;-->\del{, and for more abstract}\add{Evidence also points to}
+[@MesgaraniEtAl2014; @LeonardEtAl2015]. Evidence also points to
 representations
-of *phoneme or syllable identity* in \del{other brain regions}\add{adjacent
-temporal areas such as posterior superior temporal sulcus} [@VadenEtAl2010]
-\add{and the sylvian parieto-temporal region} [@HickokEtAl2009]\add{, as well
-as frontal areas such as left inferior frontal sulcus} [@MarkiewiczBohland2016]
-\add{and left precentral gyrus and sulcus} [@EvansDavis2015].
+of *phoneme or syllable identity* in adjacent
+temporal areas such as posterior superior temporal sulcus [@VadenEtAl2010]
+and the sylvian parieto-temporal region [@HickokEtAl2009], as well
+as frontal areas such as left inferior frontal sulcus [@MarkiewiczBohland2016]
+and left precentral gyrus and sulcus [@EvansDavis2015].
 However, studies that have looked for evidence of *phonological
 feature* representations in the brain have often used stimuli that don’t
 distinguish whether the neural representation reflects a truly abstract
@@ -105,30 +82,25 @@ representation of phonological features was found [@EvansDavis2015].
 
 Moreover, in most studies of how speech sounds are represented in the brain,
 the choice of which features to investigate (and which
-\del{sounds}\add{stimuli} to use in \del{representing}\add{studying} them)
-\del{is often non-standard from the point of view of phonological theory}
-\add{rarely incorporates information about which sounds pattern together in
+stimuli to use in studying them)
+rarely incorporates information about which sounds pattern together in
 speech, and thus rarely provides evidence for or against any particular
-phonological theory}.
+phonological theory.
 For example, one recent study [@ArsenaultBuchsbaum2015] grouped the
 English consonants into five place of articulation “features” (labial, dental,
 alveolar, palatoalveolar, and velar); in contrast, a typical phonological
 analysis of English would treat the dental, alveolar, and palatoalveolar
 consonants as members of a single class of “coronal” consonants, with
 differences between dental \ipa{/θ ð/}, alveolar \ipa{/s z/}, and
-palatoalveolar \ipa{/ʃ ʒ/} fricatives encoded \del{through}\add{with
-additional} features such as
+palatoalveolar \ipa{/ʃ ʒ/} fricatives encoded with
+additional features such as
 “strident” (which groups \ipa{/s z ʃ ʒ/} together) or “distributed” [which
-groups \ipa{/θ ð ʃ ʒ/} together; @Hayes2009]. \del{Consequently, encoding}
-\add{By ignoring those patterns and treating} the dental, alveolar, and
-palatoalveolar sounds as completely disjoint sets\add{, such studies
-fail}\del{ignores the fact that those sounds tend to pattern together in
-speech, and fails} to
+groups \ipa{/θ ð ʃ ʒ/} together; @Hayes2009].
+By ignoring those patterns and treating the dental, alveolar, and
+palatoalveolar sounds as completely disjoint sets, such studies
+fail to
 test the relationship between the neural representation of phonemes and
 phonological models of structured relationships among phonemes.
-
-<!-- TODO? give examples of rules that apply to strident and distributed
-classes -->
 
 An exception to this trend of mismatches between the features used or tested in
 neuroscience experiments and the features espoused by phonological theory is
@@ -136,29 +108,24 @@ the work of Lahiri and colleagues [see @LahiriReetz2010 for overview]. However,
 their work tests hypotheses about specific phonological contrasts in specific
 languages, such as the consonant length distinction in Bengali
 [@RobertsEtAl2014] or vowel features in German [@ObleserEtAl2004], but has not
-thus far tested an entire system of phonological features against \del{neural}
-recordings \add{of neural activity}.
-
-<!-- TODO? maybe review some relevant ling papers re: phonological features
-(e.g., word-specific phonetics (Pierrehumbert), maybe the different lexical
-extents of sound changes like Canadian raising) -->
+thus far tested an entire system of phonological features against
+recordings of neural activity.
 
 To address these issues, the present study takes a somewhat different approach.
-First, \add{following evidence that early cortical responses (50-100 ms after
+First, following evidence that early cortical responses (50-100 ms after
 stimulus onset) represent encoding of acoustic-phonetic stimulus properties,
 while later responses (beginning at 100-200 ms after stimulus onset) represent
-more abstract phonological categories} [see @Salmelin2007 for review],
-\add{parallel analyses are presented of both the entire neural response
+more abstract phonological categories [see @Salmelin2007 for review],
+parallel analyses are presented of both the entire neural response
 (incorporating all stages of speech sound processing) and a truncated version
 of the neural data that excludes the early-stage response. This should
 eliminate the influence of the early auditory response seen especially with
-consonant stimuli} [e.g., in the temporal response functions in
-@DiLibertoEtAl2015]\add{. Second,}
+consonant stimuli [e.g., in the temporal response functions in
+@DiLibertoEtAl2015]. Second,
 rather than testing a specific phonemic contrast, the experiments
 reported here address all consonant phonemes of English (with one exception,
 \ipa{/ŋ/}, which never occurs word-initially in natural English speech).
-\del{Second}\add{Finally},
-these experiments assess the fit between neural recordings during
+Finally, these experiments assess the fit between neural recordings during
 speech perception and several different feature systems drawn directly from the
 phonological literature.
 
@@ -253,9 +220,7 @@ with electrode TP9 moved to A1 (earlobe reference) and electrodes FT9 and FT10
 moved to POO9h and POO10h from the 10-05 montage (for compatibility with
 concurrent studies using shared equipment).  Prior to each stimulus, a unique
 binary identifier of stimulus identity was sent from the presentation computer
-to the EEG acquisition computer\del{ via TTL};<!-- (carried on the third and fourth
-bits) and recorded alongside the EEG signal.  A-->
-a second \del{TTL} signal <!--(a single least-significant bit)-->
+to the EEG acquisition computer; a second signal
 was sent from the TDT RP2 to the acquisition computer, synchronised to the
 stimulus onset.  This allowed reliable confirmation of stimulus identity and
 timing during post-processing.
@@ -272,13 +237,13 @@ extremely noisy for that subject).  Annotation to exclude segments of the
 recording was repeated until the algorithm labels were in close agreement with
 experimenter-judged blinks.  Blinks were then extracted in 1-second epochs
 centered around the peak, which were used to generate a signal-space projection
-(SSP) operator [@SSP] \add{for each subject that separated}\del{separating}
+(SSP) operator [@SSP] for each subject that separated
 blink-related activity from activity due to
-other sources.  \add{For consistency, the same number of}\del{Four} SSP
-components \add{(four) was used}\del{were necessary} to remove blink artifacts
+other sources.  For consistency, the same number of SSP
+components (four) was used to remove blink artifacts
 across all subjects.  Before applying SSP projectors, the data were
-mean-subtracted and bandpass-filtered using zero-phase FIR filters \add{
-(windowed design, Hamming window, 33001 taps)}, with
+mean-subtracted and bandpass-filtered using zero-phase FIR filters
+(windowed design, Hamming window, 33001 taps), with
 cutoffs at 0.1 Hz and 40 Hz and transition bandwidths of 0.1 Hz and 10 Hz.
 
 Next, epochs were created around stimulus onsets, and baseline-corrected to
@@ -294,13 +259,13 @@ consonant identity is encoded in the first ~100 ms of following vowels
 [@Ohman1965], so
 temporal alignment of this portion of the EEG response should hopefully improve
 the ability of classifiers to learn consonant features.  After this
-re-alignment, epochs had a temporal span from −\add{258}\del{335} ms (the onset
+re-alignment, epochs had a temporal span from −258 ms (the onset
 of the longest
 consonant), to +733 ms (200 ms after the end of the longest vowel), with $t=0$
-fixed at the consonant-vowel transition point. \add{The duration and alignment
-of each stimulus are visualised in the supplementary material, Figure S2.}
+fixed at the consonant-vowel transition point. The duration and alignment
+of each stimulus are visualised in the supplementary material, Figure S2.
 
-\add{At this stage, an optional trucation of the epochs was performed. In one
+At this stage, an optional trucation of the epochs was performed. In one
 case, the remainder of the analysis was carried out with the entire temporal
 span of each epoch; in another case, the epochs were truncated to eliminate the
 brain response prior to $t=100$ ms (in other words, the truncated epochs began
@@ -309,7 +274,7 @@ brain’s representation of spectrotemporal and acoustic-phonetic features of
 the stimulus is thought to occur in the first 50-100 ms after stimulus onset,
 this truncation should have the effect of eliminating that initial response,
 and thereby restricting subsequent analysis to the portions of the brain’s
-response that are thought to reflect abstract phonological representations.}
+response that are thought to reflect abstract phonological representations.
 
 ## Dimensionality reduction
 
@@ -322,31 +287,29 @@ electrode channels, constrained by a bias function (typically the average
 evoked response across trials of a given type) that orients the components to
 maximally recover the bias function.  In this case a single per-subject
 bias function was used, based on the average of all epochs for that subject.
-This \del{was a more conservative}\add{is a different}
+This is a different
 strategy than is typically seen in the literature,
 where separate bias functions are used for each experimental condition.  The
-\del{conservative}
 strategy was chosen to eliminate a possible source of variability
 in classifier performance: if computing separate bias functions for each
 consonant or for each consonant token, there would be potentially different
 numbers of trials being averaged for the different consonants / tokens.  This
-could lead to different SNRs for the \add{DSS components of} different
+could lead to different SNRs for the DSS components of different
 consonants, in a way that might
 bias the classifiers or make certain classifiers’ tasks easier
-\del{that}\add{than} others.  An
+than others.  An
 alternative approach would have been to equalise the trial counts for each
 consonant prior to DSS analysis, but this was rejected due to the exploratory
 nature of this research (i.e., since the overall amount of data needed was not
 known, more trials with processing akin to “shrinkage toward the mean” was
-deemed preferable to fewer trials with \del{less conservative
-processing}\add{a potentially more powerful processing strategy}).
+deemed preferable to fewer trials with
+a potentially more powerful processing strategy).
 
-\del{Based on scree plots of the relative signal power in each DSS component,
-five}\add{Five DSS} components were retained\del{ for all subjects}, replacing
+Five DSS components were retained, replacing
 the 28-31 retained electrode channels with 5 orthogonal DSS components for each
-subject. \add{The number of components retained was the largest number needed
+subject. The number of components retained was the largest number needed
 so as to include the “knee” point of a scree plot of the relative signal power
-the DSS components for each subject’s data.} Temporal
+the DSS components for each subject’s data. Temporal
 dimensionality reduction was also applied using PCA, to reduce collinearity of
 (adjacent) temporal samples.  Such collinearity can make it difficult for a
 classifier to learn a decision boundary from the training data.  For 6 of the
@@ -363,13 +326,13 @@ components of ~100 time points each).  Recall that ¾ of the total trials are
 from training talkers, so ~2500 trials are available to train classifiers,
 employing various labelling and partitioning strategies; the remaining ~900
 trials are then used to assess the information that can be recovered from the
-neural signals. \add{Three approaches to classifying the neural data were
+neural signals. Three approaches to classifying the neural data were
 used; for referential ease these are referred to as “experiments” 1-3, though
-all three analyses were performed on the same dataset.}
+all three analyses were performed on the same dataset.
 
 In experiment 1, each trial is labelled with the consonant that was presented
 during that epoch, and a classifier was trained to discriminate between each
-pair of consonants (for 23 consonants, this yields \del{276}\add{253} pairwise
+pair of consonants (for 23 consonants, this yields 253 pairwise
 comparisions,
 with each comparison having ~220 trials of training data). This initial
 experiment serves as a “sanity check” that sufficient information about the
@@ -403,16 +366,16 @@ in the three feature systems are illustrated in figure
 
 ![Feature matrices for the three feature systems used in Experiment 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](fig-featsys-matrices.eps)
 
-\add{All three experiments were carried out separately on the full temporal
+All three experiments were carried out separately on the full temporal
 span of each trial epoch, and on the truncated version of the data. However,
 the first two experiments (pairwise and OVR classification) yielded results
 that were broadly similar for the full and truncated epochs, and the
 differences between the full and truncated results were uninformative, so for
-brevity only the results based on the full epochs are presented.}
+brevity only the results based on the full epochs are presented.
 
 In all three experiments, logistic regression classifiers were used, as
 implemented in `scikit-learn` [@sklearn]. Stratified 5-fold cross-validation
-\add{over the training data}
+over the training data
 was employed at each point in a grid search for hyperparameter $C$
 (regularisation parameter; small $C$ yields smoother decision boundary).
 <!-- and $\gamma$ (kernel variance parameter, controlling how far from the
@@ -423,7 +386,7 @@ ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$. <!--and $\gamma$
 from $2^{-15}$ to $2^{4}$-->  After grid search, each classifier was re-fit on
 the full set of training data, using the best hyperparameters.  The trained
 classifiers were then used to make predictions about the class of the
-consonant on each held-out test data trial\del{s}; in experiments 1 and 2 those
+consonant on each held-out test data trial; in experiments 1 and 2 those
 class predictions were consonant labels; in experiment 3 those class
 predictions were phonological feature values.
 
@@ -435,8 +398,7 @@ equalised false positive and false negative *rates*), minimised this value
 (called the “equal error rate”), and returned a score of 1 − equal error rate.
 This precludes the situation where high accuracy scores are achieved by simply
 guessing the more numerous class in most or all cases.  Since such class
-imbalance can occur in any of the experiments (and is \del{virtually}
-guaranteed to
+imbalance can occur in any of the experiments (and is guaranteed to
 happen for the one-versus-rest classifiers in experiment 2), a score function
 that minimised equal error rate was used for all experiments.
 Additionally, many phonological feature systems involve some sparsity (i.e.,
@@ -457,9 +419,8 @@ training) was computed.  Next, a 23×23×N array was constructed (where 23 is th
 number of consonants in the stimuli, and N is the number of phonological
 features in the current system, i.e., between 9 and 11).  The first dimension
 represents which consonant was presented in the stimulus, and the second
-dimension represents \del{which consonant was likely perceived by the listener
-(as
-estimated from the EEG signal)}\add{the possible percepts}. For each plane along the third axis (i.e., for
+dimension represents
+the possible percepts. For each plane along the third axis (i.e., for
 a given phonological feature classifier), the cells of the plane are populated
 with either the accuracy or the error rate (1 minus the accuracy) of that
 classifier, depending on whether the consonant indices of the row and column of
@@ -474,9 +435,7 @@ dimension, yielding the joint probability that the input consonant (the
 stimulus) would be classified as any given output consonant (the percept).  For
 features involving sparsity, cells corresponding to undefined feature values
 were given a chance value of 0.5 (results were broadly similar when such cells
-were \del{coded as \texttt{NaN} and}\add{simply} excluded from the
-computation).  The
-resulting 23×23
+were simply excluded from the computation).  The resulting 23×23
 matrices can be thought of as confusion matrices: each cell gives the
 probability that the bank of phonological feature classifiers in that feature
 system would classify a heard consonant (given by the row label) as a
@@ -504,9 +463,9 @@ and distant rows be relatively dissimilar (and likewise for columns);
 otherwise, the formula’s notion of distance between rows (or columns) cannot
 be justifiably applied.  Therefore, before computing diagonality, the matrices
 were submitted to a hierarchical clustering of the rows using the optimal leaf
-ordering algorithm [@BarJosephEtAl2001] \add{as implemented in \texttt{scipy}}
-[@scipy1.0.0]\add{, and the column order was permuted to match the optimal
-ordering of the rows}.
+ordering algorithm [@BarJosephEtAl2001] as implemented in `scipy`
+[@scipy1.0.0], and the column order was permuted to match the optimal
+ordering of the rows.
 
 # Results
 
@@ -521,9 +480,9 @@ proportion of \ipa{/p/} trials mistaken for \ipa{/b/} and proportion of
 ![Across-subject average accuracy/error for pairwise classifiers. Off-diagonal cells represent the error rates for the pairwise classifier indicated by that cell’s row/column labels; diagonal cells represent the mean accuracy for all pairs in which that consonant is one element.\label{fig-pairwise-confmat}](fig-pairwise.eps)
 
 In general, the mean accuracy across subjects for a given pairwise comparison
-was always above 90% \add{(differences along the diagonal in Figure
+was always above 90% (differences along the diagonal in Figure
 \ref{fig-pairwise-confmat} are numerically small and hence hard to distinguish
-in color)}; individual accuracy scores for each subject were
+in color); individual accuracy scores for each subject were
 generally above 80% and are shown in
 the supplementary material, figure S5.  These plots indicate that consonant
 identity can be recovered fairly well from brain responses to the stimuli.
@@ -568,10 +527,7 @@ versus non-fricatives is still rather poor (e.g., the \ipa{/b/} classifier
 marks 19% of \ipa{/p/} trials as \ipa{/b/}, and only 41% of \ipa{/b/} trials as
 \ipa{/b/}). Finally, looking across classifiers for a given stimulus phoneme,
 it is rarely the case that the most frequent classification is the correct one
-(cf. lack of diagonal elements in figure \ref{fig-ovr-confmat}B)\del{, further
-underscoring the impression that a bank of OVR classifiers is probably a poor
-model of the information extraction carried out by the brain during speech
-perception}.
+(cf. lack of diagonal elements in figure \ref{fig-ovr-confmat}B).
 
 ![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. **A:** cells on the diagonal represent the ratio of true positive classifications to total targets (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive classifications to total non-targets (“false alarm rate”) for the consonant given by the row label. **B:** most frequent classification of each stimulus consonant, emulating across-classifier voting. Consonants that are correctly identified are indicated by dark gray cells along the main diagonal; consonants that are most frequently incorrectly identified are medium-gray cells.\label{fig-ovr-confmat}](fig-ovr.eps)
 
@@ -585,26 +541,24 @@ features to yield consonant-level confusion matrices similar to those seen in
 figures \ref{fig-pairwise-confmat} and \ref{fig-ovr-confmat}. The results of
 this aggregation for the three phonological feature systems tested (PSA, SPE,
 and PHOIBLE) are shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat},
-and \ref{fig-phoible-confmat}, respectively\add{, with each figure showing
-confusion matrices based on both full and truncated epochs}
+and \ref{fig-phoible-confmat}, respectively, with each figure showing
+confusion matrices based on both full and truncated epochs
 (plots for individual subject’s
 data can be seen in the supplementary material, Figures S6-S8). Unlike the
 prior confusion matrices, where rows and columns followed a standard order
 based on consonant manner of articulation, in figures \ref{fig-psa-confmat},
 \ref{fig-spe-confmat}, and \ref{fig-phoible-confmat} the matrices are ordered
 based on a hierarchical clustering of the rows (performed separately for each
-\del{matrix}\add{feature system}) using optimal leaf ordering\del{ as
-implemented
-in `scipy` [@scipy1.0.0]}.
+feature system) using optimal leaf ordering.
 Therefore, the row and column orders do not necessarily match across the three
-figures \add{(though it is consistent between panels within each figure)},
+figures (though it is consistent between panels within each figure),
 so attention to the row and column labels is necessary when visually
-comparing the matrices \add{across feature systems. A version of the
+comparing the matrices across feature systems. A version of the
 full-epochs confusion matrix for each feature system with consistent
 row/column order across feature systems is given in the supplementary
-material, Figure S9}.
+material, Figure S9.
 
-![\del{Results for the PSA feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the PSA phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-psa-confmat}](fig-psa.eps)
+![Confusion matrices derived from the PSA phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs. Row labels correspond to the test data input to each classifier. Notable features include fairly reliable identification of \ipa{/ɹ/} trials, and relatively uniform confusability of the “+consonantal, −nasal” consonants (everything below and to the right of \ipa{/s/}). The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.\label{fig-psa-confmat}](fig-psa.eps)
 
 Compared to the confusion matrices for pairwise (figure
 \ref{fig-pairwise-confmat}A) and OVR (figure \ref{fig-ovr-confmat}A)
@@ -621,16 +575,12 @@ feature classifiers in the PSA system, 2×2 submatrices for voiced-voiceless
 consonant pairs \ipa{/ð θ/} and \ipa{/ɡ k/} are visible in the lower-right
 corner, suggesting that the classifier trained to discriminate voicing (encoded
 by the “tense” feature in the PSA system) was relatively less accurate than
-other phonological feature classifiers in that system \add{(perhaps because
+other phonological feature classifiers in that system (perhaps because
 PSA’s “tense” feature groups voiceless consonants together with \ipa{/j/} and
 \ipa{/w/}, which may be an unnatural grouping as far as the brain is
-concerned)}. \del{In contrast, trials with
-\ipa{/ɹ/} stimuli are fairly well discriminated: the top row of the matrix is
-mostly darker colors with its diagonal element relatively bright, and other
-consonants are rarely mis-classified as \ipa{/ɹ/} (the leftmost column is
-mostly dark, with only its diagonal element bright).}
+concerned).
 
-\add{As another example, consider the first and third columns of Figure
+As another example, consider the first and third columns of Figure
 \ref{fig-psa-confmat}A, showing the rate at which all stimuli are classified as
 either \ipa{/ɹ/} or \ipa{/w/}, respectively.  Consonants other than \ipa{/ɹ/}
 are very unlikely to be classified as \ipa{/ɹ/}, whereas consonants other than
@@ -640,73 +590,64 @@ system: a single feature “flat” distinguishes \ipa{/ɹ/} from \ipa{/w/} and 
 unvalued for all other consonants, so the “flat” classifier is trained only on
 brain responses to \ipa{/ɹ/} and \ipa{/w/}, and when presented with test
 stimuli from all other consonants turns out to be much more likely to classify
-them as +flat (\ipa{/w/}-like) than as −flat (\ipa{/ɹ/}-like).}
+them as +flat (\ipa{/w/}-like) than as −flat (\ipa{/ɹ/}-like).
 
-\add{Interestingly, the general pattern of confusions is preserved when
+Interestingly, the general pattern of confusions is preserved when
 classifiers learn from the truncated epochs (Figure \ref{fig-psa-confmat}B)
 rather than the full temporal span of the neural response to each syllable
 (Figure \ref{fig-psa-confmat}A). The overall dynamic range of the confusion
-matrix is reduced by roughly an order of magnitude.}<!--:
-$\log_{10}(\frac{\max(\text{full})}{\min(\text{full})}) - \log_{10}(\frac{\max(\text{trunc})}{\min(\text{trunc})}) = 0.92$-->
-Nonetheless, combining
+matrix is reduced by roughly an order of magnitude.  Nonetheless, combining
 information from all the phonological feature classifiers in the PSA system
-still \add{usually} results in the correct classification being the dominant one
-\add{(the highest classification score in each row is the diagonal element)},
-for all consonants except \ipa{/n/} \add{when using the full epochs, and for
+still usually results in the correct classification being the dominant one
+(the highest classification score in each row is the diagonal element),
+for all consonants except \ipa{/n/} when using the full epochs, and for
 all consonants except \ipa{/n/} and \ipa{/l/} when using the truncated
-epochs}\del{ (figure \ref{fig-psa-confmat}B)}.
+epochs.
 
-![\del{Results for the SPE feature system. \textbf{A:} }Confusion \del{matrix}\add{matrices} derived from the SPE phonological feature classifiers\add{, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}).\del{ \textbf{B:} most frequent classification of each stimulus consonant.} \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-spe-confmat}](fig-spe.eps)
+![Confusion matrices derived from the SPE phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs.  Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left quadrant, the reliable identification of \ipa{/h/}, and several 2×2 submatrices indicating confusible pairs of consonants (e.g., \ipa{/ɡ k/}, \ipa{/ɹ l/}, and \ipa{/m n/}). The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.\label{fig-spe-confmat}](fig-spe.eps)
 
 
 Looking across feature systems, similar 2×2 submatrices of poorly discriminated
-consonant pairs are seen in figure \ref{fig-spe-confmat}\del{A} (e.g.,
-\ipa{/ɹ l/} and \ipa{/m n/}) and figure \ref{fig-phoible-confmat}\del{A} (e.g.,
+consonant pairs are seen in figure \ref{fig-spe-confmat} (e.g.,
+\ipa{/ɹ l/} and \ipa{/m n/}) and figure \ref{fig-phoible-confmat} (e.g.,
 \ipa{/s z/} and
 \ipa{/j w/}), and both SPE and PHOIBLE show a 4×4 submatrix in the upper left
 quadrant corresponding to the post-alveolar consonants \ipa{/ʃ ʒ tʃ dʒ/},
 suggesting that, in addition to the voicing distinction, the
 fricative-affricate distinction (encoded by the “continuant” feature in both
 systems) was not well learned by the classifiers. Additionally, the
-PHOIBLE system show\add{s} a large block in the lower right quadrant
-corresponding to
-\ipa{/t d θ ð s z l n/} (the “+anterior” consonants in that system)\add{,
+PHOIBLE system shows a large block in the lower right quadrant corresponding to
+\ipa{/t d θ ð s z l n/} (the “+anterior” consonants in that system),
 again suggesting that the partitioning of phonemes encoded by that feature is
 less easily recoverable from the neural signals than other features in the
-PHOIBLE system}.
+PHOIBLE system.
 
-\add{The confusion matrices
+The confusion matrices
 for the SPE and PHOIBLE systems also show the same general confusion pattern in
 the full-epoch and truncated-epoch analyses, and show similar reductions in
 dynamic range as the PSA system did.
-Finally, it is interesting to note that}\del{Interestingly,} the pair
-\ipa{/j w/} is poorly discriminated by the classifiers in
-\del{any of the}\add{all} three
+Finally, it is interesting to note that the pair
+\ipa{/j w/} is poorly discriminated by the classifiers in all three
 systems, although the distinction is encoded by different features in each:
 “grave” in PSA, “back” in SPE, and “labial” in PHOIBLE.
-<!-- (reductions of 0.85 for SPE and 1.02 for PHOIBLE)-->
 
-![Confusion matrices \del{for}\add{derived from} the PHOIBLE \del{feature system}\add{phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs}. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left, the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices \ipa{/s z/} and \ipa{/ð θ/} within it), and the relative distinctiveness of \ipa{/j w/} from all other consonants, but not from each other. \add{The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.}\label{fig-phoible-confmat}](fig-phoible.eps)
+![Confusion matrices derived from the PHOIBLE phonological feature classifiers, based on \textbf{A:} the full temporal span of each epoch, or \textbf{B:} truncated epochs. Notable features include the 4×4 block of post-alveolar fricatives and affricates in the upper left, the 8×8 block of anterior alveoloar consonants in the lower right (with 2×2 voiced-voiceless submatrices \ipa{/s z/} and \ipa{/ð θ/} within it), and the relative distinctiveness of \ipa{/j w/} from all other consonants, but not from each other. The dynamic ranges are given in parentheses above each matrix; there is roughly an order-of-magnitude decrease when using the truncated epochs.\label{fig-phoible-confmat}](fig-phoible.eps)
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
 (the degree to which the mass of the matrix falls along the main diagonal).
 Matrix diagonality values for each subject’s data, along with the
-across-subject average matrices, are shown in \add{F}\del{f}igure
-\ref{fig-diag-boxplot}.
+across-subject average matrices, are shown in Figure \ref{fig-diag-boxplot}.
 The PHOIBLE feature system fares considerably better than the PSA and SPE
 feature systems on this measure, suggesting that the contrasts encoded by the
-PHOIBLE system \add{as a whole} more closely reflect the kinds of information
+PHOIBLE system as a whole more closely reflect the kinds of information
 extracted by the
 brain during speech processing and subsequently detected in the EEG signals.
-<!-- Prior to computing those diagonality values, hierarchical clustering was
-performed on the rows of each matrix individually, so the diagonality valuet
-reflects the maximal diagonality possible for each subject’s matrix. -->
-\add{Unsurprisingly, the diagonality is substantially reduced for all three
+Unsurprisingly, the diagonality is substantially reduced for all three
 systems when computed based on the truncated epochs, but the general trend is
 more or less preserved: PSA is still far and away the worst fit to the neural
 data, but the difference between SPE and PHOIBLE is less pronounced and fails
-to reach statistical significance in the analysis of truncated data.}
+to reach statistical significance in the analysis of truncated data.
 To ensure that the diagonality measure was not merely reflecting differences in
 signal quality for different subjects (i.e., due to scalp conductivity, EEG cap
 fit, etc.), we regressed subjects’ diagonality scores in each feature system
@@ -714,7 +655,7 @@ against the signal-to-noise ratio of their epoched EEG data, and found no
 evidence to support a correlation (see supplementary material, figures S3 and
 S4).
 
-![Matrix diagonality measures for each of the three feature systems tested\add{, for analyses based on the full temporal span of each epoch (left panel) or the truncated epochs (right panel)}. Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}\del{A}, \ref{fig-spe-confmat}\del{A}, and \ref{fig-phoible-confmat}\del{A}. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](fig-diagonality-boxplot-with-trunc.eps)
+![Matrix diagonality measures for each of the three feature systems tested, for analyses based on the full temporal span of each epoch (left panel) or the truncated epochs (right panel). Gray boxes show quartiles; circles represent diagonality measures for individual subject data, and black horizontal lines represent the diagonality measures for the across-subject average matrices shown in figures \ref{fig-psa-confmat}, \ref{fig-spe-confmat}, and \ref{fig-phoible-confmat}. Brackets indicate significant differences between feature systems (paired-samples t-tests, bonferroni-corrected, all corrected p-values < 0.01).\label{fig-diag-boxplot}](fig-diagonality-boxplot-with-trunc.eps)
 
 To determine which features contributed most to this measure of diagonality, we
 performed a leave-one-out analysis, in which each feature was excluded in turn
@@ -724,9 +665,7 @@ calculated. This analysis was done on the individual listeners’ confusion
 matrices, rather than on the average confusion matrix across listeners, in
 order to assess cross-subject agreement in the rank ordering of feature
 importance. Results of this analysis for the PHOIBLE feature system are shown
-in figure \ref{fig-loo}<!--; similar figures for the other two phonological
-feature systems can be found in the supplementary material (figures SXXX and
-SXXX)-->. There appears to be considerable heterogeneity in the
+in figure \ref{fig-loo}. There appears to be considerable heterogeneity in the
 rank ordering of feature importance across subjects, evidenced by the lack of
 monotonicity in the connecting lines for several of the subjects in figure
 \ref{fig-loo}.  Nonetheless, most subjects (7 of 12) showed the greatest
@@ -734,7 +673,7 @@ decrease in diagonality when omitting the “strident” feature, which
 distinguishes \ipa{/s z ʃ ʒ tʃ dʒ/} from the rest of the coronal consonants
 (\ipa{/t d θ ð l ɹ n/}).
 
-![Leave-one-out analysis of feature influence on the diagonality measure, for the PHOIBLE feature \del{system}\add{classifiers, based on the full temporal span of each epoch}. Abscissa labels indicate which feature was excluded; connected points reflect diagonality values for a given listener; boxes show quartiles across listeners for each left-out feature. For each listener, the lowest diagonality is indicated by a large dot; 7 of the 12 listeners showed the greatest decline in diagonality when omitting the “strident” feature. \label{fig-loo}](fig-loo-PHOIBLE.eps)
+![Leave-one-out analysis of feature influence on the diagonality measure, for the PHOIBLE feature classifiers, based on the full temporal span of each epoch. Abscissa labels indicate which feature was excluded; connected points reflect diagonality values for a given listener; boxes show quartiles across listeners for each left-out feature. For each listener, the lowest diagonality is indicated by a large dot; 7 of the 12 listeners showed the greatest decline in diagonality when omitting the “strident” feature. \label{fig-loo}](fig-loo-PHOIBLE.eps)
 
 # Discussion
 
@@ -745,7 +684,7 @@ from the linguistic literature.  The approach uses machine learning classifiers
 to model the representation of abstract classes of speech sounds by the brain,
 and combines information across classifiers to construct predicted patterns of
 similarity or confusion among phonemes.
-This work differs from \add{many} past studies of phonological feature
+This work differs from many past studies of phonological feature
 representation in
 its emphasis on phonological feature systems drawn from the linguistic
 literature, and in its attempt to model the entire consonant inventory of a
@@ -759,8 +698,7 @@ natural extension would be to apply these techniques to modeling the brain
 activity of native listeners of a variety of languages (to explore the
 representation of lexical tone, voice quality contrasts, ejective and implosive
 consonants, etc., and to characterise any differences in representation that
-emerge across different languages). Finally, a \del{true}\add{thorough} test
-of *abstract*
+emerge across different languages). Finally, a thorough test of *abstract*
 phonological representation should at least account for patterns of allophony
 (e.g., the differing pronunciations of \ipa{/t/} in different positions in a
 word). Whereas these experiments did include multiple tokens of each consonant
@@ -768,7 +706,7 @@ from multiple talkers, they did not model allophonic variation, and doing so is
 another natural extension of this work (either with polysyllabic stimuli or
 continuous speech).
 
-\add{One way in which this study \emph{does} address the
+One way in which this study *does* address the
 question of abstract representations is the parallel analysis of both the full
 temporal span and a truncated span of the brain response to each syllable.
 Specifically, the fact that the patterns of confusion for each phonological
@@ -780,7 +718,7 @@ phonological feature system. Therefore, to the extent that confusion matrices
 differ across feature systems in the analysis of truncated data, we can more
 confidently infer
 differences in the fidelity of each feature system’s representation of
-\emph{phonological} information, as opposed to patterns of \emph{phonetic}
+*phonological* information, as opposed to patterns of *phonetic*
 similarity. However, it is important to remember that late-stage processing of
 consonantal information is concurrent with early-stage processing of incoming
 vowel information as the stimulus unfolds through time. Therefore, the
@@ -789,37 +727,7 @@ cannot be entirely ruled out even in our truncated data. By truncating at 100
 ms after the consonant-vowel transition, we have hopefully minimised or
 eliminated the influence of formant transitions during the vowel onset, but
 other cues (such as vowel duration covarying with the voicing status of
-preceding stop consonants) cannot be fully ruled out by truncation alone.}
-
-<!--
-This work is similar in spirit to prior studies using representational
-similarity analysis (RSA)[@KriegeskorteEtAl2008] to examine phonological
-feature representation in the brain [e.g., @EvansDavis2015], but differs in a
-few respects. First, rather than using RSA to locate specific brain regions
-that respond preferentially to (say) continuant versus non-continuant
-consonants, this study asks whether that distinction can be recovered from the
-neural recordings regardless of which cortical region(s) are sensitive to the
-distinction. This leaves open the question of whether the classifiers in this
-study are learning a distinction between classes of speech sounds based on
-emergent patterns in the brain’s representation of the *acoustic* properties of
-sounds in those classes, or instead learning a distinction based on activity in
-a (hypothetical) population of phonological-feature-sensitive neurons
-representing *abstract* class membership.  However, even with millimeter-scale
-spatial resolution of cortical activity offered by other techniques such as
-fMRI, there is no guarantee that a patch of cortex that appears to respond
-preferentially to continuant sounds over non-continuant ones is in fact
-carrying information about “continuancy” that is truly abstract (i.e., devoid
-of any information about the acoustic properties of the input) given
-acoustically natural speech stimuli (cf. Evans and Davis [@EvansDavis2015] for
-an approach that addresses this worry, but finds no evidence of abstract
-representation after accounting for stimulus acoustics).  Again, studies
-involving phonemes in different phonological contexts (i.e., polysyllabic words
-or continuous speech) might yield more definitive answers regarding the
-abstractness of the representation, though such stimuli introduce many
-complexities such as lexico-semantic processing, frequency effects, and both
-word- and sentence-level predictive processing, all of which must be accounted
-for in stimulus design and/or analysis.
--->
+preceding stop consonants) cannot be fully ruled out by truncation alone.
 
 Perhaps the most promising aspect of this work is its potential to provide
 complementary information to behavioral studies of phoneme confusion [e.g., the
@@ -837,10 +745,6 @@ ideal for tracking things like the amplitude envelope of an utterance
 differences in rise time (e.g., fricative-affricate distinctions like \ipa{/ʃ/}
 versus \ipa{/tʃ/}) compared to purely spectral contrasts such as \ipa{/f/}
 versus \ipa{/θ/}.
-<!-- More generally, the nature of sound transduction in the cochlea means
-that spectral distinctions are primarily conveyed through a place code, which
-may or may not be readily recoverable depending on the spatial scale of the
-tonotopy and the resolution of the imaging technique. -->
 Therefore, failure of a classifier to recover a given contrast in the neural
 recordings should not be taken as definitive evidence that the brain does not
 represent that particular abstraction — such failures may arise from the
@@ -859,65 +763,32 @@ feature includes \ipa{/ɹ/}, as in SPE, or does not, as in PSA and PHOIBLE; or
 whether sparsity in the assignment of feature values improves or degrades the
 fit between phonological feature system and neural data).
 
-<!--
-The discussion thusfar has skirted the fact that there are many stages of
-peripheral and central auditory processing, with both feed-forward and feedback
-connections between stages, as well as interconnections among units within a
-given stage.  Thus there are multiple levels of representation present, all of
-which are potentially reflected in the EEG signal.  It may turn out that
-several of those levels correspond to what is traditionally considered
-“phonological” (as opposed to phonetic) knowledge, no one of which can be
-uncontroversially labeled as *the* phonological representation.  For example,
-representation of phonological features with more direct parallels to acoustic
-form (such as sonorancy) may arise at an earlier stage than representations of
-features that have more heterogeneous acoustic correlates (such as place
-features like “coronal”).
--->
-
-Finally, \del{it should be noted that} because we used only acoustically
-natural
+Finally, because we used only acoustically natural
 speech stimuli, the patterns of neural representation seen in this work may not
 be fully divorced from patterns of similarity in the acoustic properties of the
-stimuli \add{(as mentioned above)}.
-As \del{mentioned above}\add{discussed in the introduction}, Evans and Davis
+stimuli (as mentioned above). As discussed in the introduction, Evans and Davis
 [-@EvansDavis2015] used a mixture
-of acoustically natural and synthetic stimuli that \add{partially} addresses
-this worry \add{(though their approach also fails to remove duration-related
-cues)}, and
-found no evidence of \del{abstract}\add{phonological feature} representation
+of acoustically natural and synthetic stimuli that partially addresses
+this worry (though their approach also fails to remove duration-related
+cues), and found no evidence of phonological feature representation
 after accounting for stimulus
-acoustics in \del{this}\add{that} way (though with a fairly limited stimulus
-set). \add{Here, our data seem to indicate patterns of speech processing that
+acoustics in that way (though with a fairly limited stimulus
+set). Here, our data seem to indicate patterns of speech processing that
 are at least consistent with the brain extracting information analogous to
 phonological features, but further work is needed to definitively establish
-such a claim.}\del{For our
-purposes, the question of whether the representations are fully abstract is not
-crucial, since our goal is not to prove that the brain carries out such
-abstractions nor to localise such representations in the cortex. Rather, we set
-out to assess whether this technique can tell us which published phonological
-feature system best reflects the patterns of similarity seen in the neural
-data. Thus}\add{ Nevertheless,} even if the information learned by the
-classifiers \add{in this study} is partially
+such a claim. Nevertheless, even if the information learned by the
+classifiers in this study is partially
 acoustic in nature, knowing which phonological feature system best
 recapitulates those patterns still helps to build a bridge between the
-neuroscience of language and \add{traditional} phonological theory.
-
-<!-- TODO? paragraph about variability across subjects (reference to individ.
-subject matrices in supplement?)  Which features consistently high SNR across
-subjects, which most noisy / inconsistent (possible reference to supplemental
-figure?) -->
-
-<!-- TODO? paragraph about feature weighting, and how EEG may provide evidence
-for salience (refs: Miller & Nicely 1955, Blumstein & Cooper 1972, "perceptual
-prominence" of voice over place features (grave and flat)) -->
+neuroscience of language and traditional phonological theory.
 
 ## Future directions
 
 As mentioned above, natural extensions of this work are expanding the stimulus
 set to include vowels, other languages, and continuous speech, and testing
-listeners of other language backgrounds.  \add{Several other researchers have
+listeners of other language backgrounds.  Several other researchers have
 made inroads in these directions already, especially with regard to continuous
-speech} [e.g., @LalorFoxe2010; @MesgaraniEtAl2014; @DiLibertoEtAl2015;
+speech [e.g., @LalorFoxe2010; @MesgaraniEtAl2014; @DiLibertoEtAl2015;
 @DiLibertoLalor2017; @KhalighinejadEtAl2017].
 In addition, there are other theories
 of phonological representation that could be assessed using this technique,
@@ -945,7 +816,7 @@ well.
 # Acknowledgments {-}
 
 Special thanks to Mark Hasegawa-Johnson and Ed Lalor who were instrumental in
-the early development of this technique, and to Nick Foti, \add{Bryan Gick,}
+the early development of this technique, and to Nick Foti, Bryan Gick,
 Alex Gramfort,
 Kathleen Hall, Eric Larson, Majid Mirbagheri, and Doug Pulleyblank for helpful
 and stimulating discussions about various aspects of the project along the way.
