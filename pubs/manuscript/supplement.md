@@ -16,6 +16,18 @@ classoption: suppldata
 biblio-style: jasasty-ay-web
 -->
 
+# \add{Consonant-vowel segmentation}
+
+\add{In this study, for the purpose of segmentation and alignment the
+consonant-vowel transition was defined as the onset of prominent formants in
+syllables with obstruent consonants (stops, fricatives, and affricates), the
+onset of higher formants (F4, F5) and corresponding waveform amplitude changes
+in syllables with nasal consonants, and the beginning of formant steady-state
+(visually and auditorily judged) for syllables with approximant consonants
+(liquids and glides). Segmentation based on waveform or spectrogram features
+was supplemented by auditory judgment of the pre- and post-boundary segments as
+needed.}
+
 # Matrix diagonality
 
 Here we describe a method of computing the “diagonality” of a matrix.  The
