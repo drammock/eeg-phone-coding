@@ -1,6 +1,6 @@
 ---
 title: >
-  EEG-derived phoneme confusion matrices show the fit between phonological feature systems and brain responses to speech
+  Investigating the fit between phonological feature systems and brain responses to speech using EEG
 author:
 - name: Daniel R. McCloy
   orcid: 0000-0002-7572-3241

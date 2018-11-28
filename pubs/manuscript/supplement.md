@@ -1,6 +1,6 @@
 ---
 title: >
-  Supplement to “EEG-derived phoneme confusion matrices show the fit between phonological feature systems and brain responses to speech”
+  Supplement to “Investigating the fit between phonological feature systems and brain responses to speech using EEG”
 author:
 - name: Daniel R. McCloy
 - name: Adrian K. C. Lee
