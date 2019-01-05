@@ -122,10 +122,10 @@ of the neural data that excludes the early-stage response. This should
 eliminate the influence of the early auditory response seen especially with
 consonant stimuli [e.g., in the temporal response functions in
 @DiLibertoEtAl2015]. Second,
-rather than testing a specific phonemic contrast, the experiment\del{s}
-reported here address\add{es} all consonant phonemes of English (with one exception,
+rather than testing a specific phonemic contrast, the experiment
+reported here addresses all consonant phonemes of English (with one exception,
 \ipa{/ŋ/}, which never occurs word-initially in natural English speech).
-Finally, \add{this experiment assesses}\del{these experiments assess}
+Finally, this experiment assesses
 the fit between neural recordings during
 speech perception and several different feature systems drawn directly from the
 phonological literature.
@@ -246,7 +246,7 @@ across all subjects.  Before applying SSP projectors, the data were
 mean-subtracted and bandpass-filtered using zero-phase FIR filters
 (windowed design, Hamming window, 33001 taps), with
 cutoffs at 0.1 Hz and 40 Hz and transition bandwidths of 0.1 Hz and 10 Hz
-\add{(full-width half-maximum of the filter’s impulse response = 12 ms)}.
+(full-width half-maximum of the filter’s impulse response = 12 ms).
 
 Next, epochs were created around stimulus onsets, and baseline-corrected to
 yield zero mean for the 100 ms immediately preceding stimulus onset.  Prior
@@ -267,7 +267,7 @@ consonant), to +733 ms (200 ms after the end of the longest vowel), with $t=0$
 fixed at the consonant-vowel transition point. The duration and alignment
 of each stimulus are visualised in the supplementary material, Figure S2.
 
-At this stage, an optional tru\add{n}cation of the epochs was performed. In one
+At this stage, an optional truncation of the epochs was performed. In one
 case, the remainder of the analysis was carried out with the entire temporal
 span of each epoch; in another case, the epochs were truncated to eliminate the
 brain response prior to $t=100$ ms (in other words, the truncated epochs began
@@ -294,7 +294,7 @@ where separate bias functions are used for each experimental condition.
 The strategy was chosen to eliminate a possible source of variability
 in classifier performance: if computing separate bias functions for each
 consonant or for each consonant token, there would be potentially different
-numbers of trials being averaged \add{when computing the bias function}
+numbers of trials being averaged when computing the bias function
 for the different consonants / tokens.  This
 could lead to different SNRs for the DSS components of different
 consonants, in a way that might
@@ -311,7 +311,7 @@ Five DSS components were retained, replacing
 the 28-31 retained electrode channels with 5 orthogonal DSS components for each
 subject. The number of components retained was the largest number needed
 so as to include the “knee” point of a scree plot of the relative signal power
-\add{of} the DSS components for each subject’s data. Temporal
+of the DSS components for each subject’s data. Temporal
 dimensionality reduction was also applied using PCA, to reduce collinearity of
 (adjacent) temporal samples.  Such collinearity can make it difficult for a
 classifier to learn a decision boundary from the training data.  For 6 of the
@@ -329,20 +329,19 @@ from training talkers, so ~2500 trials are available to train classifiers,
 employing various labelling and partitioning strategies; the remaining ~900
 trials are then used to assess the information that can be recovered from the
 neural signals. Three approaches to classifying the neural data were
-used; for referential ease these are referred to as \add{analyses}\del{“experiments”} 1-3\del{, though
-all three analyses were performed on the same dataset}.
+used; for referential ease these are referred to as analyses 1-3.
 
-In \add{analysis}\del{experiment} 1, each trial is labelled with the consonant that was presented
+In analysis 1, each trial is labelled with the consonant that was presented
 during that epoch, and a classifier was trained to discriminate between each
 pair of consonants (for 23 consonants, this yields 253 pairwise
 comparisions,
 with each comparison having ~220 trials of training data). This initial
-\add{analysis}\del{experiment} serves as a “sanity check” that sufficient information about the
+analysis serves as a “sanity check” that sufficient information about the
 neural processing of consonant identity is picked up by EEG, and that the
 information remains in the neural signals after all preprocessing steps have
 been carried out.
 
-In \add{analysis}\del{experiment} 2, trials are again labelled using consonant identity, but
+In analysis 2, trials are again labelled using consonant identity, but
 instead of pairwise classifiers, 23 one-versus-rest (OVR) classifiers were
 trained, each receiving the full set of training data and learning to identify
 a different “target” consonant. This serves as a baseline condition against
@@ -351,7 +350,7 @@ which the phonological-feature-based classifiers can be compared.
 phoneme detectors all receive the same input, and a whichever detector is most
 confident determines what is perceived. -->
 
-In \add{analysis}\del{experiment} 3, trials were labeled with phonological feature values of the
+In analysis 3, trials were labeled with phonological feature values of the
 consonant heard on that trial. One classifier was trained for each phonological
 feature, and three different feature systems were explored: the system
 described in Jakobson, Fant, and Halle’s _Preliminaries to Speech Analysis_
@@ -366,16 +365,16 @@ a smaller number of binary classification problems. Feature value assignments
 in the three feature systems are illustrated in figure
 \ref{fig-feature-matrices}.
 
-![Feature matrices for the three feature systems used in \add{analysis}\del{Experiment} 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](fig-featsys-matrices.eps)
+![Feature matrices for the three feature systems used in analysis 3. Dark gray cells indicate positive feature values, light gray cells indicate negative feature values, and white cells indicate phoneme-feature combinations that are undefined in that feature system. The names of the features reflect the original sources; consequently the same feature name may have different value assignments in different systems.\label{fig-feature-matrices}](fig-featsys-matrices.eps)
 
-All three \add{analyses}\del{experiments} were carried out separately on the full temporal
+All three analyses were carried out separately on the full temporal
 span of each trial epoch, and on the truncated version of the data. However,
-the first two \add{analyses}\del{experiments} (pairwise and OVR classification) yielded results
+the first two analyses (pairwise and OVR classification) yielded results
 that were broadly similar for the full and truncated epochs, and the
 differences between the full and truncated results were uninformative, so for
 brevity only the results based on the full epochs are presented.
 
-In all three \add{analyses}\del{experiments}, logistic regression classifiers were used, as
+In all three analyses, logistic regression classifiers were used, as
 implemented in `scikit-learn` [@sklearn]. Stratified 5-fold cross-validation
 over the training data
 was employed at each point in a grid search for hyperparameter $C$
@@ -388,8 +387,8 @@ ranged logarithmically (base 2) from $2^{-5}$ to $2^{16}$. <!--and $\gamma$
 from $2^{-15}$ to $2^{4}$-->  After grid search, each classifier was re-fit on
 the full set of training data, using the best hyperparameters.  The trained
 classifiers were then used to make predictions about the class of the
-consonant on each held-out test data trial; in \add{analyses}\del{experiments} 1 and 2 those
-class predictions were consonant labels; in \add{analysis}\del{experiment} 3 those class
+consonant on each held-out test data trial; in analyses 1 and 2 those
+class predictions were consonant labels; in analysis 3 those class
 predictions were phonological feature values.
 
 Because many phonological feature values are unevenly distributed (e.g., of the
@@ -400,9 +399,9 @@ equalised false positive and false negative *rates*), minimised this value
 (called the “equal error rate”), and returned a score of 1 − equal error rate.
 This precludes the situation where high accuracy scores are achieved by simply
 guessing the more numerous class in most or all cases.  Since such class
-imbalance can occur in any of the \add{analyses}\del{experiments} (and is guaranteed to
-happen for the one-versus-rest classifiers in \add{analysis}\del{experiment} 2), a score function
-that minimised equal error rate was used for all \add{analyses}\del{experiments}.
+imbalance can occur in any of the analyses (and is guaranteed to
+happen for the one-versus-rest classifiers in analysis 2), a score function
+that minimised equal error rate was used for all analyses.
 Additionally, many phonological feature systems involve some sparsity (i.e.,
 some features are undefined for certain phonemes; for example, in the PSA
 feature system, the feature “nasal” is unvalued for phonemes \ipa{/h l ɹ j
@@ -411,7 +410,7 @@ phonological feature were excluded from the training set for that classifier.
 
 ## Aggregation of classifier results
 
-At this point in \add{analysis}\del{experiment} 3, data for one subject comprises a matrix of ~900
+At this point in analysis 3, data for one subject comprises a matrix of ~900
 rows (1 per test trial) and 9-11 columns (1 per phonological feature
 classifier; number of columns depends on which phonological feature system is
 being analyzed). Each cell of that matrix is a 0 or 1 classification for that
@@ -471,7 +470,7 @@ ordering of the rows.
 
 # Results
 
-## \add{Analysis}\del{Experiment} 1: Pairwise classifiers
+## analysis 1: Pairwise classifiers
 
 Results (aggregated across subjects) for the pairwise classifiers are shown in
 figure \ref{fig-pairwise-confmat}.  Because the classifier score function
@@ -493,12 +492,12 @@ of how speech perception is likely to work: during normal comprehension it
 isn’t generally the case that listeners are always choosing between 1 of 2
 options for “what that consonant was.” Rather, consonant identification is a
 closed-set identification task: listeners know the set of possible consonants
-they might hear, and must determine which one was actually spoken. \add{Analysis}\del{Experiment} 2
+they might hear, and must determine which one was actually spoken. analysis 2
 provides a more realistic model of this scenario.
 
-## \add{Analysis}\del{Experiment} 2: OVR classifiers
+## analysis 2: OVR classifiers
 
-Results for the OVR classifiers in \add{analysis}\del{experiment} 2 are shown in figures
+Results for the OVR classifiers in analysis 2 are shown in figures
 \ref{fig-ovr-boxplot} and \ref{fig-ovr-confmat}. As a reminder, these
 classifiers learn to discriminate brain responses to one particular consonant
 against all other consonants as a group (which is a harder problem than
@@ -533,10 +532,10 @@ it is rarely the case that the most frequent classification is the correct one
 
 ![Results for one-versus-rest classifiers, aggregated across subjects. Each column represents a single classifier, with its target class indicated by the column label. Row labels correspond to the test data input to each classifier. **A:** cells on the diagonal represent the ratio of true positive classifications to total targets (also called “hit rate” or “recall”); off-diagonal elements represent the ratio of false positive classifications to total non-targets (“false alarm rate”) for the consonant given by the row label. **B:** most frequent classification of each stimulus consonant, emulating across-classifier voting. Consonants that are correctly identified are indicated by dark gray cells along the main diagonal; consonants that are most frequently incorrectly identified are medium-gray cells.\label{fig-ovr-confmat}](fig-ovr.eps)
 
-## \add{Analysis}\del{Experiment} 3: Phonological feature classifiers
+## analysis 3: Phonological feature classifiers
 
-Whereas \add{analyses}\del{experiments} 1 and 2 test classification of neural signals based on
-_identity_ of the consonant in each stimulus, \add{analysis}\del{experiment} 3 tests classification
+Whereas analyses 1 and 2 test classification of neural signals based on
+_identity_ of the consonant in each stimulus, analysis 3 tests classification
 of the same signals based on _phonological feature values_ of those consonants,
 and classifications of test data are aggregated across systems of phonological
 features to yield consonant-level confusion matrices similar to those seen in
@@ -637,7 +636,7 @@ systems, although the distinction is encoded by different features in each:
 
 To quantify the degree to which the neural responses reflect the contrasts
 encoded by each feature system, we compute the diagonality of each matrix
-(the degree to which the mass of the matrix falls \add{near}\del{along} the main diagonal).
+(the degree to which the mass of the matrix falls near the main diagonal).
 Matrix diagonality values for each subject’s data, along with the
 across-subject average matrices, are shown in Figure \ref{fig-diag-boxplot}.
 The PHOIBLE feature system fares considerably better than the PSA and SPE
@@ -703,7 +702,7 @@ consonants, etc., and to characterise any differences in representation that
 emerge across different languages). Finally, a thorough test of *abstract*
 phonological representation should at least account for patterns of allophony
 (e.g., the differing pronunciations of \ipa{/t/} in different positions in a
-word). Whereas these \add{analyses}\del{experiments} did include multiple tokens of each consonant
+word). Whereas these analyses did include multiple tokens of each consonant
 from multiple talkers, they did not model allophonic variation, and doing so is
 another natural extension of this work (either with polysyllabic stimuli or
 continuous speech).
