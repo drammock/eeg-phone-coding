@@ -46,6 +46,21 @@ submission:
 	--csl bib/apa.csl \
 	--output=submission.pdf
 
+submission_no_line_numbers:
+	@pandoc manuscript.md \
+	--from markdown-smart \
+	--filter pandoc-citeproc \
+	--template=template-taylor-francis.tex \
+	--pdf-engine=xelatex \
+	--number-sections \
+	--variable documentclass=interact \
+	--variable classoption=largeformat \
+	--variable natbib \
+	--variable doublespace \
+	--variable endfloat \
+	--csl bib/taylor-and-francis-apa.csl \
+	--output=submission_no_line_numbers.pdf
+
 preprint:
 	@pandoc manuscript.md \
 	--from markdown-smart \
